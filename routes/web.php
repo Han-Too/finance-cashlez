@@ -106,6 +106,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/reconcilereport/store/{id}', [ReconcileController::class, 'storeReport'])->name('reconcile.goreport');
     Route::post('/reconcilereport/manual/{id}', [ReconcileController::class, 'manualReport'])->name('reconcile.gomanual');
 
+    Route::post('/reconcilereport/approveall', [ReconcileController::class, 'approveall'])->name('reconcile.approveall');
 
     Route::post('/reconciledraft/move/{token}', [ReconcileController::class, 'draftmove'])->name('reconcile.draftmove');
 
@@ -139,6 +140,7 @@ Route::middleware('auth')->group(function () {
 
     // Disbursement
     Route::get('/disbursement', [DisbursementController::class, 'index'])->name('disbursment.index');
+    Route::get('/CHANGES', [ReconcileController::class, 'changes']);
 
     
 });

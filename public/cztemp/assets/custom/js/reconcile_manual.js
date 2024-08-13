@@ -38,14 +38,49 @@ var KTDatatablesServerSide = (function () {
                 { data: "id" },
             ],
             columnDefs: [
+                // {
+                //     targets: -1,
+                //     orderable: true,
+                //     className: "text-end",
+                //     width: "150px",
+                //     render: function (data, type, row, meta) {
+                //         // return meta.row + 1;
+                //         console.log(row.is_reconcile);
+                //         if (row.is_reconcile == "0" || !row.is_reconcile) {
+                //             return `
+                //                 <div class="form-check form-check-sm form-check-custom form-check-solid text-end" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">
+                //                     <input onclick="checkBank(
+                //                         ${row.id}, 
+                //                         '${to_date(row.transfer_date)}', 
+                //                         '${row.header.processor}', 
+                //                         '${row.mid}', '${row.amount_credit}'
+                //                     )" id="checkbox_bank_${row.id}" 
+                //                     class="form-check-input boCheckbox" name="bo_check[]" type="checkbox" 
+                //                     value="1" data-kt-check="true" data-kt-check-target=".widget-9-check" />
+                //                 </div>
+                //             `;
+                //         } else{
+                //             return `
+                //                 <div class="form-check form-check-sm form-check-custom form-check-solid text-end" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">
+                //                     <input
+                //                     class="form-check-input boCheckbox" name="bo_check[]" type="checkbox" 
+                //                     value="1" data-kt-check="true" data-kt-check-target=".widget-9-check" 
+                //                     disabled/>
+                //                 </div>
+                //             `;
+                //         }
+                //     },
+                // },
                 {
                     targets: -1,
                     orderable: true,
                     className: "text-end",
                     width: "150px",
                     render: function (data, type, row, meta) {
-                        // return meta.row + 1;
-                        console.log(row.is_reconcile);
+                        // Periksa status checkbox dari localStorage
+                        let checkboxStates = JSON.parse(localStorage.getItem('checkboxStates')) || {};
+                        let isChecked = checkboxStates[row.id] || false;
+                
                         if (row.is_reconcile == "0" || !row.is_reconcile) {
                             return `
                                 <div class="form-check form-check-sm form-check-custom form-check-solid text-end" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">
@@ -56,10 +91,11 @@ var KTDatatablesServerSide = (function () {
                                         '${row.mid}', '${row.amount_credit}'
                                     )" id="checkbox_bank_${row.id}" 
                                     class="form-check-input boCheckbox" name="bo_check[]" type="checkbox" 
-                                    value="1" data-kt-check="true" data-kt-check-target=".widget-9-check" />
+                                    value="1" data-kt-check="true" data-kt-check-target=".widget-9-check"
+                                    ${isChecked ? 'checked' : ''} />
                                 </div>
                             `;
-                        } else{
+                        } else {
                             return `
                                 <div class="form-check form-check-sm form-check-custom form-check-solid text-end" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">
                                     <input
@@ -420,7 +456,7 @@ $("#singleReconcile").on("submit", function (event) {
     });
 });
 
-function checkBank(id, settlementDate, bankType, mid, bankSettlement) {
+function oldcheckBank(id, settlementDate, bankType, mid, bankSettlement) {
     var checkbox = document.getElementById(`checkbox_bank_${id}`);
     var tbody = document.querySelector("#bank_selected_items tbody");
     var tfoot = document.querySelector("#bank_selected_items tfoot");
@@ -461,6 +497,72 @@ function checkBank(id, settlementDate, bankType, mid, bankSettlement) {
         row.remove();
     }
 }
+
+function checkBank(id, settlementDate, bankType, mid, bankSettlement) {
+    var checkbox = document.getElementById(`checkbox_bank_${id}`);
+    var tbody = document.querySelector("#bank_selected_items tbody");
+    var tfoot = document.querySelector("#bank_selected_items tfoot");
+    
+    // Memeriksa apakah data bank sudah ada di localStorage
+    var storedBanks = JSON.parse(localStorage.getItem('selectedBanks')) || [];
+    var storedTotal = JSON.parse(localStorage.getItem('totalBankSettlement')) || 0;
+
+    if (checkbox.checked) {
+        // Simpan status checkbox
+        saveCheckboxState(id, true);
+        
+        // Menambahkan bank ke selectedBanks dan menyimpan ke localStorage
+        storedBanks.push(id);
+        localStorage.setItem('selectedBanks', JSON.stringify(storedBanks));
+
+        // Menambah row ke tabel
+        var row = document.createElement("tr");
+        row.setAttribute("id", `bank_detail_${id}`);
+        row.innerHTML = `
+            <td>${settlementDate}</td>
+            <td>${bankType}</td>
+            <td>${mid}</td>
+            <td class="text-end">${to_rupiah(parseInt(bankSettlement))}</td>
+        `;
+        storedTotal += parseInt(bankSettlement);
+        localStorage.setItem('totalBankSettlement', JSON.stringify(storedTotal));
+
+        tbody.appendChild(row);
+        tfoot.innerHTML = `
+            <td colspan="2" class="text-start">Total</td>
+            <td colspan="2" class="text-end">${to_rupiah(storedTotal)}</td>
+        `;
+    } else {
+        // Simpan status checkbox
+        saveCheckboxState(id, false);
+
+        // Menghapus bank dari selectedBanks dan localStorage
+        var idx = storedBanks.indexOf(id);
+        if (idx !== -1) {
+            storedBanks.splice(idx, 1);
+            localStorage.setItem('selectedBanks', JSON.stringify(storedBanks));
+        }
+
+        storedTotal -= parseInt(bankSettlement);
+        localStorage.setItem('totalBankSettlement', JSON.stringify(storedTotal));
+
+        tfoot.innerHTML = "";
+        tfoot.innerHTML = `
+            <td colspan="2" class="text-start">Total</td>
+            <td colspan="2" class="text-end">${to_rupiah(storedTotal)}</td>
+        `;
+        
+        var row = document.getElementById(`bank_detail_${id}`);
+        if (row) row.remove();
+    }
+}
+
+function saveCheckboxState(id, isChecked) {
+    let checkboxStates = JSON.parse(localStorage.getItem('checkboxStates')) || {};
+    checkboxStates[id] = isChecked;
+    localStorage.setItem('checkboxStates', JSON.stringify(checkboxStates));
+}
+
 
 function checkBo(id, settlementDate, bankType, mid, bankPayment) {
     var checkbox = document.getElementById(`checkbox_bo_${id}`);

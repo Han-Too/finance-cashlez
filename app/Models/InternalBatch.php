@@ -28,7 +28,8 @@ class InternalBatch extends Model
         'bank_id',
         'created_by',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'settlement_date',
     ];
 
     public function merchant()

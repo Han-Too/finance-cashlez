@@ -49,11 +49,11 @@ var KTDatatablesServerSide = (function () {
             // '${row.header.processor}',
             return `<div class="form-check form-check-sm form-check-custom form-check-solid text-end" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">
                                     <input onclick="checkBank(
-                                        ${row.id}, 
-                                        '${to_date(row.settlement_date)}', 
+                                        ${row.id},
+                                        '${to_date(row.settlement_date)}',
                                         '${row.mid}', '${row.bank_transfer}'
-                                    )" id="checkbox_bank_${row.id}" 
-                                    class="form-check-input boCheckbox" name="bo_check[]" type="checkbox" 
+                                    )" id="checkbox_bank_${row.id}"
+                                    class="form-check-input boCheckbox" name="bo_check[]" type="checkbox"
                                     value="1" data-kt-check="true" data-kt-check-target=".widget-9-check" />
                         </div>`;
           },
@@ -96,9 +96,7 @@ var KTDatatablesServerSide = (function () {
     // const filterSearch2 = document.querySelector(
     //   '[data-kt-docs-table-filter="searchBank"]'
     // );
-    const filterSearch2 = document.getElementById(
-      'searchBank'
-    );
+    const filterSearch2 = document.getElementById("searchBank");
     filterSearch2.addEventListener("keyup", function (e) {
       dt.search(e.target.value).draw();
     });
@@ -130,9 +128,7 @@ var KTDatatablesServerSide = (function () {
   var clearFilter = function () {
     const clear = document.getElementById("clearBankSearch");
     clear.addEventListener("click", function (e) {
-      const filterSearch = document.getElementById(
-        'searchBank'
-      );
+      const filterSearch = document.getElementById("searchBank");
       filterSearch.value = "";
       dt.search("").draw();
 
@@ -177,7 +173,7 @@ var KTDatatablesServerSideBO = (function () {
   var startDate = "";
   var endDate = "";
   var selectedBank = "";
-  var url = `${baseUrl}/settlement/bo/datadraft/`+tokenA;
+  var url = `${baseUrl}/settlement/bo/datadraft/` + tokenA;
 
   var initDatatable = function () {
     dt = $("#bo_settlement_table").DataTable({
@@ -244,7 +240,7 @@ var KTDatatablesServerSideBO = (function () {
           className: "text-center",
           width: "30px",
           render: function (data, type, row) {
-            return row.merchant == null ? '' : data;
+            return row.merchant == null ? "" : data;
             // if(row.merchant == null){
             //   return '';
             // } else {
@@ -291,13 +287,11 @@ var KTDatatablesServerSideBO = (function () {
   };
 
   var handleSearchDatatable = function () {
-    const filterSearch3 = document.getElementById(
-      'searchBO'
-    );
+    const filterSearch3 = document.getElementById("searchBO");
     // const filterSearch3 = document.querySelector(
     //   '[data-kt-docs-table-filter="searchBo"]'
     // );
-    
+
     filterSearch3.addEventListener("keyup", function (e) {
       console.log(e.target.value);
       dt.search(e.target.value).draw();
@@ -329,9 +323,7 @@ var KTDatatablesServerSideBO = (function () {
   var clearFilter = function () {
     const clear = document.getElementById("clearBoSearch");
     clear.addEventListener("click", function (e) {
-      const filterSearch3 = document.getElementById(
-        'searchBO'
-      );
+      const filterSearch3 = document.getElementById("searchBO");
       filterSearch3.value = "";
       dt.search("").draw();
 
@@ -394,7 +386,7 @@ $("#unrefreshButton").on("click", function () {
   $('input[type="checkbox"]').prop("checked", false);
   totalBankPayment = 0;
   totalBankSettlement = 0;
-  data=[];
+  data = [];
 });
 
 $("#singleReconcile").on("submit", function (event) {
@@ -455,15 +447,15 @@ $("#singleReconcile").on("submit", function (event) {
     error: function (xhr, status, error) {
       console.log(error);
       Swal.fire({
-          text: error,
-          icon: "error",
-          buttonsStyling: false,
-          confirmButtonText: "Ok, got it!",
-          customClass: {
-              confirmButton: "btn fw-bold btn-primary",
-          },
+        text: error,
+        icon: "error",
+        buttonsStyling: false,
+        confirmButtonText: "Ok, got it!",
+        customClass: {
+          confirmButton: "btn fw-bold btn-primary",
+        },
       });
-  },
+    },
   });
 });
 
@@ -471,10 +463,9 @@ $("#singleReconcile").on("submit", function (event) {
 // var totalBankPayment = 0;
 
 function updateCombinedTotal() {
-
-  if(data.length == 0) {
+  if (data.length == 0) {
     totalBankSettlement = 0;
-    totalBankPayment = 0;    
+    totalBankPayment = 0;
   }
   var combinedTotal = totalBankSettlement + totalBankPayment;
   var combinedTotalElement = document.getElementById("combined_total");
@@ -810,14 +801,13 @@ function renderTable() {
           </div>
           </li>
           `
-          // <div class="col">
-          // <button class="btn btn-sm btn-danger" onclick="removeAmount('${name}', ${amount}, 'uang')">x</button>
-          // </div>
+              // <div class="col">
+              // <button class="btn btn-sm btn-danger" onclick="removeAmount('${name}', ${amount}, 'uang')">x</button>
+              // </div>
             )
             .join("")}</ul>`;
     row.appendChild(uangCell);
 
-    
     const totalUangCell = document.createElement("td");
     totalUangCell.textContent = to_rupiah(group.totalUang);
     row.appendChild(totalUangCell);
@@ -848,14 +838,13 @@ function renderTable() {
           </div>
           </li>
           `
-          // <div class="col">
-          // <button class="btn btn-sm btn-danger" onclick="removeAmount('${name}', ${amount}, 'tabungan')">x</button>
-          // </div>
+        // <div class="col">
+        // <button class="btn btn-sm btn-danger" onclick="removeAmount('${name}', ${amount}, 'tabungan')">x</button>
+        // </div>
       )
       .join("")}</ul>`;
     row.appendChild(tabunganCell);
 
-    
     const totalTabunganCell = document.createElement("td");
     totalTabunganCell.textContent = to_rupiah(group.totalTabungan);
     row.appendChild(totalTabunganCell);
@@ -874,8 +863,6 @@ function renderTable() {
             )
             .join("")}</ul>`;
     row.appendChild(tabDateCell);
-
-
 
     // Kolom selisih
     const selisihCell = document.createElement("td");
@@ -930,7 +917,6 @@ function deleteItem(name) {
   updateCheckboxState(name, null, null, false);
   renderTable();
 }
-
 
 // Menampilkan daftar uang yang bisa ditambahkan
 function renderMoneyOptions() {
@@ -1038,10 +1024,9 @@ function updateCheckboxState(name, amount, type, checked) {
 //   });
 // }
 
-
 // function deleteItem3(name) {
 //   console.log(`Deleting items for: ${name}`);
-  
+
 //   data = data.filter((d) => d.mid !== name);
 
 //   console.log(`Unchecking checkboxes for: ${name}`);
@@ -1083,7 +1068,6 @@ function updateCheckboxState(name, amount, type, checked) {
 //   updateCheckboxState(name, amount, type, false);
 //   renderTable();
 // }
-
 
 // function checkBank3(id, settlementDate, mid, bankSettlement) {
 //   var checkbox = document.getElementById(`checkbox_bank_${id}`);
@@ -1733,7 +1717,6 @@ function updateCheckboxState(name, amount, type, checked) {
 //     );
 //   }
 // }
-
 
 // function updateCombinedTotal2() {
 //   var combinedTotal = totalBankSettlement + totalBankPayment;

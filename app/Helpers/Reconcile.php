@@ -36,7 +36,7 @@ class Reconcile
                     mid,
                     DATE(created_at) as created_date,
                     id,bank_id,tid,merchant_name,processor,batch_running_no,merchant_id,mid_ppn,
-                    settlement_audit_id,tax_payment,created_by,created_at,status
+                    settlement_audit_id,tax_payment,created_by,created_at,status,settlement_date
                 ')
                 ->where(DB::raw('DATE(created_at)'), '>=', $BoStartDate)
                 ->where(DB::raw('DATE(created_at)'), '<=', $BoEndDate)
@@ -44,7 +44,7 @@ class Reconcile
                 ->where('status', 'SUCCESSFUL')
                 ->groupBy('mid', 'merchant_id', 'created_date','merchant_name','id','bank_id',
                 'tid','merchant_name','processor','batch_running_no','merchant_id','mid_ppn',
-                'settlement_audit_id','tax_payment','created_by','created_at','status')
+                'settlement_audit_id','tax_payment','created_by','created_at','status','settlement_date')
                 ->get();
             foreach ($boData as $key => $value) {
                 $modMid = substr($value->mid, 5);
@@ -69,6 +69,33 @@ class Reconcile
                     $bankSettlement = 0;
                     $token_applicant = null;
                 }
+
+                $drabo = DraftBackOffice::create([
+                    'bo_id' => $value->id,
+                    'batch_fk' => $value->batch_fk,
+                    'transaction_count' => $value->transaction_count,
+                    'status' => $value->status,
+                    'tid' => $value->tid,
+                    'mid' => $value->mid,
+                    'merchant_name' => $value->merchant_name,
+                    'processor' => $value->processor,
+                    'batch_running_no' => $value->batch_running_no,
+                    'merchant_id' => $value->merchant_id,
+                    'mid_ppn' => $value->mid_ppn,
+                    'transaction_amount' => $value->transaction_amount,
+                    'total_sales_amount' => $value->total_sales_amount,
+                    'settlement_audit_id' => $value->settlement_audit_id,
+                    'tax_payment' => $value->tax_payment,
+                    'fee_mdr_merchant' => $value->fee_mdr_merchant,
+                    'fee_bank_merchant' => $value->fee_bank_merchant,
+                    'bank_transfer' => $value->bank_transfer,
+                    'bank_id' => $value->bank_id,
+                    'created_by' => $value->created_by,
+                    'created_at' => $value->created_at,
+                    'settlement_date' => $value->settlement_date,
+                    'draft_token' => $tokenlist,
+                    'status_reconcile' => "reconciled",
+                ]);
 
                 $trxCount = $value->transaction_count;
                 $boSettlement = Utils::customRound($value->bank_transfer);
@@ -117,36 +144,13 @@ class Reconcile
                     'status_reconcile' => 'draft',
                     'status_manual' => false,
                     'reconcile_date' => Carbon::now(),
-                    'settlement_date' => $value->created_date,
-                    'bo_id' => $value->id,
+                    'settlement_date' => $value->settlement_date,
+                    'bo_id' => $drabo->id,
                     'bank_id' => $value->bank_id,
                     // 'bo_date' => $trans->settlement_date,
                 ]);
 
-                DraftBackOffice::create([
-                    'bo_id' => $value->id,
-                    'batch_fk' => $value->batch_fk,
-                    'transaction_count' => $value->transaction_count,
-                    'status' => $value->status,
-                    'tid' => $value->tid,
-                    'mid' => $value->mid,
-                    'merchant_name' => $value->merchant_name,
-                    'processor' => $value->processor,
-                    'batch_running_no' => $value->batch_running_no,
-                    'merchant_id' => $value->merchant_id,
-                    'mid_ppn' => $value->mid_ppn,
-                    'transaction_amount' => $value->transaction_amount,
-                    'total_sales_amount' => $value->total_sales_amount,
-                    'settlement_audit_id' => $value->settlement_audit_id,
-                    'tax_payment' => $value->tax_payment,
-                    'fee_mdr_merchant' => $value->fee_mdr_merchant,
-                    'fee_bank_merchant' => $value->fee_bank_merchant,
-                    'bank_transfer' => $value->bank_transfer,
-                    'bank_id' => $value->bank_id,
-                    'created_by' => $value->created_by,
-                    'created_at' => $value->created_at,
-                    'draft_token' => $tokenlist,
-                ]);
+                
 
                 // if($status == "MATCH"){
                 //     ReconcileResult::create([

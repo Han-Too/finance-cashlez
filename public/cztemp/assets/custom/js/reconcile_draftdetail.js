@@ -316,6 +316,8 @@ var KTDatatablesServerUnmatch = (function () {
                               </div>
                               <!--end::Menu-->
                           `;
+            } else if(row.status_reconcile == "reconciled"){
+              return '';
             } else {
               return `
                           <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-flip="top-end">

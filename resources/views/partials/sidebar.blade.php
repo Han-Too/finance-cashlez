@@ -130,7 +130,7 @@
                     </span>
                     <div class="menu-sub menu-sub-accordion">
                         <div class="menu-item">
-                            <a class="menu-link {{ request()->is('reconcile-list') ? 'active' : '' }}"
+                            <a class="menu-link {{ request()->is('reconcile-list/*') ? 'active' : '' }}"
                                 href="{{ url('reconcile-list') }}">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>

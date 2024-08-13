@@ -50,7 +50,7 @@
                     </h1>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <?php if($countdata != 0): ?>
+                        <?php if($countdata != 0 && $countapprov != 0): ?>
                         <button class="btn btn-success rounded-sm" id="autoButton" >
                             Auto
                         </button>

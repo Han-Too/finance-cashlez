@@ -80,7 +80,7 @@ var KTDatatablesServerSideRes = (function () {
               APPROVED
               </div>
               `;
-            } else if(row.category_report == "manual") {
+            } else if (row.category_report == "manual") {
               return `
                   <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-flip="top-end">
                           Actions
@@ -153,44 +153,6 @@ var KTDatatablesServerSideRes = (function () {
             }
           },
         },
-        // {
-        //   targets: 0,
-        //   orderable: true,
-        //   className: "text-start",
-        //   width: "150px",
-        //   render: function (data, type, row, meta) {
-        //     return meta.row + 1;
-        //   },
-        // },
-        // {
-        //   targets: 0,
-        //   orderable: true,
-        //   className: "text-center",
-        //   width: "50px",
-        //   render: function (data, type, row) {
-        //     if (row.mid) {
-        //       return `
-        //                           <div class="d-flex justify-content-center mb-1">
-        //                           ${row.mid}
-        //                           </div>
-        //                           <div class="d-flex justify-content-center">
-        //                               <a href="#" class="btn btn-sm btn-light-primary me-3 rounded-sm"
-        //                               data-bs-toggle="modal" data-bs-target="#kt_modal_${row.id}"
-        //                               onclick="mrcDetail('${
-        //                                 row.token_applicant
-        //                               }','${row.id}')">
-        //                               ${
-        //                                 row.merchant
-        //                                   ? row.merchant.reference_code
-        //                                   : "Detail"
-        //                               }</a>
-        //                           </div>
-        //                       `;
-        //     } else {
-        //       return "VLOOKUP";
-        //     }
-        //   },
-        // },
         {
           targets: 0,
           orderable: true,
@@ -680,6 +642,60 @@ function selectChannel() {}
 $(document).ready(function () {
   $("#mrcDetail").on("click", function (event) {
     console.log(event);
+  });
+});
+
+$(document).ready(function () {
+  $("#approveAll").on("click", function (event) {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Approved data cannot be restored",
+      icon: "warning",
+      showCancelButton: true,
+      // confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          url: baseUrl + "/reconcilereport/approveall",
+          headers: {
+            "X-CSRF-TOKEN": token, // Menyertakan token CSRF di header permintaan
+          },
+          type: "POST",
+          beforeSend: function () {
+            swal.showLoading();
+          },
+          success: function (response) {
+            Toast.fire({
+              icon: "success",
+              title: "Data Have Been Approve",
+            });
+          },
+          error: function (xhr, status, error) {
+            // toast('Data Have Been Remove!','success');
+            Swal.fire({
+              text: "error",
+              icon: "error",
+              buttonsStyling: false,
+              confirmButtonText: "Ok, got it!",
+              customClass: {
+                confirmButton: "btn fw-bold btn-primary",
+              },
+            });
+          },
+        }).then(function () {
+          // reloadDatatable();
+          window.location.reload();
+        });
+      } else {
+        Swal.fire({
+          title: "Process Cancelled",
+          text: "The Process Has Been Canceled",
+          icon: "error",
+        });
+      }
+    });
   });
 });
 

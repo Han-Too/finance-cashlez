@@ -232,7 +232,7 @@ function deleteRow($token) {
             cancelButton: "btn fw-bold btn-active-light-primary",
         },
     }).then(function (result) {
-        if (result.value) {
+        if (result.isConfirmed) {
             $.ajax({
                 url: baseUrl + "/reconcilelistdestroy/" + $token,
                 type: "GET",
@@ -265,7 +265,7 @@ function deleteRow($token) {
                     });
                 },
             });
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
+        } else{
             Swal.fire({
                 text: "Record was not deleted.",
                 icon: "error",

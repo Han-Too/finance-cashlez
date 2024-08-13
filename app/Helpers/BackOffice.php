@@ -31,7 +31,7 @@ class BackOffice
             $decode = json_decode($result);
 
             foreach ($decode as $key => $value) {
-                Log::info($decode[1]);
+                // Log::info($decode[1]);
                 $batchDto = $value->batchDTO;
                 $merchantDTO = $value->merchantDTO;
                 $transactionAuthorizedDto = $value->transactionAuthorizedDto;

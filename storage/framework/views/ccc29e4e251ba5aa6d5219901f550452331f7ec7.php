@@ -1,36 +1,35 @@
-
 <div class="tab-pane fade show " id="nav-report" role="tabpanel" aria-labelledby="nav-report-tab" tabindex="0">
     <?php
-    switch (request()->query('status')) {
-        case 'match':
-            $status = 'MATCH';
-            break;
-        case 'dispute':
-            $status = 'DISPUTE';
-            break;
-        case 'onHold':
-            $status = 'ON HOLD';
-            break;
-        default:
-            $status = 'DISPUTE';
-            break;
-    }
-
-    $token = request()->query('token');
-    $status = request()->query('status');
-
-    $downloadUrl = '/reconcile/download';
-    if ($token) {
-        $downloadUrl = $downloadUrl . '?token=' . $token;
-    }
-    if ($status) {
-        if ($token) {
-            $downloadUrl = $downloadUrl . '&status=' . $status;
-        } else {
-            $downloadUrl = $downloadUrl . '?status=' . $status;
+        switch (request()->query('status')) {
+            case 'match':
+                $status = 'MATCH';
+                break;
+            case 'dispute':
+                $status = 'DISPUTE';
+                break;
+            case 'onHold':
+                $status = 'ON HOLD';
+                break;
+            default:
+                $status = 'DISPUTE';
+                break;
         }
-    }
-?>
+
+        $token = request()->query('token');
+        $status = request()->query('status');
+
+        $downloadUrl = '/reconcile/download';
+        if ($token) {
+            $downloadUrl = $downloadUrl . '?token=' . $token;
+        }
+        if ($status) {
+            if ($token) {
+                $downloadUrl = $downloadUrl . '&status=' . $status;
+            } else {
+                $downloadUrl = $downloadUrl . '?status=' . $status;
+            }
+        }
+    ?>
     <div class="card card-flush px-10 py-6 rounded-sm">
 
         <div class="d-flex flex-wrap justify-content-between">
@@ -38,30 +37,30 @@
             <div class="d-flex flex-wrap">
                 <div class="border border-gray-300 border-dashed rounded  w-300px py-3 px-4 me-6 mb-3">
                     
-                    <p  class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
+                    <p class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
                         <!--begin::Hidden-->
-                        <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
-                            <div class="me-2">
-                                <span class="fw-bolder text-gray-800 d-block fs-3">Match</span>
-                                <span class="text-gray-400 fw-bold"><?php echo e($resmatch); ?> Trx</span>
-                            </div>
-                            <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($ressumMatch)); ?></div>
+                    <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
+                        <div class="me-2">
+                            <span class="fw-bolder text-gray-800 d-block fs-3">Match</span>
+                            <span class="text-gray-400 fw-bold"><?php echo e($resmatch); ?> Trx</span>
                         </div>
-                        <!--end::Hidden-->
+                        <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($ressumMatch)); ?></div>
+                    </div>
+                    <!--end::Hidden-->
                     </p>
                 </div>
                 <div class="border border-gray-300 border-dashed rounded  w-300px py-3 px-4 me-6 mb-3">
                     
-                    <p  class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
+                    <p class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
                         <!--begin::Hidden-->
-                        <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
-                            <div class="me-2">
-                                <span class="fw-bolder text-gray-800 d-block fs-3">Dispute</span>
-                                <span class="text-gray-400 fw-bold"><?php echo e($dispcount); ?> Trx</span>
-                            </div>
-                            <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($disp)); ?></div>
+                    <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
+                        <div class="me-2">
+                            <span class="fw-bolder text-gray-800 d-block fs-3">Dispute</span>
+                            <span class="text-gray-400 fw-bold"><?php echo e($dispcount); ?> Trx</span>
                         </div>
-                        <!--end::Hidden-->
+                        <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($disp)); ?></div>
+                    </div>
+                    <!--end::Hidden-->
                     </p>
                 </div>
                 
@@ -121,8 +120,16 @@
                 <button id="resrefreshButton" class="btn btn-sm btn-light-primary w-100 me-3 rounded-sm">Refresh
                     Table</button>
                 
+                <?php if($reportapprov != 0): ?>
                 <a href="#" class="btn btn-sm btn-light-warning me-3 rounded-sm" data-bs-toggle="modal"
                     data-bs-target="#kt_modal_download">Download</a>
+                <?php endif; ?>
+
+                <?php if($reportcount != 0): ?>
+                <button id="approveAll" class="btn btn-sm btn-light-success w-100 me-3 rounded-sm">
+                    Approve All
+                </button>
+                <?php endif; ?>
 
                 <!--end::Filter-->
             </div>

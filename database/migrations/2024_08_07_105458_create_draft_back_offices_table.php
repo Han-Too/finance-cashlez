@@ -38,6 +38,7 @@ return new class extends Migration
             $table->string('draft_token');
             $table->string('status_reconcile');
             $table->timestamps('reconcile_date');
+            $table->timestamps('settlement_date');
             $table->timestamps();
         });
     }
