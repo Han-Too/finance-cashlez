@@ -38,24 +38,46 @@ var KTDatatablesServerSide = (function () {
         { data: "id" },
       ],
       columnDefs: [
+        // {
+        //   targets: -1,
+        //   orderable: true,
+        //   className: "text-end",
+        //   width: "150px",
+        //   render: function (data, type, row, meta) {
+        //     // return meta.row + 1;
+        //     // console.log(row);
+        //     // '${row.header.processor}',
+        //     return `<div class="form-check form-check-sm form-check-custom form-check-solid text-end" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">
+        //                             <input onclick="checkBank(
+        //                                 ${row.id},
+        //                                 '${to_date(row.settlement_date)}',
+        //                                 '${row.mid}', '${row.bank_transfer}'
+        //                             )" id="checkbox_bank_${row.id}"
+        //                             class="form-check-input boCheckbox" name="bo_check[]" type="checkbox"
+        //                             value="1" data-kt-check="true" data-kt-check-target=".widget-9-check" />
+        //                 </div>`;
+        //   },
+        // },
         {
           targets: -1,
           orderable: true,
           className: "text-end",
           width: "150px",
           render: function (data, type, row, meta) {
-            // return meta.row + 1;
-            // console.log(row);
-            // '${row.header.processor}',
+            let isChecked = selectedBanks.includes(row.id) ? "checked" : "";
             return `<div class="form-check form-check-sm form-check-custom form-check-solid text-end" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">
-                                    <input onclick="checkBank(
-                                        ${row.id},
-                                        '${to_date(row.settlement_date)}',
-                                        '${row.mid}', '${row.bank_transfer}'
-                                    )" id="checkbox_bank_${row.id}"
-                                    class="form-check-input boCheckbox" name="bo_check[]" type="checkbox"
-                                    value="1" data-kt-check="true" data-kt-check-target=".widget-9-check" />
-                        </div>`;
+                          <input onclick="checkBank(${row.id}, '${to_date(
+              row.settlement_date
+            )}', '${row.mid}', '${row.bank_transfer}')" 
+                              id="checkbox_bank_${row.id}"
+                              class="form-check-input boCheckbox" 
+                              name="bo_check[]" 
+                              type="checkbox" 
+                              value="1" 
+                              ${isChecked}
+                              data-kt-check="true" 
+                              data-kt-check-target=".widget-9-check" />
+                      </div>`;
           },
         },
         {
@@ -134,7 +156,8 @@ var KTDatatablesServerSide = (function () {
 
       const bankSelect = document.getElementById("bankSettlementSearch");
       bankSelect.value = "";
-      selectedBank = "";
+      // selectedBank = "";
+      // selectedBanks = [];
 
       $("#kt_daterangepicker_1")
         .data("daterangepicker")
@@ -206,24 +229,49 @@ var KTDatatablesServerSideBO = (function () {
         { data: "id" },
       ],
       columnDefs: [
+        // {
+        //   targets: -1,
+        //   orderable: true,
+        //   className: "text-start",
+        //   width: "150px",
+        //   render: function (data, type, row, meta) {
+        //     // console.log(row);
+        //     // return meta.row + 1;
+        //     return `
+        //                     <div class="form-check form-check-sm form-check-custom form-check-solid">
+        //                         <input onclick="checkBo(${row.id}, '${row.created_at}', '${row.processor}',
+        //                         '${row.mid}', '${row.bank_transfer}')"
+        //                         id="checkbox_bo_${row.id}" class="form-check-input" name="bo_check[]"
+        //                         type="checkbox" value="1" data-kt-check="true" data-kt-check-target=".widget-9-check" />
+        //                     </div>
+        //                 `;
+        //   },
+        // },
         {
           targets: -1,
           orderable: true,
           className: "text-start",
           width: "150px",
           render: function (data, type, row, meta) {
-            // console.log(row);
-            // return meta.row + 1;
+            // Check if the current row's ID is in selectedBo and set the checkbox as checked
+            let isChecked = selectedBo.includes(row.id) ? "checked" : "";
+
             return `
-                            <div class="form-check form-check-sm form-check-custom form-check-solid">
-                                <input onclick="checkBo(${row.id}, '${row.created_at}', '${row.processor}',
-                                '${row.mid}', '${row.bank_transfer}')" 
-                                id="checkbox_bo_${row.id}" class="form-check-input" name="bo_check[]" 
-                                type="checkbox" value="1" data-kt-check="true" data-kt-check-target=".widget-9-check" />
-                            </div>
-                        `;
+                  <div class="form-check form-check-sm form-check-custom form-check-solid">
+                      <input onclick="checkBo(${row.id}, '${row.created_at}', '${row.processor}', '${row.mid}', '${row.bank_transfer}')" 
+                          id="checkbox_bo_${row.id}" 
+                          class="form-check-input" 
+                          name="bo_check[]" 
+                          type="checkbox" 
+                          value="1" 
+                          data-kt-check="true" 
+                          data-kt-check-target=".widget-9-check"
+                          ${isChecked} />
+                  </div>
+              `;
           },
         },
+
         {
           targets: 0,
           orderable: true,
@@ -329,7 +377,7 @@ var KTDatatablesServerSideBO = (function () {
 
       const bankSelect = document.getElementById("bankSettlementBoSearch");
       bankSelect.value = "";
-      selectedBank = "";
+      // selectedBo = "";
 
       $("#kt_daterangepicker_2")
         .data("daterangepicker")
@@ -387,6 +435,8 @@ $("#unrefreshButton").on("click", function () {
   totalBankPayment = 0;
   totalBankSettlement = 0;
   data = [];
+  selectedBanks = [];
+  selectedBo = [];
 });
 
 $("#singleReconcile").on("submit", function (event) {
@@ -501,7 +551,7 @@ function updateCombinedTotal() {
   }
 }
 
-function checkBank(id, settlementDate, mid, bankSettlement) {
+function OldcheckBank(id, settlementDate, mid, bankSettlement) {
   var checkbox = document.getElementById(`checkbox_bank_${id}`);
   var tbody = document.querySelector("#bank_selected_items tbody");
   var tfoot = document.querySelector("#bank_selected_items tfoot");
@@ -617,8 +667,117 @@ function checkBank(id, settlementDate, mid, bankSettlement) {
   }
 }
 
+function checkBank(id, settlementDate, mid, bankSettlement) {
+  var checkbox = document.getElementById(`checkbox_bank_${id}`);
+  var tbody = document.querySelector("#bank_selected_items tbody");
+  var tfoot = document.querySelector("#bank_selected_items tfoot");
 
-function checkBo(id, settlementDate, bankType, mid, bankPayment) {
+  if (checkbox.checked) {
+    if (!selectedBanks.includes(id)) {
+      selectedBanks.push(id);
+    }
+
+    var row = document.getElementById(`row_${mid}`);
+    if (!row) {
+      row = document.createElement("tr");
+      row.setAttribute("id", `row_${mid}`);
+      row.innerHTML = `
+                <td>${mid}</td>
+                <td><ul id="dates_${mid}"></ul></td>
+                <td class="text-end"><ul id="amounts_${mid}"></ul></td>
+                <td class="text-end total" id="total_${mid}">${to_rupiah(
+        bankSettlement
+      )}</td>
+                <td><button id="remove_${mid}" class="btn btn-danger">x</button></td>
+            `;
+      tbody.appendChild(row);
+    } else {
+      document.querySelector(`#total_${mid}`).innerText = to_rupiah(
+        parseInt(
+          document.querySelector(`#total_${mid}`).innerText.replace(/\D/g, "")
+        ) + parseInt(bankSettlement)
+      );
+    }
+
+    document.querySelector(
+      `#dates_${mid}`
+    ).innerHTML += `<li>${settlementDate}</li>`;
+    document.querySelector(`#amounts_${mid}`).innerHTML += `<li>${to_rupiah(
+      bankSettlement
+    )}</li>`;
+
+    totalBankSettlement += parseInt(bankSettlement);
+    tfoot.innerHTML = `
+            <td colspan="2" class="text-start">Total</td>
+            <td colspan="2" class="text-end">${to_rupiah(
+              totalBankSettlement
+            )}</td>
+        `;
+
+    document
+      .getElementById(`remove_${mid}`)
+      .addEventListener("click", function () {
+        var rowToRemove = document.getElementById(`row_${mid}`);
+        if (rowToRemove) {
+          rowToRemove.remove();
+          selectedBanks = selectedBanks.filter((bankId) => bankId !== id);
+          totalBankSettlement -= parseInt(bankSettlement);
+          tfoot.innerHTML = `
+                    <td colspan="2" class="text-start">Total</td>
+                    <td colspan="2" class="text-end">${to_rupiah(
+                      totalBankSettlement
+                    )}</td>
+                `;
+
+          checkbox.checked = false;
+
+          handleCheckboxChange(
+            mid,
+            parseInt(bankSettlement),
+            false,
+            settlementDate,
+            "uang"
+          );
+          updateCombinedTotal();
+        }
+      });
+
+    handleCheckboxChange(
+      mid,
+      parseInt(bankSettlement),
+      true,
+      settlementDate,
+      "uang"
+    );
+    updateCombinedTotal();
+  } else {
+    selectedBanks = selectedBanks.filter((bankId) => bankId !== id);
+
+    totalBankSettlement -= parseInt(bankSettlement);
+    tfoot.innerHTML = `
+            <td colspan="2" class="text-start">Total</td>
+            <td colspan="2" class="text-end">${to_rupiah(
+              totalBankSettlement
+            )}</td>
+        `;
+
+    var row = document.getElementById(`row_${mid}`);
+    if (row) {
+      row.remove();
+    }
+
+    handleCheckboxChange(
+      mid,
+      parseInt(bankSettlement),
+      false,
+      settlementDate,
+      "uang"
+    );
+    updateCombinedTotal();
+  }
+}
+
+function OldcheckBo(id, settlementDate, bankType, mid, bankPayment) {
   var checkbox = document.getElementById(`checkbox_bo_${id}`);
   var tbody = document.querySelector("#bo_selected_items tbody");
   var tfoot = document.querySelector("#bo_selected_items tfoot");
@@ -707,6 +866,112 @@ function checkBo(id, settlementDate, bankType, mid, bankPayment) {
     if (idx !== -1) {
       selectedBo.splice(idx, 1);
     }
+
+    totalBankPayment -= parseInt(bankPayment);
+    tfoot.innerHTML = `
+            <td colspan="3" class="text-start">Total</td>
+            <td colspan="2" class="text-end">${to_rupiah(totalBankPayment)}</td>
+        `;
+
+    var row = document.getElementById(`row_${mid}`);
+    if (row) {
+      row.remove();
+    }
+
+    handleCheckboxChange(
+      mid,
+      parseInt(bankPayment),
+      false,
+      settlementDate,
+      "tabungan"
+    );
+    updateCombinedTotal();
+  }
+}
+
+function checkBo(id, settlementDate, bankType, mid, bankPayment) {
+  var checkbox = document.getElementById(`checkbox_bo_${id}`);
+  var tbody = document.querySelector("#bo_selected_items tbody");
+  var tfoot = document.querySelector("#bo_selected_items tfoot");
+
+  if (checkbox.checked) {
+    if (!selectedBo.includes(id)) {
+      selectedBo.push(id);
+    }
+
+    var row = document.getElementById(`row_${mid}`);
+    if (!row) {
+      row = document.createElement("tr");
+      row.setAttribute("id", `row_${mid}`);
+      row.innerHTML = `
+                <td>${mid}</td>
+                <td><ul id="dates_${mid}"></ul></td>
+                <td class="text-end"><ul id="amounts_${mid}"></ul></td>
+                <td class="text-end total" id="total_${mid}">${to_rupiah(
+        bankPayment
+      )}</td>
+                <td><button id="remove_${mid}" class="btn btn-danger">x</button></td>
+            `;
+      tbody.appendChild(row);
+    } else {
+      document.querySelector(`#total_${mid}`).innerText = to_rupiah(
+        parseInt(
+          document.querySelector(`#total_${mid}`).innerText.replace(/\D/g, "")
+        ) + parseInt(bankPayment)
+      );
+    }
+
+    document.querySelector(`#dates_${mid}`).innerHTML += `<li>${to_date(
+      settlementDate
+    )}</li>`;
+    document.querySelector(`#amounts_${mid}`).innerHTML += `<li>${to_rupiah(
+      bankPayment
+    )}</li>`;
+
+    totalBankPayment += parseInt(bankPayment);
+    tfoot.innerHTML = `
+            <td colspan="3" class="text-start">Total</td>
+            <td colspan="2" class="text-end">${to_rupiah(totalBankPayment)}</td>
+        `;
+
+    document
+      .getElementById(`remove_${mid}`)
+      .addEventListener("click", function () {
+        var rowToRemove = document.getElementById(`row_${mid}`);
+        if (rowToRemove) {
+          rowToRemove.remove();
+          selectedBo = selectedBo.filter((boId) => boId !== id);
+          totalBankPayment -= parseInt(bankPayment);
+          tfoot.innerHTML = `
+                    <td colspan="3" class="text-start">Total</td>
+                    <td colspan="2" class="text-end">${to_rupiah(
+                      totalBankPayment
+                    )}</td>
+                `;
+
+          checkbox.checked = false;
+
+          handleCheckboxChange(
+            mid,
+            parseInt(bankPayment),
+            false,
+            settlementDate,
+            "tabungan"
+          );
+          updateCombinedTotal();
+        }
+      });
+
+    handleCheckboxChange(
+      mid,
+      parseInt(bankPayment),
+      true,
+      settlementDate,
+      "tabungan"
+    );
+    updateCombinedTotal();
+  } else {
+    selectedBo = selectedBo.filter((boId) => boId !== id);
 
     totalBankPayment -= parseInt(bankPayment);
     tfoot.innerHTML = `
