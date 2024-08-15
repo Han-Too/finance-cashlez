@@ -13,11 +13,13 @@ use App\Models\MerchantPayment;
 use App\Models\Privilege;
 use App\Models\Role;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Unique;
 use Image;
+use InvalidArgumentException;
 use Psy\Readline\Hoa\FileException;
 
 class Utils
@@ -167,4 +169,52 @@ class Utils
         $channel = Channel::where('bank_id', $bankId)->pluck('channel')->first();
         return $channel;
     }
+
+    public static function convertDateFormat($date) {
+        $inputFormat = 'd/m/Y'; // Format input
+        $outputFormat = 'Y-m-d H:i:s'; // Format output
+    
+        // Cek apakah tanggal valid dengan format d/m/Y
+        try {
+            $carbonDate = Carbon::createFromFormat($inputFormat, $date);
+    
+            // Jika format valid, atur waktu default
+            $carbonDate->hour = 0;
+            $carbonDate->minute = 0;
+            $carbonDate->second = 0;
+    
+            // Format tanggal ke format baru
+            return $carbonDate->format($outputFormat);
+        } catch (InvalidArgumentException $e) {
+            // Format tidak valid
+            return false;
+        }
+    }
+    
+    public static function isDateInFormat($date, $format) {
+        try {
+            $parsedDate = Carbon::createFromFormat($format, $date);
+            // Pastikan juga bahwa format yang diinput benar-benar sesuai
+            return $parsedDate->format($format) === $date;
+        } catch (InvalidArgumentException $e) {
+            return false;
+        }
+    }
+
+    public static function BNIconvertDateFormat($date) {
+        $inputFormat = 'd/m/y H.i.s'; // Format input
+        $outputFormat = 'Y-m-d H:i:s'; // Format output
+    
+        // Cek apakah tanggal valid dengan format d/m/y H.i.s
+        try {
+            $carbonDate = Carbon::createFromFormat($inputFormat, $date);
+    
+            // Format tanggal ke format baru
+            return $carbonDate->format($outputFormat);
+        } catch (InvalidArgumentException $e) {
+            // Format tidak valid
+            return false;
+        }
+    }
+    
 }

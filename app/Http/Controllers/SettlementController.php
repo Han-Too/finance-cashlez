@@ -57,18 +57,18 @@ class SettlementController extends Controller
             // Menghapus data dari tabel UploadBank
             $ub = UploadBank::where('token_applicant', $token)->first();
 
-            if($ub){
+            if ($ub) {
                 $listRe = ReconcileList::where("settlement_file", $ub->file)->first();
-                
-                if($listRe){
+
+                if ($listRe) {
                     $drafRe = ReconcileDraft::where("token_applicant", $listRe->token_applicant)->delete();
                     $listRe = ReconcileList::where("settlement_file", $ub->file)->delete();
                 }
                 $uploadBank = UploadBank::where('token_applicant', $token)->delete();
-    
+
                 // Menghapus data dari tabel UploadBankDetail
                 $uploadDetail = UploadBankDetail::where('token_applicant', $token)->delete();
-    
+
                 // Mengembalikan respons sukses jika kedua operasi penghapusan berhasil
                 if ($uploadBank && $uploadDetail) {
                     return response()->json(['success' => true, 'message' => 'Berhasil Hapus Data'], 200);
@@ -110,8 +110,8 @@ class SettlementController extends Controller
                     'processor' => "5",
                     'process_status' => 'COMPLETED',
                     'start_date' => $startDate,
-                    'is_reconcile'=>'0',
-                    'is_parnert'=>'0',
+                    'is_reconcile' => '0',
+                    'is_parnert' => '0',
                     'end_date' => $endDate,
                     'created_by' => $user->name,
                     'updated_by' => $user->name
@@ -136,7 +136,18 @@ class SettlementController extends Controller
                             foreach ($header as $index => $columnName) {
                                 $column = strtolower(str_replace(" ", "_", trim($columnName)));
                                 $name = strtolower(str_replace(".", "", $column));
-                                $mappedRow[$name] = $row[$index] ?? null;
+
+                                $value = $row[$index] ?? null;
+                                if ($name == "credit_amount" || $name == "debit_amount") {
+                                    $value = (string)str_replace([".",' ',','], "", $value);
+                                }
+
+                                $mappedRow[$name] = $value;
+                                // if($name == "credit_amount"){
+                                //     $mappedRow[$name] = str_replace([".",' ',','], "", $row[$index]) ?? null;
+                                // } else {
+                                //     $mappedRow[$name] = $row[$index] ?? null;
+                                // }
                             }
                             // Check for trailing data issue
                             if (count($row) > count($header)) {
@@ -153,6 +164,8 @@ class SettlementController extends Controller
                         return response()->json(['message' => 'Failed to open CSV file', 'status' => false], 200);
                     }
 
+                    // Log::info(json_encode($mappedData));
+                    // die();
                     // dd($mappedRow,$mappedData);
                     // dd();
                     // echo "<pre>";
@@ -167,7 +180,7 @@ class SettlementController extends Controller
                     // die();
 
                     foreach ($mappedData as $key => $value) {
-                        
+
                         // $credit_amount = str_replace([',','.00'], '', $value['credit_amount']);
                         // $debit_amount = str_replace([',','.00'], '', $value['debit_amount']);
 
@@ -178,20 +191,65 @@ class SettlementController extends Controller
                         // if($value['credit_amount'] == "-"){
                         //     $credit_amount = 0;
                         // }
+                        if ($value['account_number'] == null) {
+                            continue;
+                        }
 
-                        UploadBankDetail::create([
-                            'token_applicant' => $upload->token_applicant,
-                            'account_no' => isset($value['account_number']) ? $value['account_number'] : '',
-                            'transfer_date' => Carbon::createFromFormat('d/m/Y', $value['date'])->format('Y-m-d H:i:s'),
-                            'description2' => $value['channel'],
-                            'description1' => $value['description'],
-                            'type_code' => ($value['credit_amount'] == "-" ? 0 : $value['credit_amount']) > 0 ? '001' : '002',
-                            'amount_debit' => $value['debit_amount'] == "-" ? '0' : str_replace([',','.00'], '', $value['debit_amount']),
-                            'amount_credit' => $value['credit_amount'] == "-" ? '0' : str_replace([',','.00'], '', $value['credit_amount']),
-                            'mid' => $value['mid'],
-                            'created_by' => $user->name,
-                            'modified_by' => $user->name
-                        ]);
+                        if ($value['channel'] == "PT. Bank Mandiri (Persero) Tbk.-B2C") {
+                            UploadBankDetail::create([
+                                'token_applicant' => $upload->token_applicant,
+                                'account_no' => isset($value['account_number']) ? $value['account_number'] : '',
+                                'transfer_date' => Utils::isDateInFormat($value['date'], 'd/m/Y') ? Utils::convertDateFormat($value['date']) : $value['date'],
+                                // 'transfer_date' => Carbon::createFromFormat('d/m/Y', $value['date'])->format('Y-m-d H:i:s'),
+                                'description2' => $value['channel'],
+                                'description1' => $value['description'],
+                                'type_code' => ($value['credit_amount'] == "-" ? 0 : $value['credit_amount']) > 0 ? '001' : '002',
+                                'amount_debit' => $value['debit_amount'] == "-" ? '0' : str_replace([',', '.00', ' '], '', $value['debit_amount']),
+                                'amount_credit' => $value['credit_amount'] == "-" ? '0' : str_replace([',', '.00', ' '], '', $value['credit_amount']),
+                                'mid' => $value['mid'],
+                                'created_by' => $user->name,
+                                'modified_by' => $user->name
+                            ]);
+                            $upload->processor = "5";
+                            $upload->save();
+                        } else if ($value['channel'] == "PT Bank Negara Indonesia (Persero) Tbk-B2C") {
+                            UploadBankDetail::create([
+                                'token_applicant' => $upload->token_applicant,
+                                'account_no' => isset($value['account_number']) ? $value['account_number'] : '',
+                                'transfer_date' => Utils::BNIconvertDateFormat($value['date']),
+                                // 'transfer_date' => Carbon::createFromFormat('d/m/Y', $value['date'])->format('Y-m-d H:i:s'),
+                                'description2' => $value['channel'],
+                                'description1' => $value['description'],
+                                'type_code' => ($value['credit_amount'] == "-" ? 0 : $value['credit_amount']) > 0 ? '001' : '002',
+                                'amount_debit' => $value['debit_amount'] == "-" ? '0' : str_replace([',', '.00', ' '], '', $value['debit_amount']),
+                                'amount_credit' => $value['credit_amount'] == "-" ? '0' : (int) str_replace([',', '.00', ' '], '', $value['credit_amount']),
+                                'mid' => $value['mid'],
+                                'created_by' => $user->name,
+                                'modified_by' => $user->name
+                            ]);
+                            $upload->processor = "7";
+                            $upload->save();
+                        } else {
+                            UploadBankDetail::create([
+                                'token_applicant' => $upload->token_applicant,
+                                'account_no' => isset($value['account_number']) ? $value['account_number'] : '',
+                                'transfer_date' => Utils::isDateInFormat($value['date'], 'd/m/Y') ? Utils::convertDateFormat($value['date']) : $value['date'],
+                                // 'transfer_date' => Carbon::createFromFormat('d/m/Y', $value['date'])->format('Y-m-d H:i:s'),
+                                'description2' => $value['channel'],
+                                'description1' => $value['description'],
+                                'type_code' => ($value['credit_amount'] == "-" ? 0 : $value['credit_amount']) > 0 ? '001' : '002',
+                                'amount_debit' => $value['debit_amount'] == "-" ? '0' : str_replace([',', '.00', ' '], '', $value['debit_amount']),
+                                'amount_credit' => $value['credit_amount'] == "-" ? '0' : str_replace([',', '.00', ' '], '', $value['credit_amount']),
+                                'mid' => $value['mid'],
+                                'created_by' => $user->name,
+                                'modified_by' => $user->name
+                            ]);
+                            $upload->processor = "5";
+                            $upload->save();
+                        }
+
+
+
                     }
                 }
                 if ($request->hasFile('filePartner')) {
@@ -241,7 +299,7 @@ class SettlementController extends Controller
                 DB::commit();
                 return response()->json(['message' => 'Successfully upload data!', 'status' => true], 200);
             } catch (\Throwable $th) {
-                Log::error('Error while uploading: ' . $th->getMessage());
+                Log::error('Error while uploading: ' . $th);
                 DB::rollBack();
                 return response()->json(['message' => 'Error while uploading, try again', 'status' => false], 200);
             }
@@ -251,11 +309,11 @@ class SettlementController extends Controller
     }
 
 
-    public function bodraftSettlement(Request $request,$token)
+    public function bodraftSettlement(Request $request, $token)
     {
         // $query = InternalTransaction::with('draftheader', 'draftmerchant');
         // $query = DraftBackOffice::with('merchant')->where('draft_token',$token)->where('status_reconcile',null);
-        $query = DraftBackOffice::with('merchant')->where('status_reconcile',null);
+        $query = DraftBackOffice::with('merchant')->where('status_reconcile', null);
         if ($request->filled('bank')) {
             $query->where('bank_id', $request->bank);
         }

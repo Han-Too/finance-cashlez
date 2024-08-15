@@ -317,22 +317,50 @@ class ReconcileController extends Controller
         $data = ReconcileReport::get();
         try {
             if ($data) {
+                // foreach ($data as $val) {
+                //     $id = explode("//",$val->draft_id);
+                //     if ($val->category_report == "manual") {
+                //         ReconcileDraft::where('id', $val->draft_id)->update([
+                //             'status_reconcile' => 'reconciled',
+                //             'status' => $val->status,
+                //             'reconcile_date' => Carbon::now(),
+                //             'modified_by' => Auth::user()->username,
+                //         ]);
+                //     } else {
+                //         ReconcileDraft::where('id', $val->draft_id)->update([
+                //             'status_reconcile' => 'reconciled',
+                //             'status' => $val->status,
+                //             'reconcile_date' => Carbon::now(),
+                //             'modified_by' => Auth::user()->username,
+                //         ]);
+                //     }
+                //     $val->status_reconcile = "approved";
+                //     $val->save();
+                // }
                 foreach ($data as $val) {
-                    if ($val->category_report == "manual") {
-                        ReconcileDraft::where('id', $val->draft_id)->update([
-                            'status_reconcile' => 'reconciled',
-                            'status' => $val->status,
-                            'reconcile_date' => Carbon::now(),
-                            'modified_by' => Auth::user()->username,
-                        ]);
-                    } else {
-                        ReconcileDraft::where('id', $val->draft_id)->update([
+                    // Pisahkan draft_id berdasarkan delimiter '//'
+                    $draftIds = explode("//", $val->draft_id);
+
+                    foreach ($draftIds as $draftId) {
+                        ReconcileDraft::where('id', $draftId)->update([
                             'status_reconcile' => 'reconciled',
                             'status' => $val->status,
                             'reconcile_date' => Carbon::now(),
                             'modified_by' => Auth::user()->username,
                         ]);
                     }
+
+                    // Pisahkan bo_id berdasarkan delimiter '//'
+                    $boIds = explode("//", $val->bo_id);
+
+                    foreach ($boIds as $boId) {
+                        DraftBackOffice::where('id', $boId)->update([
+                            'status_reconcile' => 'reconciled',
+                            'reconcile_date' => Carbon::now(),
+                        ]);
+                    }
+
+                    // Update status_reconcile pada objek $val
                     $val->status_reconcile = "approved";
                     $val->save();
                 }
@@ -465,6 +493,9 @@ class ReconcileController extends Controller
             $splitDate = explode(' - ', $request->bo_date);
             $BoStartDate = date('Y-m-d', strtotime($splitDate[0]));
             $BoEndDate = date('Y-m-d', strtotime($splitDate[1]));
+
+            $start = date('d-m-Y', strtotime($splitDate[0]));
+            $end = date('d-m-Y', strtotime($splitDate[1]));
         }
         $fileset = $request->filesettle;
         $name = $request->name;
@@ -488,13 +519,63 @@ class ReconcileController extends Controller
                 "reconcile_by" => $user->name,
             ]);
 
-            $reconResult = Reconcile::midBoBankDraft($BoStartDate, $BoEndDate, $filehead->token_applicant, $name, $list->token_applicant);
-            // dd($reconResult);
+            $boData = InternalBatch::selectRaw('
+                    SUM(transaction_count) as transaction_count,
+                    SUM(bank_transfer) as bank_transfer,
+                    SUM(fee_mdr_merchant) as fee_mdr_merchant,
+                    SUM(fee_bank_merchant) as fee_bank_merchant,
+                    SUM(tax_payment) as tax_payment,
+                    SUM(transaction_amount) as transaction_amount,
+                    SUM(total_sales_amount) as total_sales_amount,
+                    merchant_id,
+                    merchant_name,
+                    mid,
+                    DATE(created_at) as created_date,
+                    id,bank_id,tid,merchant_name,processor,batch_running_no,merchant_id,mid_ppn,
+                    settlement_audit_id,tax_payment,created_by,created_at,status,settlement_date
+                ')
+                ->where(DB::raw('DATE(created_at)'), '>=', $BoStartDate)
+                ->where(DB::raw('DATE(created_at)'), '<=', $BoEndDate)
+                // ->where('bank_id', $channel)
+                ->where('status', 'SUCCESSFUL')
+                ->groupBy(
+                    'mid',
+                    'merchant_id',
+                    'created_date',
+                    'merchant_name',
+                    'id',
+                    'bank_id',
+                    'tid',
+                    'merchant_name',
+                    'processor',
+                    'batch_running_no',
+                    'merchant_id',
+                    'mid_ppn',
+                    'settlement_audit_id',
+                    'tax_payment',
+                    'created_by',
+                    'created_at',
+                    'status',
+                    'settlement_date'
+                )
+                ->get();
 
-            if ($reconResult == false) {
-                return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
+                if ($boData->isEmpty()) {
+                Log::info('Data BO EMPTY = '.$boData->isEmpty());
+                ReconcileList::where('token_applicant', $list->token_applicant)->delete();
+                return response()->json(
+                    ['message' => ['Data Back Office '.$start.' until '.$end.' Not Found '],
+                    'status' => false], 200);
             } else {
-                return response()->json(['message' => ['Successfully reconcile data!'], 'status' => true], 200);
+
+                $reconResult = Reconcile::midBoBankDraft($BoStartDate, $BoEndDate, $filehead->token_applicant, $name, $list->token_applicant);
+                // dd($reconResult);
+
+                if ($reconResult == false) {
+                    return response()->json(['message' => ['Error while reconciling, please try again'], 'status' => false], 200);
+                } else {
+                    return response()->json(['message' => ['Successfully reconcile data!'], 'status' => true], 200);
+                }
             }
         } catch (\Throwable $th) {
             Log::info($th);
@@ -1448,8 +1529,8 @@ class ReconcileController extends Controller
                         ->first();
 
                     if ($oldRec) {
-                        $oldRec->draft_id = $oldRec->draft_id."//".$bankValue;
-                        $oldRec->bo_id = $oldRec->bo_id."//".$boValue;
+                        $oldRec->draft_id = $oldRec->draft_id . "//" . $bankValue;
+                        $oldRec->bo_id = $oldRec->bo_id . "//" . $boValue;
                         $oldRec->total_sales += $totalSales;
                         $oldRec->internal_payment += $boSettlement;
                         $oldRec->merchant_payment += $merchantPayment;
@@ -2237,7 +2318,7 @@ class ReconcileController extends Controller
         return DataTables::of($query->get())->addIndexColumn()->make(true);
     }
 
-    public function download()
+    public function olddownload()
     {
         $token_applicant = request()->query('token');
         $status = request()->query('status');
@@ -2256,6 +2337,28 @@ class ReconcileController extends Controller
         $filename = $channel . '-' . $startDate . '-to-' . $endDate . '-' . $text;
 
         return Excel::download(new ReconcileExport($token_applicant, $status, $startDate, $endDate, $channel), 'reconcile-' . $filename . '.xlsx');
+    }
+    public function download()
+    {
+        $token_applicant = request()->query('token');
+        $status = request()->query('status');
+        // $channel = request()->query('bank');
+        // $channel = "5";
+
+        $startDate = request()->query('startDate');
+        $endDate = request()->query('endDate');
+
+        if (!$status) {
+            $text = 'all';
+        } else {
+            $text = $status;
+        }
+
+        // $filename = $channel . '-' . $startDate . '-to-' . $endDate . '-' . $text;
+        $filename = Carbon::now() . '-' . $text;
+
+        // return Excel::download(new ReconcileExport($token_applicant, $status, $startDate, $endDate, $channel), 'reconcile-' . $filename . '.xlsx');
+        return Excel::download(new ReconcileExport($token_applicant), 'reconcile-' . $filename . '.xlsx');
     }
 
     public function reportmrcDetail($token_applicant)
@@ -2640,5 +2743,15 @@ class ReconcileController extends Controller
         return DataTables::of($query)->addIndexColumn()->make(true);
     }
 
+    public function changes()
+    {
+        DB::statement(`UPDATE internal_batches AS b
+JOIN (
+    SELECT batch_id, MIN(settlement_date) AS settlement_date
+    FROM internal_transactions
+    GROUP BY batch_id
+) AS t ON b.id = t.batch_id
+SET b.settlement_date = t.settlement_date;`);
+    }
 
 }

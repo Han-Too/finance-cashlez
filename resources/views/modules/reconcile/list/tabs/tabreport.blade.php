@@ -133,15 +133,18 @@
                 <button id="resrefreshButton" class="btn btn-sm btn-light-primary w-100 me-3 rounded-sm">Refresh
                     Table</button>
                 {{-- <a href="{{ url($downloadUrl) }} " class="btn btn-light-warning me-3 rounded-sm">Download</a> --}}
-                @if($reportapprov != 0)
-                <a href="#" class="btn btn-sm btn-light-warning me-3 rounded-sm" data-bs-toggle="modal"
-                    data-bs-target="#kt_modal_download">Download</a>
+                @if ($reportapprov != 0)
+                    {{-- <a href="#" class="btn btn-sm btn-light-warning me-3 rounded-sm" data-bs-toggle="modal"
+                    data-bs-target="#kt_modal_download">Download</a> --}}
+                    <form id="download_reconcile_form" class="form" action="#">
+                        <button type="submit" class="btn btn-sm btn-light-warning me-3 rounded-sm">Download</button>
+                    </form>
                 @endif
 
                 @if ($reportcount != 0)
-                <button id="approveAll" class="btn btn-sm btn-light-success w-100 me-3 rounded-sm">
-                    Approve All
-                </button>
+                    <button id="approveAll" class="btn btn-sm btn-light-success w-100 me-3 rounded-sm">
+                        Approve All
+                    </button>
                 @endif
 
                 <!--end::Filter-->

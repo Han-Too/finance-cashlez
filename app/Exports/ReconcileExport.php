@@ -11,15 +11,21 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class ReconcileExport implements FromCollection, WithHeadings, WithMapping
 {
+    // protected $token_applicant, $status, $startDate, $endDate, $channel;
     protected $token_applicant, $status, $startDate, $endDate, $channel;
 
-    public function __construct($token_applicant, $status, $startDate, $endDate, $channel)
+    // public function __construct($token_applicant, $status, $startDate, $endDate, $channel)
+    // {
+    //     $this->token_applicant = $token_applicant;
+    //     $this->status = $status;
+    //     $this->startDate = $startDate;
+    //     $this->endDate = $endDate;
+    //     $this->channel = $channel;
+    // }
+    public function __construct($token_applicant)
     {
         $this->token_applicant = $token_applicant;
-        $this->status = $status;
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
-        $this->channel = $channel;
+        $this->status = "MATCH";
     }
 
     /**
@@ -64,8 +70,8 @@ class ReconcileExport implements FromCollection, WithHeadings, WithMapping
             }
         }
 
-        $query->where(DB::raw('DATE(settlement_date)'), '>=', $this->startDate);
-        $query->where(DB::raw('DATE(settlement_date)'), '<=', $this->endDate);
+        // $query->where(DB::raw('DATE(settlement_date)'), '>=', $this->startDate);
+        // $query->where(DB::raw('DATE(settlement_date)'), '<=', $this->endDate);
         // $query->where('processor_payment', $this->channel);
         $query->where('status', '!=', 'deleted');
 

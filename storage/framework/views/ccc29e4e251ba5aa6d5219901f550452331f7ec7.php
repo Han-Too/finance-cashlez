@@ -121,14 +121,16 @@
                     Table</button>
                 
                 <?php if($reportapprov != 0): ?>
-                <a href="#" class="btn btn-sm btn-light-warning me-3 rounded-sm" data-bs-toggle="modal"
-                    data-bs-target="#kt_modal_download">Download</a>
+                    
+                    <form id="download_reconcile_form" class="form" action="#">
+                        <button type="submit" class="btn btn-sm btn-light-warning me-3 rounded-sm">Download</button>
+                    </form>
                 <?php endif; ?>
 
                 <?php if($reportcount != 0): ?>
-                <button id="approveAll" class="btn btn-sm btn-light-success w-100 me-3 rounded-sm">
-                    Approve All
-                </button>
+                    <button id="approveAll" class="btn btn-sm btn-light-success w-100 me-3 rounded-sm">
+                        Approve All
+                    </button>
                 <?php endif; ?>
 
                 <!--end::Filter-->
