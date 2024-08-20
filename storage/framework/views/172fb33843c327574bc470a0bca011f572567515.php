@@ -104,7 +104,8 @@
                                 <div class="ms-4">
                                     <h3 class="fs-3 fw-bolder text-gray-900 mb-1 d-flex">Drop &nbsp;<p class="fs-3 fw-bolder text-primary">Bank Statement</p>&nbsp; here or click to upload.
                                     </h3>
-                                    <span class="fw-bold fs-4 text-muted">Upload up to 10 mb</span>
+                                    <span class="fw-bold fs-4 text-muted">Upload up to 10 mb and 
+                                        <strong class="text-danger">CSV only</strong></span>
                                 </div>
                                 <!--end::Info-->
                             </div>
@@ -140,7 +141,8 @@
                                 <div class="ms-4">
                                     <h3 class="fs-3 fw-bolder text-gray-900 mb-1 d-flex">Drop &nbsp;<p class="fs-3 fw-bolder text-primary">Partner Report</p>&nbsp; here or click to upload.
                                     </h3>
-                                    <span class="fw-bold fs-4 text-muted">Upload up to 10 mb</span>
+                                    <span class="fw-bold fs-4 text-muted">Upload up to 10 mb and 
+                                        <strong class="text-danger">CSV only</strong></span>
                                 </div>
                                 <!--end::Info-->
                             </div>

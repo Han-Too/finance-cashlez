@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Log;
 
 class Reconcile
 {
-    public static function midBoBankDraft($BoStartDate, $BoEndDate, $token, $name, $tokenlist)
+    public static function midBoBankDraft($BoStartDate, $BoEndDate, $token, $name, $tokenlist,$procesor)
     {
         DB::beginTransaction();
         try {
@@ -38,9 +38,11 @@ class Reconcile
                     id,bank_id,tid,merchant_name,processor,batch_running_no,merchant_id,mid_ppn,
                     settlement_audit_id,tax_payment,created_by,created_at,status,settlement_date
                 ')
-                ->where(DB::raw('DATE(created_at)'), '>=', $BoStartDate)
-                ->where(DB::raw('DATE(created_at)'), '<=', $BoEndDate)
-                // ->where('bank_id', $channel)
+                // ->where(DB::raw('DATE(created_at)'), '>=', $BoStartDate)
+                // ->where(DB::raw('DATE(created_at)'), '<=', $BoEndDate)
+                ->where(DB::raw('DATE(settlement_date)'), '>=', $BoStartDate)
+                ->where(DB::raw('DATE(settlement_date)'), '<=', $BoEndDate)
+                ->where('bank_id', $procesor)
                 ->where('status', 'SUCCESSFUL')
                 ->groupBy(
                     'mid',
@@ -105,7 +107,8 @@ class Reconcile
                         ->first();
 
                     if ($existingReconcile) {
-                        $existingReconcile->processor_payment = $proccesor;
+                        // $existingReconcile->processor_payment = $proccesor;
+                        $existingReconcile->processor_payment = $procesor;
                         $existingReconcile->trx_counts += $value->transaction_count;
                         $existingReconcile->bank_transfer += $value->bank_transfer;
                         $existingReconcile->tax_payment += $value->tax_payment;
@@ -162,7 +165,8 @@ class Reconcile
                             "fee_mdr_merchant" => $value->fee_mdr_merchant,
                             "fee_bank_merchant" => $value->fee_bank_merchant,
                             'total_sales' => $value->total_sales_amount,
-                            'processor_payment' => $proccesor,
+                            // 'processor_payment' => $proccesor,
+                            'processor_payment' => $procesor,
                             'internal_payment' => $bankSettlement,
                             'merchant_payment' => $merchantPayment,
                             'merchant_id' => $value->merchant_id,

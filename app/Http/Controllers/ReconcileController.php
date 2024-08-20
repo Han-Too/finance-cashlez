@@ -337,6 +337,8 @@ class ReconcileController extends Controller
                 //     $val->status_reconcile = "approved";
                 //     $val->save();
                 // }
+
+
                 foreach ($data as $val) {
                     // Pisahkan draft_id berdasarkan delimiter '//'
                     $draftIds = explode("//", $val->draft_id);
@@ -348,6 +350,7 @@ class ReconcileController extends Controller
                             'reconcile_date' => Carbon::now(),
                             'modified_by' => Auth::user()->username,
                         ]);
+
                     }
 
                     // Pisahkan bo_id berdasarkan delimiter '//'
@@ -359,6 +362,21 @@ class ReconcileController extends Controller
                             'reconcile_date' => Carbon::now(),
                         ]);
                     }
+
+                    
+                    ReconcileList::where('token_applicant',$val->token_applicant)
+                    ->update([
+                        'status' => "reconciled",
+                        'reconcile_date' => Carbon::now(),
+                    ]);
+                    UploadBank::where('token_applicant',$val->token_applicant)
+                    ->update([
+                        'is_reconcile' => true,
+                    ]);
+                    UploadBankDetail::where('token_applicant',$val->token_applicant)
+                    ->update([
+                        'is_reconcile' => true,
+                    ]);
 
                     // Update status_reconcile pada objek $val
                     $val->status_reconcile = "approved";
@@ -509,8 +527,9 @@ class ReconcileController extends Controller
 
             $list = ReconcileList::create([
                 'name' => $name,
-                'token_applicant' => Str::uuid(),
                 'type' => "mid",
+                // 'token_applicant' => Str::uuid(),
+                'token_applicant' => $filehead->token_applicant,
                 'settlement_file' => $filehead->url,
                 'bo_date' => $request->bo_date,
                 'status' => "draft",
@@ -572,7 +591,8 @@ class ReconcileController extends Controller
                 );
             } else {
 
-                $reconResult = Reconcile::midBoBankDraft($BoStartDate, $BoEndDate, $filehead->token_applicant, $name, $list->token_applicant);
+                // $reconResult = Reconcile::midBoBankDraft($BoStartDate, $BoEndDate, $filehead->token_applicant, $name, $list->token_applicant);
+                $reconResult = Reconcile::midBoBankDraft($BoStartDate, $BoEndDate, $filehead->token_applicant, $name, $filehead->token_applicant,$filehead->processor);
                 // dd($reconResult);
 
                 if ($reconResult == false) {
