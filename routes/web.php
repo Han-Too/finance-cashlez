@@ -100,7 +100,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/reconcile/data/result', [ReconcileController::class, 'approveddata'])->name('reconcile.reportdata');
 
-    Route::get('/reconcilereport/data', [ReconcileController::class, 'reportdata'])->name('reconcile.reportdata');
+    // Route::get('/reconcilereport/data', [ReconcileController::class, 'reportdata'])->name('reconcile.reportdata');
+    Route::get('/reconcilereport/data/{token}', [ReconcileController::class, 'reportdata'])->name('reconcile.reportdata');
     Route::post('/reconcilereport/approve/{id}', [ReconcileController::class, 'approveReport'])->name('reconcile.approvereport');
     Route::post('/reconcilereport/draft/{id}', [ReconcileController::class, 'draftReport'])->name('reconcile.approvereport');
     Route::post('/reconcilereport/store/{id}', [ReconcileController::class, 'storeReport'])->name('reconcile.goreport');
@@ -122,7 +123,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/reconcile/data', [ReconcileController::class, 'data'])->name('reconcile.data');
     Route::get('/reconcile/detail/data/{token}', [ReconcileController::class, 'detailData'])->name('reconcile.detailData');
     Route::get('/reconcile/download', [ReconcileController::class, 'download'])->name('reconcile.download');
-    Route::post('/reconcile/single', [ReconcileController::class, 'reconcile'])->name('reconcile.single');
+    Route::post('/reconcile/single/{token}', [ReconcileController::class, 'reconcile'])->name('reconcile.single');
     
     Route::post('/reconcile/channel', [ReconcileController::class, 'channel'])->name('reconcile.channel');
     Route::get('/reconcile/partner', [ReconcileController::class, 'partner'])->name('reconcile.partner');

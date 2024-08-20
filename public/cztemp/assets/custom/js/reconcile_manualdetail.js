@@ -1,4 +1,6 @@
 "use strict";
+var regex = /\/reconcile-list\/detail\/([^\/]+)/;
+var tokenA = getTokenFromUrl(regex);
 
 var KTDatatablesServerSide = (function () {
   var dt;
@@ -58,6 +60,8 @@ var KTDatatablesServerSide = (function () {
         //                 </div>`;
         //   },
         // },
+
+        // 19 agus
         {
           targets: -1,
           orderable: true,
@@ -68,18 +72,20 @@ var KTDatatablesServerSide = (function () {
             return `<div class="form-check form-check-sm form-check-custom form-check-solid text-end" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">
                           <input onclick="checkBank(${row.id}, '${to_date(
               row.settlement_date
-            )}', '${row.mid}', '${row.bank_transfer}')" 
+            )}', '${row.mid}', '${row.bank_transfer}')"
                               id="checkbox_bank_${row.id}"
-                              class="form-check-input boCheckbox" 
-                              name="bo_check[]" 
-                              type="checkbox" 
-                              value="1" 
+                              class="form-check-input boCheckbox"
+                              name="bo_check[]"
+                              type="checkbox"
+                              value="1"
                               ${isChecked}
-                              data-kt-check="true" 
+                              data-kt-check="true"
                               data-kt-check-target=".widget-9-check" />
                       </div>`;
           },
         },
+
+
         {
           targets: 0,
           orderable: true,
@@ -247,6 +253,8 @@ var KTDatatablesServerSideBO = (function () {
         //                 `;
         //   },
         // },
+
+        // 19 AGUS
         {
           targets: -1,
           orderable: true,
@@ -258,19 +266,21 @@ var KTDatatablesServerSideBO = (function () {
 
             return `
                   <div class="form-check form-check-sm form-check-custom form-check-solid">
-                      <input onclick="checkBo(${row.id}, '${row.created_at}', '${row.processor}', '${row.mid}', '${row.bank_transfer}')" 
-                          id="checkbox_bo_${row.id}" 
-                          class="form-check-input" 
-                          name="bo_check[]" 
-                          type="checkbox" 
-                          value="1" 
-                          data-kt-check="true" 
+                      <input onclick="checkBo(${row.id}, '${row.created_at}', '${row.processor}', '${row.mid}', '${row.bank_transfer}')"
+                          id="checkbox_bo_${row.id}"
+                          class="form-check-input"
+                          name="bo_check[]"
+                          type="checkbox"
+                          value="1"
+                          data-kt-check="true"
                           data-kt-check-target=".widget-9-check"
                           ${isChecked} />
                   </div>
               `;
           },
         },
+
+        
 
         {
           targets: 0,
@@ -449,7 +459,7 @@ $("#singleReconcile").on("submit", function (event) {
     headers: { "X-CSRF-TOKEN": token },
     type: "POST",
     data: formData,
-    url: baseUrl + "/reconcile/single",
+    url: baseUrl + "/reconcile/single/" + tokenA,
     dataType: "JSON",
     cache: false,
     contentType: false,
@@ -548,122 +558,6 @@ function updateCombinedTotal() {
       )}</td>
       <td colspan="2" class="text-end"></td>
     `;
-  }
-}
-
-function OldcheckBank(id, settlementDate, mid, bankSettlement) {
-  var checkbox = document.getElementById(`checkbox_bank_${id}`);
-  var tbody = document.querySelector("#bank_selected_items tbody");
-  var tfoot = document.querySelector("#bank_selected_items tfoot");
-
-  if (checkbox.checked) {
-    selectedBanks.push(id);
-
-    var row = document.getElementById(`row_${mid}`);
-    if (!row) {
-      row = document.createElement("tr");
-      row.setAttribute("id", `row_${mid}`);
-      row.innerHTML = `
-            <td>${mid}</td>
-            <td><ul id="dates_${mid}"></ul></td>
-            <td class="text-end"><ul id="amounts_${mid}"></ul></td>
-            <td class="text-end total" id="total_${mid}">${to_rupiah(
-        bankSettlement
-      )}</td>
-            <td><button id="remove_${mid}" class="btn btn-danger">x</button></td>
-        `;
-      tbody.appendChild(row);
-    } else {
-      document.querySelector(`#total_${mid}`).innerText = to_rupiah(
-        parseInt(
-          document.querySelector(`#total_${mid}`).innerText.replace(/\D/g, "")
-        ) + parseInt(bankSettlement)
-      );
-    }
-
-    document.querySelector(
-      `#dates_${mid}`
-    ).innerHTML += `<li>${settlementDate}</li>`;
-    document.querySelector(`#amounts_${mid}`).innerHTML += `<li>${to_rupiah(
-      bankSettlement
-    )}</li>`;
-
-    totalBankSettlement += parseInt(bankSettlement);
-    tfoot.innerHTML = `
-            <td colspan="2" class="text-start">Total</td>
-            <td colspan="2" class="text-end">${to_rupiah(
-              totalBankSettlement
-            )}</td>
-        `;
-
-    document
-      .getElementById(`remove_${mid}`)
-      .addEventListener("click", function () {
-        var rowToRemove = document.getElementById(`row_${mid}`);
-        if (rowToRemove) {
-          rowToRemove.remove();
-
-          var idx = selectedBanks.indexOf(id);
-          if (idx !== -1) {
-            selectedBanks.splice(idx, 1);
-          }
-
-          totalBankSettlement -= parseInt(bankSettlement);
-          tfoot.innerHTML = `
-                <td colspan="2" class="text-start">Total</td>
-                <td colspan="2" class="text-end">${to_rupiah(
-                  totalBankSettlement
-                )}</td>
-            `;
-
-          checkbox.checked = false;
-
-          handleCheckboxChange(
-            mid,
-            parseInt(bankSettlement),
-            false,
-            settlementDate,
-            "uang"
-          );
-          updateCombinedTotal();
-        }
-      });
-
-    handleCheckboxChange(
-      mid,
-      parseInt(bankSettlement),
-      true,
-      settlementDate,
-      "uang"
-    );
-    updateCombinedTotal();
-  } else {
-    var idx = selectedBanks.indexOf(id);
-    if (idx !== -1) {
-      selectedBanks.splice(idx, 1);
-    }
-
-    totalBankSettlement -= parseInt(bankSettlement);
-    tfoot.innerHTML = `
-            <td colspan="2" class="text-start">Total</td>
-            <td colspan="2" class="text-end">${to_rupiah(
-              totalBankSettlement
-            )}</td>
-        `;
-
-    var row = document.getElementById(`row_${mid}`);
-    if (row) {
-      row.remove();
-    }
-
-    handleCheckboxChange(
-      mid,
-      parseInt(bankSettlement),
-      false,
-      settlementDate,
-      "uang"
-    );
-    updateCombinedTotal();
   }
 }
 
@@ -777,118 +671,6 @@ function checkBank(id, settlementDate, mid, bankSettlement) {
   }
 }
 
-function OldcheckBo(id, settlementDate, bankType, mid, bankPayment) {
-  var checkbox = document.getElementById(`checkbox_bo_${id}`);
-  var tbody = document.querySelector("#bo_selected_items tbody");
-  var tfoot = document.querySelector("#bo_selected_items tfoot");
-
-  if (checkbox.checked) {
-    selectedBo.push(id);
-
-    var row = document.getElementById(`row_${mid}`);
-    if (!row) {
-      row = document.createElement("tr");
-      row.setAttribute("id", `row_${mid}`);
-      row.innerHTML = `
-            <td>${mid}</td>
-            <td><ul id="dates_${mid}"></ul></td>
-            <td class="text-end"><ul id="amounts_${mid}"></ul></td>
-            <td class="text-end total" id="total_${mid}">${to_rupiah(
-        bankPayment
-      )}</td>
-            <td><button id="remove_${mid}" class="btn btn-danger">x</button></td>
-        `;
-      tbody.appendChild(row);
-    } else {
-      document.querySelector(`#total_${mid}`).innerText = to_rupiah(
-        parseInt(
-          document.querySelector(`#total_${mid}`).innerText.replace(/\D/g, "")
-        ) + parseInt(bankPayment)
-      );
-    }
-
-    document.querySelector(`#dates_${mid}`).innerHTML += `<li>${to_date(
-      settlementDate
-    )}</li>`;
-    document.querySelector(`#amounts_${mid}`).innerHTML += `<li>${to_rupiah(
-      bankPayment
-    )}</li>`;
-
-    totalBankPayment += parseInt(bankPayment);
-    tfoot.innerHTML = `
-            <td colspan="3" class="text-start">Total</td>
-            <td colspan="2" class="text-end">${to_rupiah(totalBankPayment)}</td>
-        `;
-
-    document
-      .getElementById(`remove_${mid}`)
-      .addEventListener("click", function () {
-        var rowToRemove = document.getElementById(`row_${mid}`);
-        if (rowToRemove) {
-          rowToRemove.remove();
-
-          var idx = selectedBo.indexOf(id);
-          if (idx !== -1) {
-            selectedBo.splice(idx, 1);
-          }
-
-          totalBankPayment -= parseInt(bankPayment);
-          tfoot.innerHTML = `
-                <td colspan="3" class="text-start">Total</td>
-                <td colspan="2" class="text-end">${to_rupiah(
-                  totalBankPayment
-                )}</td>
-            `;
-
-          checkbox.checked = false;
-
-          handleCheckboxChange(
-            mid,
-            parseInt(bankPayment),
-            false,
-            settlementDate,
-            "tabungan"
-          );
-          updateCombinedTotal();
-        }
-      });
-
-    handleCheckboxChange(
-      mid,
-      parseInt(bankPayment),
-      true,
-      settlementDate,
-      "tabungan"
-    );
-    updateCombinedTotal();
-  } else {
-    var idx = selectedBo.indexOf(id);
-    if (idx !== -1) {
-      selectedBo.splice(idx, 1);
-    }
-
-    totalBankPayment -= parseInt(bankPayment);
-    tfoot.innerHTML = `
-            <td colspan="3" class="text-start">Total</td>
-            <td colspan="2" class="text-end">${to_rupiah(totalBankPayment)}</td>
-        `;
-
-    var row = document.getElementById(`row_${mid}`);
-    if (row) {
-      row.remove();
-    }
-
-    handleCheckboxChange(
-      mid,
-      parseInt(bankPayment),
-      false,
-      settlementDate,
-      "tabungan"
-    );
-    updateCombinedTotal();
-  }
-}
-
 function checkBo(id, settlementDate, bankType, mid, bankPayment) {
   var checkbox = document.getElementById(`checkbox_bo_${id}`);
   var tbody = document.querySelector("#bo_selected_items tbody");
@@ -994,6 +776,8 @@ function checkBo(id, settlementDate, bankType, mid, bankPayment) {
     updateCombinedTotal();
   }
 }
+
+
 
 $("#kt_daterangepicker_1").daterangepicker();
 $("#kt_daterangepicker_2").daterangepicker();
