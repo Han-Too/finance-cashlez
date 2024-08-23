@@ -163,6 +163,7 @@
                     {{-- <th>Batch</th> --}}
                     {{-- <th>No</th> --}}
                     <th>MID / MRC</th>
+                    <th>Settlement Date</th>
                     <th>Bank Code</th>
                     <th>Merchant Name</th>
                     <th>Account Number</th>

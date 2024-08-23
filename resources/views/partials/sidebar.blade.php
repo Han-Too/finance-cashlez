@@ -166,15 +166,25 @@
 
                         @if ($priv->read)
                             <div class="menu-item">
-                                <a class="menu-link {{ request()->is('reconcile/result') ? 'active' : '' }}"
-                                    href="{{ url('reconcile/result') }}">
+                                <a class="menu-link {{ request()->is('reconcile/disburstment-list') ? 'active' : '' }}"
+                                    href="{{ url('reconcile/disburstment-list') }}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
-                                    <span class="menu-title">Result</span>
+                                    <span class="menu-title">Disbursment List</span>
                                 </a>
                             </div>
                         @endif
+
+                        <div class="menu-item">
+                            <a class="menu-link {{ request()->is('reconcile/unmatch-list') ? 'active' : '' }}"
+                                href="{{ url('reconcile/unmatch-list') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Unmatch List</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 {{-- @if ($privDis->read)

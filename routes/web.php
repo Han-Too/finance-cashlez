@@ -100,6 +100,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/reconcile/data/result', [ReconcileController::class, 'approveddata'])->name('reconcile.reportdata');
 
+
+    Route::get('/reconcile/unmatch-list', [ReconcileController::class, 'menuunmatchlist'])->name('reconcile.menuunmatchlist');
+    Route::get('/reconcile/unmatch-listdata', [ReconcileController::class, 'unmatchlistdata'])->name('reconcile.unmatchlistdata');
+
     // Route::get('/reconcilereport/data', [ReconcileController::class, 'reportdata'])->name('reconcile.reportdata');
     Route::get('/reconcilereport/data/{token}', [ReconcileController::class, 'reportdata'])->name('reconcile.reportdata');
     Route::post('/reconcilereport/approve/{id}', [ReconcileController::class, 'approveReport'])->name('reconcile.approvereport');
@@ -117,7 +121,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/reconcile-manual', [ReconcileController::class, 'manualrecon'])->name('reconcile.manual');
     
     Route::post('/reconcile', [ReconcileController::class, 'store'])->name('reconcile.store');
-    Route::get('/reconcile/result', [ReconcileController::class, 'result'])->name('reconcile.result');
+
+    Route::get('/reconcile/disburstment-list', [ReconcileController::class, 'result'])->name('reconcile.result');
+
     Route::get('/reconcile/{token}/proceed', [ReconcileController::class, 'proceed'])->name('reconcile.proceed');
     Route::get('/reconcile/{token}/show', [ReconcileController::class, 'show'])->name('reconcile.show');
     Route::get('/reconcile/data', [ReconcileController::class, 'data'])->name('reconcile.data');

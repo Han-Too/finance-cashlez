@@ -142,6 +142,9 @@ var KTDatatablesServerSide = (function () {
     $("#kt_daterangepicker_3").daterangepicker(
       {
         opens: "left",
+        locale: {
+          format: 'YYYY/MM/DD'
+        },
         startDate: moment().startOf("month"),
         endDate: moment().endOf("month"),
       },
@@ -366,6 +369,9 @@ var KTDatatablesServerSideBO = (function () {
   var initDateRangePicker = function () {
     $("#kt_daterangepicker_9").daterangepicker(
       {
+        locale: {
+          format: 'YYYY/MM/DD'
+        },
         opens: "left",
         startDate: moment().startOf("month"),
         endDate: moment().endOf("month"),

@@ -363,20 +363,20 @@ class ReconcileController extends Controller
                         ]);
                     }
 
-                    
-                    ReconcileList::where('token_applicant',$val->token_applicant)
-                    ->update([
-                        'status' => "reconciled",
-                        'reconcile_date' => Carbon::now(),
-                    ]);
-                    UploadBank::where('token_applicant',$val->token_applicant)
-                    ->update([
-                        'is_reconcile' => true,
-                    ]);
-                    UploadBankDetail::where('token_applicant',$val->token_applicant)
-                    ->update([
-                        'is_reconcile' => true,
-                    ]);
+
+                    ReconcileList::where('token_applicant', $val->token_applicant)
+                        ->update([
+                            'status' => "reconciled",
+                            'reconcile_date' => Carbon::now(),
+                        ]);
+                    UploadBank::where('token_applicant', $val->token_applicant)
+                        ->update([
+                            'is_reconcile' => true,
+                        ]);
+                    UploadBankDetail::where('token_applicant', $val->token_applicant)
+                        ->update([
+                            'is_reconcile' => true,
+                        ]);
 
                     // Update status_reconcile pada objek $val
                     $val->status_reconcile = "approved";
@@ -592,7 +592,7 @@ class ReconcileController extends Controller
             } else {
 
                 // $reconResult = Reconcile::midBoBankDraft($BoStartDate, $BoEndDate, $filehead->token_applicant, $name, $list->token_applicant);
-                $reconResult = Reconcile::midBoBankDraft($BoStartDate, $BoEndDate, $filehead->token_applicant, $name, $filehead->token_applicant,$filehead->processor);
+                $reconResult = Reconcile::midBoBankDraft($BoStartDate, $BoEndDate, $filehead->token_applicant, $name, $filehead->token_applicant, $filehead->processor);
                 // dd($reconResult);
 
                 if ($reconResult == false) {
@@ -808,10 +808,10 @@ class ReconcileController extends Controller
 
         $countdata = ReconcileDraft::where('token_applicant', $token)
             ->where('status_manual', '0')
-            ->where('status_reconcile','!=', 'reconciled')
+            ->where('status_reconcile', '!=', 'reconciled')
             ->where('status', '!=', 'deleted')
             ->count();
-            
+
         $approved = ReconcileReport::where('token_applicant', $token)->where('status_reconcile', 'approved')
             ->where('status', 'MATCH')->count();
 
@@ -823,9 +823,9 @@ class ReconcileController extends Controller
             ->where('status', 'MATCH')->where('status_reconcile', '!=', 'approved')->count();
 
         $match = ReconcileDraft::where('token_applicant', $token)
-        ->where('status', 'MATCH')
-        ->where('status_reconcile','!=', 'reconciled')
-        ->count();
+            ->where('status', 'MATCH')
+            ->where('status_reconcile', '!=', 'reconciled')
+            ->count();
 
         $disp = ReconcileReport::where('token_applicant', $token)
             ->where('dispute_amount', '>', 0)
@@ -868,7 +868,7 @@ class ReconcileController extends Controller
         $totalBankTransfer = ReconcileDraft::where('token_applicant', $token)->sum('bank_transfer');
 
         $unmatch = ReconcileDraft::where('token_applicant', $token)
-        ->where('status', 'NOT_MATCH')->count();
+            ->where('status', 'NOT_MATCH')->count();
         $onhold = ReconcileDraft::where('token_applicant', $token)->where('status', 'ONHOLD')->count();
         $draft = ReconcileDraft::where('token_applicant', $token)->where('status_reconcile', 'draft')->count();
         $approv = ReconcileDraft::where('token_applicant', $token)->where('status_reconcile', 'approved')->count();
@@ -924,6 +924,8 @@ class ReconcileController extends Controller
 
             $query->whereDate('settlement_date', '>=', $startDate)
                 ->whereDate('settlement_date', '<=', $endDate);
+        } else {
+
         }
 
         if ($request->input('status')) {
@@ -1571,7 +1573,7 @@ class ReconcileController extends Controller
         $approved = ReconcileReport::where('token_applicant', $token)->where('status_reconcile', 'approved')
             ->where('status', 'MATCH')->count();
 
-        if($approved > 0){
+        if ($approved > 0) {
             return response()->json(['message' => ["This data has been approved! Select Other Data List!"], 'status' => false], 200);
         }
 
@@ -2207,6 +2209,109 @@ class ReconcileController extends Controller
         );
     }
 
+    public function menuunmatchlist()
+    {
+        $banks = Channel::with('parameter')
+            ->where('status', 'active')
+            ->whereHas('parameter')
+            ->get();
+
+        $disp = ReconcileDraft::
+            where('status_reconcile', '!=','approved')
+            ->pluck('dispute_amount')->sum();
+        $dispcount = ReconcileReport::where('dispute_amount', '>', 0)
+            ->where('status_reconcile', 'approved')
+            ->pluck('dispute_amount')->count();
+
+        $status = request()->query('status');
+
+        $query1 = ReconcileReport::where('status_reconcile', 'approved');
+        $query2 = ReconcileReport::where('status_reconcile', 'approved');
+        $query3 = ReconcileReport::where('status_reconcile', 'approved');
+        $query4 = ReconcileReport::where('status_reconcile', 'approved');
+        $query5 = ReconcileReport::where('status_reconcile', 'approved');
+        $query6 = ReconcileReport::where('status_reconcile', 'approved');
+
+        $report = ReconcileReport::pluck('id')->where('status_reconcile', 'approved');
+
+        $resmatch = $query1->where('status', 'MATCH')->count();
+        $resdispute = $query2->whereIn('status', ['NOT_MATCH', 'NOT_FOUND'])->count();
+        $resonHold = $query3->where('status', 'ON_HOLD')->count();
+
+        $ressumMatch = $query4->where('status', 'MATCH')->sum('total_sales');
+        $ressumDispute = $query5->whereIn('status', ['NOT_MATCH', 'NOT_FOUND'])->sum('total_sales');
+        $ressumHold = $query6->where('status', 'ON_HOLD')->sum('total_sales');
+
+
+        return view(
+            'modules.reconcile.unmatch',
+            compact(
+                'disp',
+                'dispcount',
+                'banks',
+                'resmatch',
+                'resdispute',
+                'resonHold',
+                'ressumMatch',
+                'ressumDispute',
+                'ressumHold',
+                'report'
+            )
+        );
+    }
+
+
+    public function unmatchlistdata(Request $request)
+    {
+        $token_applicant = request()->query('token');
+        $status = request()->query('status');
+
+        $query = ReconcileResult::with('merchant', 'bank_account');
+        if ($token_applicant) {
+            $query->where('token_applicant', $token_applicant);
+        }
+        if ($status) {
+            if ($status == "match") {
+                $query->where('status', 'MATCH');
+            } elseif ($status == "dispute") {
+                $query->whereIn('status', ['NOT_MATCH', 'NOT_FOUND']);
+            }
+        }
+
+        if ($request->input('status') !== null) {
+            switch ($request->input('status')) {
+                case 'match':
+                    $status = ['MATCH'];
+                    break;
+                case 'dispute':
+                    $status = ['NOT_MATCH', 'NOT_FOUND'];
+                    break;
+                case 'onHold':
+                    $status = ['NOT_FOUND'];
+                    break;
+                default:
+                    $status = ['NOT_FOUND'];
+                    break;
+            }
+            $query->whereIn('status', $status);
+        }
+
+        if ($request->input('startDate') && $request->input('endDate')) {
+            $startDate = $request->startDate;
+            $endDate = $request->endDate;
+
+            $query->whereDate('settlement_date', '>=', $startDate)
+                ->whereDate('settlement_date', '<=', $endDate);
+        }
+
+        if ($request->input('channel') !== null) {
+            $query->where('processor_payment', $request->channel);
+        }
+
+        $query->where('status', '!=', 'deleted');
+
+        return DataTables::of($query->get())->addIndexColumn()->make(true);
+    }
     public function show($token_applicant)
     {
         $match = ReconcileResult::where('token_applicant', $token_applicant)->where('status', 'MATCH')->count();

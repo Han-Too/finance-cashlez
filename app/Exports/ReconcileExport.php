@@ -135,6 +135,11 @@ class ReconcileExport implements FromCollection, WithHeadings, WithMapping
         } else{
             $acn = substr($data->bank_account->account_number,0,5);
         }
+        if(!$data->merchant){
+            $email = "-";
+        } else{
+            $email = $data->merchant->email;
+        }
 
         if(!$data->merchant){
             $mrc = "-";
@@ -146,6 +151,11 @@ class ReconcileExport implements FromCollection, WithHeadings, WithMapping
             $achold = "-";
         } else{
             $achold = $data->bank_account->account_holder;
+        }
+        if(!$data->bank_account){
+            $bn = "-";
+        } else{
+            $bn = $data->bank_account->bank_name;
         }
         if(!$data->merchant){
             $mername = "-";
@@ -165,19 +175,28 @@ class ReconcileExport implements FromCollection, WithHeadings, WithMapping
         return [
             strval($mrc),
             strval($data->mid),
-            strval(substr($data->mid,5)),
-            strval($bc),
             strval($mername),
-            strval($acnum),
-            strval($acn),
             strval($banktype),
-            strval($achold),
-            strval($data->transfer_amount),
             strval($data->total_sales),
             strval($data->bank_transfer),
             strval($data->bank_settlement_amount),
             strval($data->dispute_amount),
-            strval($stt),
+            strval($data->transfer_amount),
+            strval($data->tax_payment),
+            strval($data->transfer_amount - $data->tax_payment),
+            strval($data->fee_mdr_merchant),
+            strval($data->fee_bank_merchant),
+            strval(""),
+            strval(""),
+            strval($acnum),
+            strval($bc),
+            strval($achold),
+            strval($email),
+            strval($bn),
+            strval(""),
+            strval(""),
+            strval($data->settlement_date),
+            strval(""),
         ];
     }
 
@@ -212,21 +231,29 @@ class ReconcileExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             'MRC',
-            'MID',
             'MID SECURE',
-            'BANK CODE',
             'MERCHANT NAME',
-            'ACCOUNT NUMBER',
-            'IDENTIFY',
             'BANK TYPE',
-            'ACCOUNT NAME',
-            'TRANSFER AMOUNT',
-            'SALES AMOUNT',
+            'TOTAL SALES',
             'BANK TRANSFER',
             'BANK MOVEMENT',
             'VARIANCE',
-            'STATUS',
-
+            'TRANSFER AMOUNT',
+            'ADM',
+            'TOTAL',
+            'FEE MDR MERCHANT',
+            'FEE MDR BANK',
+            'SKEMA SALES VOLUME',
+            'NET TRANSFER AFTER SKEMA SALES VOLUME',
+            'ACCOUNT NUMBER',
+            'BANK CODE',
+            'ACCOUNT HOLDER',
+            'EMAIL',
+            'BANK',
+            'STATUS RELEASE',
+            'REMARK',
+            'DATE CONVERTED',
+            'TRX ID PARTIAL PAYMENT',
         ];
     }
 }

@@ -136,15 +136,25 @@
 
                         <?php if($priv->read): ?>
                             <div class="menu-item">
-                                <a class="menu-link <?php echo e(request()->is('reconcile/result') ? 'active' : ''); ?>"
-                                    href="<?php echo e(url('reconcile/result')); ?>">
+                                <a class="menu-link <?php echo e(request()->is('reconcile/disburstment-list') ? 'active' : ''); ?>"
+                                    href="<?php echo e(url('reconcile/disburstment-list')); ?>">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
-                                    <span class="menu-title">Result</span>
+                                    <span class="menu-title">Disbursment List</span>
                                 </a>
                             </div>
                         <?php endif; ?>
+
+                        <div class="menu-item">
+                            <a class="menu-link <?php echo e(request()->is('reconcile/unmatch-list') ? 'active' : ''); ?>"
+                                href="<?php echo e(url('reconcile/unmatch-list')); ?>">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">Unmatch List</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 

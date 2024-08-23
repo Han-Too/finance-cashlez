@@ -13,7 +13,7 @@ var KTDatatablesServerSideRes = (function () {
   var endDate = "";
   var channel = "";
   const queryParams = new URLSearchParams(window.location.search);
-  var regex = /\/reconcile-list\/detail\/([^\/]+)/;
+  var regex = /\/reconcile\/unmatch-list\/([^\/]+)/;
   var token = getTokenFromUrl(regex);
 
   var parUuid = queryParams.get("token");
@@ -28,7 +28,7 @@ var KTDatatablesServerSideRes = (function () {
   }
 
   // url = `${baseUrl}/reconcilereport/data?${uuid}&${status}`;
-  url = `${baseUrl}/reconcilereport/data/${token}`;
+  url = `${baseUrl}/reconcile/unmatch-listdata`;
 
   var initDatatable = function () {
     dt = $("#kt_datatable_example_99").DataTable({
