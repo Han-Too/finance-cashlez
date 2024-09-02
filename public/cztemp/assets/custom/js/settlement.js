@@ -36,6 +36,8 @@ var KTDatatablesServerSide = (function () {
         { data: "is_reconcile" },
         { data: "is_parnert" },
         { data: "token_applicant" },
+        { data: "token_applicant" },
+        { data: "processor" },
       ],
       columnDefs: [
         {
@@ -170,6 +172,28 @@ var KTDatatablesServerSide = (function () {
           },
         },
         {
+          targets: 8,
+          orderable: true,
+          className: "text-start",
+          width: "150px",
+          render: function (data, type, row) {
+            return "<div class='text-center'>"+to_date(row.start_date)+"<br> - <br>"+to_date(row.end_date)+"</div>";
+          },
+        },
+        {
+          targets: 9,
+          orderable: true,
+          className: "text-start",
+          width: "150px",
+          render: function (data, type, row) {
+            if(row.processor == "5"){
+              return "<div class='text-center'><div class=' badge badge-primary'>Mandiri</div></div>"
+            } else {
+              return "<div class='text-center'><div class='badge badge-success'>BNI</div></div>"
+            }
+          },
+        },
+        {
           targets: -1,
           orderable: false,
           className: "text-center",
@@ -177,7 +201,7 @@ var KTDatatablesServerSide = (function () {
           render: function (data, type, row) {
             if (row.is_reconcile == 1) {
               return `
-              <a href="${baseUrl}/settlement/detail/${data}" class="btn btn-light-primary btn-sm">
+              <a href="${baseUrl}/settlement/detail/${row.token_applicant}" class="btn btn-light-primary btn-sm">
                                             View Details
                                         </a>
                             `;
@@ -198,7 +222,7 @@ var KTDatatablesServerSide = (function () {
                                 <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4" data-kt-menu="true">
                                     <!--begin::Menu item-->
                                     <div class="menu-item px-3">
-                                        <a href="${baseUrl}/settlement/detail/${data}" class="menu-link px-3" data-kt-docs-table-filter="edit_row">
+                                        <a href="${baseUrl}/settlement/detail/${row.token_applicant}" class="menu-link px-3" data-kt-docs-table-filter="edit_row">
                                             View Details
                                         </a>
                                     </div>
@@ -206,7 +230,7 @@ var KTDatatablesServerSide = (function () {
     
                                     <!--begin::Menu item-->
                                     <div class="menu-item px-3">
-                                        <a href="javascript:void()" onclick="deleteRow('${data}')" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
+                                        <a href="javascript:void()" onclick="deleteRow('${row.token_applicant}')" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
                                             Delete
                                         </a>
                                     </div>

@@ -2,162 +2,174 @@
 $("#kt_daterangepicker_1").daterangepicker();
 
 var KTDatatablesServerSide = (function () {
-    var dt;
+  var dt;
 
-    var initDatatable = function () {
-        dt = $("#kt_datatable_example_2").DataTable({
-            searchDelay: 200,
-            processing: true,
-            serverSide: true,
-            order: [[1, "desc"]],
-            stateSave: true,
-            select: {
-                style: "os",
-                selector: "td:first-child",
-                className: "row-selected",
-            },
-            ajax: {
-                url: `${baseUrl}/reconcilelistdata`,
-            },
-            columns: [
-                { data: "id" },
-                { data: "name" },
-                { data: "type" },
-                { data: "settlement_file" },
-                { data: "bo_date" },
-                { data: "reconcile_date" },
-                { data: "status" },
-                { data: "status" },
-                { data: "token_applicant" },
-            ],
-            columnDefs: [
-                {
-                    targets: 0,
-                    orderable: true,
-                    className: "text-start",
-                    width: "50px",
-                    render: function (data, type, row, meta) {
-                        console.log(row);
-                        return meta.row + 1;
-                    },
-                },
-                {
-                    targets: 1,
-                    orderable: true,
-                    className: "text-start",
-                    width: "120px",
-                    render: function (data, type, row) {
-                        return ` 
+  var initDatatable = function () {
+    dt = $("#kt_datatable_example_2").DataTable({
+      searchDelay: 200,
+      processing: true,
+      serverSide: true,
+      order: [[1, "desc"]],
+      stateSave: true,
+      select: {
+        style: "os",
+        selector: "td:first-child",
+        className: "row-selected",
+      },
+      ajax: {
+        url: `${baseUrl}/reconcilelistdata`,
+      },
+      columns: [
+        { data: "id" },
+        { data: "name" },
+        { data: "type" },
+        { data: "settlement_file" },
+        { data: "bo_date" },
+        { data: "reconcile_date" },
+        { data: "status" },
+        { data: "status" },
+        { data: "token_applicant" },
+      ],
+      columnDefs: [
+        {
+          targets: 0,
+          orderable: true,
+          className: "text-start",
+          width: "50px",
+          render: function (data, type, row, meta) {
+            console.log(row);
+            return meta.row + 1;
+          },
+        },
+        {
+          targets: 1,
+          orderable: true,
+          className: "text-start",
+          width: "120px",
+          render: function (data, type, row) {
+            return ` 
                             <div class="text-bold fs-7 text-uppercase">${data}</div>
                         `;
-                    },
-                },
-                {
-                    targets: 2,
-                    orderable: true,
-                    className: "text-center",
-                    width: "100px",
-                    render: function (data, type, row) {
-                        return `
+          },
+        },
+        {
+          targets: 2,
+          orderable: true,
+          className: "text-center",
+          width: "100px",
+          render: function (data, type, row) {
+            return `
                         <div class="text-center">
                             <div class="text-bold fs-7">${data}</div>
                         </div>
                         `;
-                    },
-                },
-                {
-                    targets: 3,
-                    orderable: true,
-                    className: "text-center",
-                    width: "100px",
-                    render: function (data, type, row) {
-                        return `<a href='${data}' class="text-bold fs-7">Dowload File</a>`;
-                    },
-                },
-                {
-                    targets: 4,
-                    orderable: true,
-                    className: "text-start",
-                    width: "150px",
-                    render: function (data, type, row) {
-                        return ` 
+          },
+        },
+        {
+          targets: 3,
+          orderable: true,
+          className: "text-center",
+          width: "100px",
+          render: function (data, type, row) {
+            return `<a href='${data}' class=" text-center fs-7"><i class="fa-solid fa-download fa-xl text-primary"></i></a>`;
+          },
+        },
+        {
+          targets: 4,
+          orderable: true,
+          className: "text-start",
+          width: "150px",
+          render: function (data, type, row) {
+            return ` 
                             <div class="text-bold fs-7">${data}</div>
                         `;
-                    },
-                },
-                {
-                    targets: 5,
-                    orderable: true,
-                    className: "text-start",
-                    width: "150px",
-                    render: function (data, type, row) {
-                        return ` 
+          },
+        },
+        {
+          targets: 5,
+          orderable: true,
+          className: "text-start",
+          width: "150px",
+          render: function (data, type, row) {
+            return ` 
                         <div class="text-bold fs-7">${to_date(data)}</div>
                         `;
-                    },
-                },
-                {
-                    targets: 6,
-                    orderable: true,
-                    className: "text-start",
-                    width: "150px",
-                    render: function (data, type, row) {
-                        if(data == "reconciled"){
-                            return ` 
+          },
+        },
+        {
+          targets: 6,
+          orderable: true,
+          className: "text-start",
+          width: "150px",
+          render: function (data, type, row) {
+            if (data == "approved") {
+              return ` 
                                 <div class="text-center">
                                     <i class="fa-solid fa-circle-check fa-xl text-success"></i>
                                 </div>
                             `;
-                        } else {
-                            return ` 
+            } else if (data == "pending") {
+              return ` 
+                                <div class="text-center">
+                                    <i class="fa-solid fa-clock fa-xl text-info"></i>
+                                </div>
+                            `;
+            } else {
+              return ` 
                                 <div class="text-center">
                                     <i class="fa-solid fa-circle-xmark fa-xl text-danger"></i>
                                 </div>
                             `;
-                        }
-                    },
-                },
-                {
-                    targets: 7,
-                    orderable: true,
-                    className: "text-start",
-                    width: "150px",
-                    render: function (data, type, row) {
-                        if(data == "draft"){
-                            return ` 
+            }
+          },
+        },
+        {
+          targets: 7,
+          orderable: true,
+          className: "text-start",
+          width: "150px",
+          render: function (data, type, row) {
+            if (data == "draft") {
+              return ` 
                                 <div class="text-center">
-                                    <span class="badge badge-warning">Draft</span>
+                                    <span class="badge badge-warning text-uppercase">Draft</span>
                                 </div>
                             `;
-                        } else if(data == "reconciled") {
-                            return ` 
+            } else if (data == "approved") {
+              return ` 
                                 <div class="text-center">
-                                    <span class="badge badge-success">Approved</span>
+                                    <span class="badge badge-success text-uppercase">Approved</span>
                                 </div>
                             `;
-                        } else {
-                            return ` 
+            } else if (data == "pending") {
+              return ` 
                                 <div class="text-center">
-                                    <span class="badge badge-danger">Error</span>
+                                    <span class="badge badge-info text-uppercase">Pending</span>
                                 </div>
                             `;
-                        }
-                    },
-                },
-                {
-                    targets: -1,
-                    orderable: false,
-                    className: "text-center",
-                    width: "200px",
-                    render: function (data, type, row) {
-                        if(row.status == "reconciled"){
-                            return `
+            } else {
+              return ` 
+                                <div class="text-center">
+                                    <span class="badge badge-danger text-uppercase">Error</span>
+                                </div>
+                            `;
+            }
+          },
+        },
+        {
+          targets: -1,
+          orderable: false,
+          className: "text-center",
+          width: "200px",
+          render: function (data, type, row) {
+            if (row.status == "approved") {
+              return `
                             <a href="${baseUrl}/reconcile-list/detail/${data}" class="btn btn-light-primary btn-sm" >
                                     View Detail
                             </a>
                             `;
-                        } else {
-                            return `
+            } else {
+              return `
                             <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-flip="top-end">
                                     Actions
                                     <span class="svg-icon svg-icon-5 m-0">
@@ -189,221 +201,293 @@ var KTDatatablesServerSide = (function () {
                                 </div>
                                 <!--end::Menu-->
                             `;
-                        }
-                    },
-                },
-            ],
-
-            createdRow: function (row, data, dataIndex) {
-                $(row)
-                    .find("td:eq(4)")
-                    .attr("data-filter", data.name);
-            },
-        })
-
-        dt.on("draw", function () {
-            KTMenu.createInstances();
-        });
-    };
-
-    var handleSearchDatatable = function () {
-        const filterSearch = document.querySelector(
-            '[data-kt-docs-table-filter="search"]'
-        );
-        filterSearch.addEventListener("keyup", function (e) {
-            dt.search(e.target.value).draw();
-        });
-    };
-
-    return {
-        init: function () {
-            initDatatable();
-            handleSearchDatatable();
+            }
+          },
         },
-    };
+      ],
+
+      createdRow: function (row, data, dataIndex) {
+        $(row).find("td:eq(4)").attr("data-filter", data.name);
+      },
+    });
+
+    dt.on("draw", function () {
+      KTMenu.createInstances();
+    });
+  };
+
+  var handleSearchDatatable = function () {
+    const filterSearch = document.querySelector(
+      '[data-kt-docs-table-filter="search"]'
+    );
+    filterSearch.addEventListener("keyup", function (e) {
+      dt.search(e.target.value).draw();
+    });
+  };
+
+  return {
+    init: function () {
+      initDatatable();
+      handleSearchDatatable();
+    },
+  };
 })();
 
 function deleteRow($token) {
-    if (!$token) {
-        console.error("Token is empty.");
-        return;
-    }
-    Swal.fire({
-        text: "Are you sure you want to delete this record?",
-        icon: "warning",
-        showCancelButton: true,
-        buttonsStyling: false,
-        confirmButtonText: "Yes, delete!",
-        cancelButtonText: "No, cancel",
-        customClass: {
-            confirmButton: "btn fw-bold btn-danger",
-            cancelButton: "btn fw-bold btn-active-light-primary",
+  if (!$token) {
+    console.error("Token is empty.");
+    return;
+  }
+  Swal.fire({
+    text: "Are you sure you want to delete this record?",
+    icon: "warning",
+    showCancelButton: true,
+    buttonsStyling: false,
+    confirmButtonText: "Yes, delete!",
+    cancelButtonText: "No, cancel",
+    customClass: {
+      confirmButton: "btn fw-bold btn-danger",
+      cancelButton: "btn fw-bold btn-active-light-primary",
+    },
+  }).then(function (result) {
+    if (result.isConfirmed) {
+      $.ajax({
+        url: baseUrl + "/reconcilelistdestroy/" + $token,
+        type: "GET",
+        beforeSend: function () {
+          swal.showLoading();
         },
-    }).then(function (result) {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: baseUrl + "/reconcilelistdestroy/" + $token,
-                type: "GET",
-                beforeSend: function() {
-                    swal.showLoading();
-                },
-                success: function (response) {
-                    Swal.fire({
-                        text: "You have deleted the record!",
-                        icon: "success",
-                        buttonsStyling: false,
-                        confirmButtonText: "Ok, got it!",
-                        customClass: {
-                            confirmButton: "btn fw-bold btn-primary",
-                        },
-                    }).then(function () {
-                        window.location.reload();
-                    });
-                },
-                error: function (xhr, status, error) {
-                    Swal.fire({
-                        // text: "Failed to delete the record.",
-                        text: error,
-                        icon: "error",
-                        buttonsStyling: false,
-                        confirmButtonText: "Ok, got it!",
-                        customClass: {
-                            confirmButton: "btn fw-bold btn-primary",
-                        },
-                    });
-                },
-            });
-        } else{
-            Swal.fire({
-                text: "Record was not deleted.",
-                icon: "error",
-                buttonsStyling: false,
-                confirmButtonText: "Ok, got it!",
-                customClass: {
-                    confirmButton: "btn fw-bold btn-primary",
-                },
-            });
-        }
-    });
+        success: function (response) {
+          Swal.fire({
+            text: "You have deleted the record!",
+            icon: "success",
+            buttonsStyling: false,
+            confirmButtonText: "Ok, got it!",
+            customClass: {
+              confirmButton: "btn fw-bold btn-primary",
+            },
+          }).then(function () {
+            window.location.reload();
+          });
+        },
+        error: function (xhr, status, error) {
+          Swal.fire({
+            // text: "Failed to delete the record.",
+            text: error,
+            icon: "error",
+            buttonsStyling: false,
+            confirmButtonText: "Ok, got it!",
+            customClass: {
+              confirmButton: "btn fw-bold btn-primary",
+            },
+          });
+        },
+      });
+    } else {
+      Swal.fire({
+        text: "Record was not deleted.",
+        icon: "error",
+        buttonsStyling: false,
+        confirmButtonText: "Ok, got it!",
+        customClass: {
+          confirmButton: "btn fw-bold btn-primary",
+        },
+      });
+    }
+  });
 }
 
 function reconcile(token) {
-    Swal.fire({
-        text: "Are you sure you want to reconcile this data?",
-        icon: "warning",
-        showCancelButton: true,
-        buttonsStyling: false,
-        confirmButtonText: "Yes, reconcile!",
-        cancelButtonText: "No, cancel",
-        customClass: {
-            confirmButton: "btn fw-bold btn-primary rounded-sm",
-            cancelButton: "btn fw-bold btn-active-light-primary rounded-sm",
+  Swal.fire({
+    text: "Are you sure you want to reconcile this data?",
+    icon: "warning",
+    showCancelButton: true,
+    buttonsStyling: false,
+    confirmButtonText: "Yes, reconcile!",
+    cancelButtonText: "No, cancel",
+    customClass: {
+      confirmButton: "btn fw-bold btn-primary rounded-sm",
+      cancelButton: "btn fw-bold btn-active-light-primary rounded-sm",
+    },
+  }).then(function (result) {
+    swal.showLoading();
+    if (result.value) {
+      $.ajax({
+        url: baseUrl + "/reconcile/" + token + "/proceed",
+        type: "GET",
+        beforeSend: function () {
+          swal.showLoading();
         },
-    }).then(function (result) {
-        swal.showLoading();
-        if (result.value) {
-            $.ajax({
-                url: baseUrl + "/reconcile/" + token + '/proceed',
-                type: "GET",
-                beforeSend: function() {
-                    swal.showLoading();
-                },
-                success: function (response) {
-                    swal.hideLoading();
-                    Swal.fire({
-                        text: "You have reconcile the data!",
-                        icon: "success",
-                        buttonsStyling: false,
-                        confirmButtonText: "Ok, got it!",
-                        customClass: {
-                            confirmButton: "btn fw-bold btn-primary rounded-sm",
-                        },
-                    }).then(function () {
-                        window.location.reload();
-                    });
-                },
-                error: function (xhr, status, error) {
-                    swal.hideLoading();
-                    Swal.fire({
-                        text: "Failed to reconcile the record.",
-                        icon: "error",
-                        buttonsStyling: false,
-                        confirmButtonText: "Ok, got it!",
-                        customClass: {
-                            confirmButton: "btn fw-bold btn-primary rounded-sm",
-                        },
-                    });
-                },
-            });
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-            Swal.fire({
-                text: "Reconcile is canceled.",
-                icon: "error",
-                buttonsStyling: false,
-                confirmButtonText: "Ok, got it!",
-                customClass: {
-                    confirmButton: "btn fw-bold btn-primary rounded-sm",
-                },
-            });
-        }
-    });
+        success: function (response) {
+          swal.hideLoading();
+          Swal.fire({
+            text: "You have reconcile the data!",
+            icon: "success",
+            buttonsStyling: false,
+            confirmButtonText: "Ok, got it!",
+            customClass: {
+              confirmButton: "btn fw-bold btn-primary rounded-sm",
+            },
+          }).then(function () {
+            window.location.reload();
+          });
+        },
+        error: function (xhr, status, error) {
+          swal.hideLoading();
+          Swal.fire({
+            text: "Failed to reconcile the record.",
+            icon: "error",
+            buttonsStyling: false,
+            confirmButtonText: "Ok, got it!",
+            customClass: {
+              confirmButton: "btn fw-bold btn-primary rounded-sm",
+            },
+          });
+        },
+      });
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      Swal.fire({
+        text: "Reconcile is canceled.",
+        icon: "error",
+        buttonsStyling: false,
+        confirmButtonText: "Ok, got it!",
+        customClass: {
+          confirmButton: "btn fw-bold btn-primary rounded-sm",
+        },
+      });
+    }
+  });
 }
 
+$("#store_reconcile_form").on("submit", function (event) {
+  event.preventDefault();
+  var token = $('meta[name="csrf-token"]').attr("content");
+  var formData = new FormData(this);
+  $.ajax({
+    headers: {
+      "X-CSRF-TOKEN": token,
+    },
+    type: "POST",
+    data: formData,
+    url: `${baseUrl}/reconciledraft`,
+    dataType: "JSON",
+    cache: false,
+    contentType: false,
+    processData: false,
+    beforeSend: function () {
+      swal.showLoading();
+    },
+    success: function (data) {
+      if (data.status === true) {
+        swal.hideLoading();
+        swal
+          .fire({
+            text: data.message,
+            icon: "success",
+            buttonsStyling: false,
+            confirmButtonText: "Ok, got it!",
+            customClass: {
+              confirmButton: "btn font-weight-bold btn-light-primary",
+            },
+          })
+          .then(function () {
+            // location.href = baseUrl + "/reconcile/result";
+            location.href = baseUrl + "/reconcile-list";
+          });
+      } else {
+        var values = "";
+        jQuery.each(data.message, function (key, value) {
+          values += value + "<br>";
+        });
 
-$("#store_reconcile_form").on("submit", function(event) {
-    event.preventDefault();
-    var token = $('meta[name="csrf-token"]').attr('content');
-    var formData = new FormData(this);
-    $.ajax({
-        headers: {
-            'X-CSRF-TOKEN': token
-        },
-        type: 'POST',
-        data: formData,
-        url: `${baseUrl}/reconciledraft`,
-        dataType: 'JSON',
-        cache: false,
-        contentType: false,
-        processData: false,
-        beforeSend: function() {
-            swal.showLoading();
-        },
-        success: function(data) {
-            if (data.status === true) {
-                swal.hideLoading();
-                swal.fire({
-                    text: data.message,
-                    icon: "success",
-                    buttonsStyling: false,
-                    confirmButtonText: "Ok, got it!",
-                    customClass: {
-                        confirmButton: "btn font-weight-bold btn-light-primary"
-                    }
-                }).then(function() {
-                    // location.href = baseUrl + "/reconcile/result";
-                    location.href = baseUrl + "/reconcile-list";
-                });
-            } else {
-                var values = '';
-                jQuery.each(data.message, function(key, value) {
-                    values += value + "<br>";
-                });
+        swal
+          .fire({
+            text: data.message,
+            html: values,
+            icon: "error",
+            buttonsStyling: false,
+            confirmButtonText: "Ok, got it!",
+            customClass: {
+              confirmButton: "btn font-weight-bold btn-light-primary",
+            },
+          })
+          .then(function () {});
+      }
+    },
+  });
+});
 
-                swal.fire({
-                    text: data.message,
-                    html: values,
-                    icon: "error",
-                    buttonsStyling: false,
-                    confirmButtonText: "Ok, got it!",
-                    customClass: {
-                        confirmButton: "btn font-weight-bold btn-light-primary"
+$("#channelSearch").change(function () {
+    var selectedChannel = $(this).val();
+    
+    if (selectedChannel) {
+        $.ajax({
+            type: "GET",
+            url: `${baseUrl}/api/getfile/` + selectedChannel,
+            dataType: "JSON",
+            success: function (res) {
+                // console.log(res); // Check the response format
+                
+                if (res.success) {
+                    var $filesettlement = $("#filesettlement");
+                    $filesettlement.empty();
+                    
+                    // Add default option
+                    $filesettlement.append("<option value=''>Select a File...</option>");
+                    
+                    // Check if 'data' is an array and has items
+                    if (Array.isArray(res.data) && res.data.length > 0) {
+                        $.each(res.data, function (index, file) {
+                            $filesettlement.append(
+                                '<option value="' + file.url + '">' + file.name + '</option>'
+                            );
+                        });
+                    } else {
+                        // If no files, display a message
+                        $filesettlement.append('<option value="">No files available</option>');
                     }
-                }).then(function() {});
+                } else {
+                    // Handle case where success is false
+                    $("#filesettlement").empty().append('<option value="">Error fetching files</option>');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching data:', error); // Log any errors
+                $("#filesettlement").empty().append('<option value="">Error fetching files</option>');
             }
-        }
-    });
-}); 
+        });
+    } else {
+        $("#filesettlement").empty().append('<option value="">Select a File...</option>');
+    }
+});
+
+// $("#channelSearch").change(function () {
+//   var kabID = $(this).val();
+//   if (kabID) {
+//     $.ajax({
+//       type: "GET",
+//       url: `${baseUrl}/api/getfile/`+ kabID,
+//       dataType: "JSON",
+//       success: function (res) {
+//         console.log(res);
+//         if (res) {
+//           $("#filesettlement").empty();
+//           $("#filesettlement").append("<option>Select a File...</option>");
+//           $.each(res, function (nama, kode) {
+//             $("#filesettlement").append(
+//               '<option value="' + kode + '">' + nama + "</option>"
+//             );
+//           });
+//         } else {
+//           $("#filesettlement").empty();
+//         }
+//       },
+//     });
+//   } else {
+//     $("#filesettlement").empty();
+//   }
+// });
 
 KTUtil.onDOMContentLoaded(function () {
-    KTDatatablesServerSide.init();
+  KTDatatablesServerSide.init();
 });

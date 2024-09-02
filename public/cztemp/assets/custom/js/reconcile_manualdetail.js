@@ -36,7 +36,8 @@ var KTDatatablesServerSide = (function () {
         { data: "merchant_name" },
         // { data: "description2" },
         { data: "mid" },
-        { data: "bank_transfer" },
+        // { data: "bank_transfer" },
+        { data: "internal_payment" },
         { data: "id" },
       ],
       columnDefs: [
@@ -72,7 +73,7 @@ var KTDatatablesServerSide = (function () {
             return `<div class="form-check form-check-sm form-check-custom form-check-solid text-end" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">
                           <input onclick="checkBank(${row.id}, '${to_date(
               row.settlement_date
-            )}', '${row.mid}', '${row.bank_transfer}')"
+            )}', '${row.mid}', '${row.internal_payment}','${row.total_sales}')"
                               id="checkbox_bank_${row.id}"
                               class="form-check-input boCheckbox"
                               name="bo_check[]"
@@ -84,7 +85,6 @@ var KTDatatablesServerSide = (function () {
                       </div>`;
           },
         },
-
 
         {
           targets: 0,
@@ -143,7 +143,7 @@ var KTDatatablesServerSide = (function () {
       {
         opens: "left",
         locale: {
-          format: 'YYYY/MM/DD'
+          format: "YYYY-MM-DD",
         },
         startDate: moment().startOf("month"),
         endDate: moment().endOf("month"),
@@ -283,8 +283,6 @@ var KTDatatablesServerSideBO = (function () {
           },
         },
 
-        
-
         {
           targets: 0,
           orderable: true,
@@ -301,12 +299,7 @@ var KTDatatablesServerSideBO = (function () {
           className: "text-center",
           width: "30px",
           render: function (data, type, row) {
-            return row.merchant == null ? "" : data;
-            // if(row.merchant == null){
-            //   return '';
-            // } else {
-            //   return data;
-            // }
+            return data;
           },
         },
         // {
@@ -370,7 +363,7 @@ var KTDatatablesServerSideBO = (function () {
     $("#kt_daterangepicker_9").daterangepicker(
       {
         locale: {
-          format: 'YYYY/MM/DD'
+          format: "YYYY-MM-DD",
         },
         opens: "left",
         startDate: moment().startOf("month"),
@@ -525,6 +518,9 @@ $("#singleReconcile").on("submit", function (event) {
   });
 });
 
+$("#kt_daterangepicker_1").daterangepicker();
+$("#kt_daterangepicker_2").daterangepicker();
+
 // var totalBankSettlement = 0;
 // var totalBankPayment = 0;
 
@@ -567,7 +563,10 @@ function updateCombinedTotal() {
   }
 }
 
-function checkBank(id, settlementDate, mid, bankSettlement) {
+// Variabel global untuk menyimpan total sales
+let totalSales = 0;
+
+function checkBank(id, settlementDate, mid, bankSettlement, total_sales) {
   var checkbox = document.getElementById(`checkbox_bank_${id}`);
   var tbody = document.querySelector("#bank_selected_items tbody");
   var tfoot = document.querySelector("#bank_selected_items tfoot");
@@ -576,6 +575,9 @@ function checkBank(id, settlementDate, mid, bankSettlement) {
     if (!selectedBanks.includes(id)) {
       selectedBanks.push(id);
     }
+
+    // Tambahkan nilai total_sales ke totalSales
+    totalSales += parseInt(total_sales);
 
     var row = document.getElementById(`row_${mid}`);
     if (!row) {
@@ -622,6 +624,7 @@ function checkBank(id, settlementDate, mid, bankSettlement) {
           rowToRemove.remove();
           selectedBanks = selectedBanks.filter((bankId) => bankId !== id);
           totalBankSettlement -= parseInt(bankSettlement);
+          totalSales -= parseInt(total_sales); // Kurangi totalSales jika dihapus
           tfoot.innerHTML = `
                     <td colspan="2" class="text-start">Total</td>
                     <td colspan="2" class="text-end">${to_rupiah(
@@ -654,6 +657,7 @@ function checkBank(id, settlementDate, mid, bankSettlement) {
     selectedBanks = selectedBanks.filter((bankId) => bankId !== id);
 
     totalBankSettlement -= parseInt(bankSettlement);
+    totalSales -= parseInt(total_sales); // Kurangi totalSales jika checkbox tidak dipilih
     tfoot.innerHTML = `
             <td colspan="2" class="text-start">Total</td>
             <td colspan="2" class="text-end">${to_rupiah(
@@ -676,6 +680,116 @@ function checkBank(id, settlementDate, mid, bankSettlement) {
     updateCombinedTotal();
   }
 }
+
+// function checkBank(id, settlementDate, mid, bankSettlement) {
+//   var checkbox = document.getElementById(`checkbox_bank_${id}`);
+//   var tbody = document.querySelector("#bank_selected_items tbody");
+//   var tfoot = document.querySelector("#bank_selected_items tfoot");
+
+//   if (checkbox.checked) {
+//     if (!selectedBanks.includes(id)) {
+//       selectedBanks.push(id);
+//     }
+
+//     var row = document.getElementById(`row_${mid}`);
+//     if (!row) {
+//       row = document.createElement("tr");
+//       row.setAttribute("id", `row_${mid}`);
+//       row.innerHTML = `
+//                 <td>${mid}</td>
+//                 <td><ul id="dates_${mid}"></ul></td>
+//                 <td class="text-end"><ul id="amounts_${mid}"></ul></td>
+//                 <td class="text-end total" id="total_${mid}">${to_rupiah(
+//         bankSettlement
+//       )}</td>
+//                 <td><button id="remove_${mid}" class="btn btn-danger">x</button></td>
+//             `;
+//       tbody.appendChild(row);
+//     } else {
+//       document.querySelector(`#total_${mid}`).innerText = to_rupiah(
+//         parseInt(
+//           document.querySelector(`#total_${mid}`).innerText.replace(/\D/g, "")
+//         ) + parseInt(bankSettlement)
+//       );
+//     }
+
+//     document.querySelector(
+//       `#dates_${mid}`
+//     ).innerHTML += `<li>${settlementDate}</li>`;
+//     document.querySelector(`#amounts_${mid}`).innerHTML += `<li>${to_rupiah(
+//       bankSettlement
+//     )}</li>`;
+
+//     totalBankSettlement += parseInt(bankSettlement);
+//     tfoot.innerHTML = `
+//             <td colspan="2" class="text-start">Total</td>
+//             <td colspan="2" class="text-end">${to_rupiah(
+//               totalBankSettlement
+//             )}</td>
+//         `;
+
+//     document
+//       .getElementById(`remove_${mid}`)
+//       .addEventListener("click", function () {
+//         var rowToRemove = document.getElementById(`row_${mid}`);
+//         if (rowToRemove) {
+//           rowToRemove.remove();
+//           selectedBanks = selectedBanks.filter((bankId) => bankId !== id);
+//           totalBankSettlement -= parseInt(bankSettlement);
+//           tfoot.innerHTML = `
+//                     <td colspan="2" class="text-start">Total</td>
+//                     <td colspan="2" class="text-end">${to_rupiah(
+//                       totalBankSettlement
+//                     )}</td>
+//                 `;
+
+//           checkbox.checked = false;
+
+//           handleCheckboxChange(
+//             mid,
+//             parseInt(bankSettlement),
+//             false,
+//             settlementDate,
+//             "uang"
+//           );
+//           updateCombinedTotal();
+//         }
+//       });
+
+//     handleCheckboxChange(
+//       mid,
+//       parseInt(bankSettlement),
+//       true,
+//       settlementDate,
+//       "uang"
+//     );
+//     updateCombinedTotal();
+//   } else {
+//     selectedBanks = selectedBanks.filter((bankId) => bankId !== id);
+
+//     totalBankSettlement -= parseInt(bankSettlement);
+//     tfoot.innerHTML = `
+//             <td colspan="2" class="text-start">Total</td>
+//             <td colspan="2" class="text-end">${to_rupiah(
+//               totalBankSettlement
+//             )}</td>
+//         `;
+
+//     var row = document.getElementById(`row_${mid}`);
+//     if (row) {
+//       row.remove();
+//     }
+
+//     handleCheckboxChange(
+//       mid,
+//       parseInt(bankSettlement),
+//       false,
+//       settlementDate,
+//       "uang"
+//     );
+//     updateCombinedTotal();
+//   }
+// }
 
 function checkBo(id, settlementDate, bankType, mid, bankPayment) {
   var checkbox = document.getElementById(`checkbox_bo_${id}`);
@@ -783,11 +897,6 @@ function checkBo(id, settlementDate, bankType, mid, bankPayment) {
   }
 }
 
-
-
-$("#kt_daterangepicker_1").daterangepicker();
-$("#kt_daterangepicker_2").daterangepicker();
-
 const originalData = [
   // { mid: '000002187010754', uang: 5000, tabungan: 3000 },
 ];
@@ -805,16 +914,160 @@ const savingOptions = [
 ];
 
 // Menampilkan data dalam tabel
+// function renderTable() {
+//   const tableBody = document.querySelector("#dataTable tbody");
+//   tableBody.innerHTML = ""; // Bersihkan tabel sebelum diisi
+
+//   // Mengelompokkan data per nama
+//   const groupedData = data.reduce((acc, item) => {
+//     if (!acc[item.mid]) {
+//       acc[item.mid] = {
+//         totalUang: 0,
+//         totalTabungan: 0,
+//         uangList: [],
+//         tabunganList: [],
+//         uangDates: [],
+//         tabunganDates: [],
+//       };
+//     }
+//     if (item.uang) {
+//       acc[item.mid].totalUang += item.uang;
+//       acc[item.mid].uangList.push(item.uang);
+//       acc[item.mid].uangDates.push(item.date);
+//     }
+//     if (item.tabungan) {
+//       acc[item.mid].totalTabungan += item.tabungan;
+//       acc[item.mid].tabunganList.push(item.tabungan);
+//       acc[item.mid].tabunganDates.push(item.date);
+//     }
+//     return acc;
+//   }, {});
+
+//   // Menampilkan data yang dikelompokkan dalam tabel
+//   Object.keys(groupedData).forEach((name) => {
+//     const group = groupedData[name];
+
+//     const row = document.createElement("tr");
+//     row.className = " border-bottom border-primary";
+
+//     const nameCell = document.createElement("td");
+//     nameCell.textContent = name;
+//     row.appendChild(nameCell);
+
+//     const uangCell = document.createElement("td");
+//     uangCell.innerHTML = `<ul class="money-list">
+//           ${group.uangList
+//             .map(
+//               (amount, index) =>
+//                 `<li class="row align-items-center my-3">
+//           <div class="col">
+//           ${to_rupiah(amount)}
+//           </div>
+//           </li>
+//           `
+//               // <div class="col">
+//               // <button class="btn btn-sm btn-danger" onclick="removeAmount('${name}', ${amount}, 'uang')">x</button>
+//               // </div>
+//             )
+//             .join("")}</ul>`;
+//     row.appendChild(uangCell);
+
+//     const totalUangCell = document.createElement("td");
+//     totalUangCell.textContent = to_rupiah(group.totalUang);
+//     row.appendChild(totalUangCell);
+
+//     const uangDateCell = document.createElement("td");
+//     uangDateCell.innerHTML = `<ul class="money-date-list">
+//           ${group.uangDates
+//             .map(
+//               (date) =>
+//                 `<li class="row align-items-center my-3">
+//           <div class="col">
+//           ${to_date(date)}
+//           </div>
+//           </li>
+//           `
+//             )
+//             .join("")}</ul>`;
+//     row.appendChild(uangDateCell);
+
+//     const tabunganCell = document.createElement("td");
+//     tabunganCell.innerHTML = `<ul class="saving-list">${group.tabunganList
+//       .map(
+//         (amount, index) =>
+//           `
+//         <li class="row align-items-center my-3">
+//           <div class="col">
+//           ${to_rupiah(amount)}
+//           </div>
+//           </li>
+//           `
+//         // <div class="col">
+//         // <button class="btn btn-sm btn-danger" onclick="removeAmount('${name}', ${amount}, 'tabungan')">x</button>
+//         // </div>
+//       )
+//       .join("")}</ul>`;
+//     row.appendChild(tabunganCell);
+
+//     const totalTabunganCell = document.createElement("td");
+//     totalTabunganCell.textContent = to_rupiah(group.totalTabungan);
+//     row.appendChild(totalTabunganCell);
+
+//   console.log("Total Sales: " + totalSales);
+//     console.log("Tabungan : "+group.totalTabungan)
+//     console.log("Uang : "+group.totalUang)
+//     // console.log((abs(group.totalTabungan - group.totalUang) / totalSales * 100) == 1);
+
+//     const tabDateCell = document.createElement("td");
+//     tabDateCell.innerHTML = `<ul class="saving-date-list">
+//           ${group.tabunganDates
+//             .map(
+//               (date) =>
+//                 `<li class="row align-items-center my-3">
+//           <div class="col">
+//           ${to_date(date)}
+//           </div>
+//           </li>
+//           `
+//             )
+//             .join("")}</ul>`;
+//     row.appendChild(tabDateCell);
+
+//     // Kolom selisih
+//     const selisihCell = document.createElement("td");
+//     selisihCell.textContent = to_rupiah(group.totalTabungan - group.totalUang);
+//     row.appendChild(selisihCell);
+
+//     const statusCell = document.createElement("td");
+//     statusCell.innerHTML =
+//       group.totalUang === group.totalTabungan
+//         ? "<div class='badge badge-success'>MATCH</div>"
+//         : "<div class='badge badge-danger'>NOT MATCH</div>";
+//     row.appendChild(statusCell);
+
+//     // const actionCell = document.createElement("td");
+//     // const deleteButton = document.createElement("button");
+//     // deleteButton.className = "btn btn-sm btn-danger";
+//     // deleteButton.textContent = "Cancel";
+//     // deleteButton.onclick = () => deleteItem(name);
+//     // actionCell.appendChild(deleteButton);
+//     // row.appendChild(actionCell);
+
+//     tableBody.appendChild(row);
+//   });
+// }
+
 function renderTable() {
   const tableBody = document.querySelector("#dataTable tbody");
   tableBody.innerHTML = ""; // Bersihkan tabel sebelum diisi
 
-  // Mengelompokkan data per nama
+  // Mengelompokkan data per mid
   const groupedData = data.reduce((acc, item) => {
     if (!acc[item.mid]) {
       acc[item.mid] = {
         totalUang: 0,
         totalTabungan: 0,
+        totalSales: 0, // Tambahkan totalSales per mid
         uangList: [],
         tabunganList: [],
         uangDates: [],
@@ -831,18 +1084,21 @@ function renderTable() {
       acc[item.mid].tabunganList.push(item.tabungan);
       acc[item.mid].tabunganDates.push(item.date);
     }
+    if (item.sales) {
+      acc[item.mid].totalSales += item.sales; // Tambahkan sales ke totalSales
+    }
     return acc;
   }, {});
 
   // Menampilkan data yang dikelompokkan dalam tabel
-  Object.keys(groupedData).forEach((name) => {
-    const group = groupedData[name];
+  Object.keys(groupedData).forEach((mid) => {
+    const group = groupedData[mid];
 
     const row = document.createElement("tr");
-    row.className = " border-bottom border-primary";
+    row.className = "border-bottom border-primary";
 
     const nameCell = document.createElement("td");
-    nameCell.textContent = name;
+    nameCell.textContent = mid;
     row.appendChild(nameCell);
 
     const uangCell = document.createElement("td");
@@ -854,11 +1110,7 @@ function renderTable() {
           <div class="col">
           ${to_rupiah(amount)} 
           </div>
-          </li>
-          `
-              // <div class="col">
-              // <button class="btn btn-sm btn-danger" onclick="removeAmount('${name}', ${amount}, 'uang')">x</button>
-              // </div>
+          </li>`
             )
             .join("")}</ul>`;
     row.appendChild(uangCell);
@@ -876,8 +1128,7 @@ function renderTable() {
           <div class="col">
           ${to_date(date)} 
           </div>
-          </li>
-          `
+          </li>`
             )
             .join("")}</ul>`;
     row.appendChild(uangDateCell);
@@ -886,16 +1137,11 @@ function renderTable() {
     tabunganCell.innerHTML = `<ul class="saving-list">${group.tabunganList
       .map(
         (amount, index) =>
-          `
-        <li class="row align-items-center my-3">
+          `<li class="row align-items-center my-3">
           <div class="col">
           ${to_rupiah(amount)} 
           </div>
-          </li>
-          `
-        // <div class="col">
-        // <button class="btn btn-sm btn-danger" onclick="removeAmount('${name}', ${amount}, 'tabungan')">x</button>
-        // </div>
+          </li>`
       )
       .join("")}</ul>`;
     row.appendChild(tabunganCell);
@@ -913,8 +1159,7 @@ function renderTable() {
           <div class="col">
           ${to_date(date)} 
           </div>
-          </li>
-          `
+          </li>`
             )
             .join("")}</ul>`;
     row.appendChild(tabDateCell);
@@ -924,24 +1169,43 @@ function renderTable() {
     selisihCell.textContent = to_rupiah(group.totalTabungan - group.totalUang);
     row.appendChild(selisihCell);
 
+    // Kolom status
+    // const statusCell = document.createElement("td");
+    // statusCell.innerHTML =
+    //   group.totalUang === group.totalTabungan
+    //     ? "<div class='badge badge-success'>MATCH</div>"
+    //     : "<div class='badge badge-danger'>NOT MATCH</div>";
+    // row.appendChild(statusCell);
+
     const statusCell = document.createElement("td");
     statusCell.innerHTML =
+      Math.abs(group.totalUang - group.totalTabungan) < 100 ||
       group.totalUang === group.totalTabungan
         ? "<div class='badge badge-success'>MATCH</div>"
         : "<div class='badge badge-danger'>NOT MATCH</div>";
     row.appendChild(statusCell);
 
-    // const actionCell = document.createElement("td");
-    // const deleteButton = document.createElement("button");
-    // deleteButton.className = "btn btn-sm btn-danger";
-    // deleteButton.textContent = "Cancel";
-    // deleteButton.onclick = () => deleteItem(name);
-    // actionCell.appendChild(deleteButton);
-    // row.appendChild(actionCell);
-
     tableBody.appendChild(row);
   });
 }
+
+// Fungsi untuk menghapus item berdasarkan mid
+// function deleteItem(mid) {
+//   const confirmation = confirm(`Anda yakin ingin menghapus data dengan MID ${mid}?`);
+//   if (confirmation) {
+//     data = data.filter(item => item.mid !== mid);
+//     renderTable();
+//   }
+// }
+
+// Fungsi untuk mengedit item berdasarkan mid
+// function editItem(mid) {
+//   const newMid = prompt("Masukkan MID baru:", mid);
+//   if (newMid !== null && newMid !== mid) {
+//     data = data.map(item => (item.mid === mid ? { ...item, mid: newMid } : item));
+//     renderTable();
+//   }
+// }
 
 // Menghapus jumlah tertentu dari data
 

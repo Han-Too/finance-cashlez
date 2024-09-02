@@ -51,23 +51,7 @@
                         </div>
                     </div>
                     <!--end::Input group-->
-                    <div class="d-flex flex-column mb-8 fv-row">
-                        <!--begin::Label-->
-                        <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                            <span class="required">Status</span>
-                            <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip"
-                                title="Name of the bank"></i>
-                        </label>
-                        <!--end::Label-->
-                        <select name="status" aria-label="Select a Status"
-                            data-placeholder="Select a Status..." class="form-select form-select-solid fw-bolder" id="statusInput">
-                            <option value="">Select a Status...</option>
-                                <option value="all">All</option>
-                                <option value="match">Match</option>
-                                <option value="dispute">Dispute</option>
-                                
-                        </select>
-                    </div>
+                    
                     <!--begin::Actions-->
 
                     <div class="text-center">

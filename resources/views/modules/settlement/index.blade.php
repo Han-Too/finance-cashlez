@@ -62,7 +62,8 @@
                         <th class="text-center">Total Credit</th>
                         <th class="text-center">Reconcile</th>
                         <th class="text-center">Partnert</th>
-                        
+                        <th class="text-center">Transfer Date</th>
+                        <th class="text-center">Channel</th>
                         <th class="text-end min-w-100px">Actions</th>
                     </tr>
                 </thead>

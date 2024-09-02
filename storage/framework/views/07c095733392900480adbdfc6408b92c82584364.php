@@ -43,14 +43,14 @@
 
             <div class="d-flex flex-wrap justify-content-between">
                 <!--begin::Stats-->
-                <div class="d-flex flex-wrap">
-                    <div class="border border-gray-300 border-dashed rounded  w-300px py-3 px-4 me-6 mb-3">
+                <div class="d-flex flex-wrap ">
+                    <div class="border border-gray-300 border-dashed rounded  w-auto py-3 px-4 me-6 mb-3">
                         
                         <p  class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
                             <!--begin::Hidden-->
                             <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
                                 <div class="me-2">
-                                    <span class="fw-bolder text-gray-800 d-block fs-3">Match</span>
+                                    <span class="fw-bolder text-gray-800 d-block fs-3">Not Match</span>
                                     <span class="text-gray-400 fw-bold"><?php echo e($resmatch); ?> Trx</span>
                                 </div>
                                 <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($ressumMatch)); ?></div>
@@ -58,21 +58,20 @@
                             <!--end::Hidden-->
                         </p>
                     </div>
-                    <div class="border border-gray-300 border-dashed rounded  w-300px py-3 px-4 me-6 mb-3">
+                    <div class="border border-gray-300 border-dashed rounded  w-auto py-3 px-4 me-6 mb-3">
                         
                         <p  class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
                             <!--begin::Hidden-->
                             <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
                                 <div class="me-2">
-                                    <span class="fw-bolder text-gray-800 d-block fs-3">Dispute</span>
-                                    <span class="text-gray-400 fw-bold"><?php echo e($dispcount); ?> Trx</span>
+                                    <span class="fw-bolder text-gray-800 d-block fs-3">Variance</span>
+                                    <span class="text-gray-400 fw-bold"><?php echo e($resdispute); ?> Trx</span>
                                 </div>
-                                <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($disp)); ?></div>
+                                <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($ressumDispute)); ?></div>
                             </div>
                             <!--end::Hidden-->
                         </p>
                     </div>
-                    
                 </div>
             </div>
             <!--begin::Wrapper-->
@@ -129,8 +128,9 @@
                     <button id="resrefreshButton" class="btn btn-sm btn-light-primary w-100 me-3 rounded-sm">Refresh
                         Table</button>
                     
-                    <a href="#" class="btn btn-sm btn-light-warning me-3 rounded-sm" data-bs-toggle="modal"
-                        data-bs-target="#kt_modal_download">Download</a>
+                    <a href="<?php echo e(route('reconcile.downloadunmatch')); ?>" class="btn btn-sm btn-light-warning me-3 rounded-sm" 
+                    
+                    >Download</a>
     
                     <!--end::Filter-->
                 </div>
@@ -148,20 +148,21 @@
                         
                         
                         <th>MID / MRC</th>
+                        
+                        <th>Settlement Date</th>
                         <th>Bank Code</th>
                         <th>Merchant Name</th>
                         <th>Account Number</th>
-                        <th>Identify</th>
+                        <th>Bank Code</th>
                         <th>Bank Type</th>
-                        <th>Account Name</th>
+                        <th>Merchant Name</th>
                         <th>Transfer Amount</th>
                         <th>Sales Amount</th>
                         <th>Bank Transfer</th>
                         <th>Bank Movement</th>
                         <th>Variance</th>
                         <th>Status</th>
-                        <th>Type</th>
-                        <th>Actions</th>
+                        
                     </tr>
                 </thead>
                 <tbody class="text-gray-600 fw-bold">

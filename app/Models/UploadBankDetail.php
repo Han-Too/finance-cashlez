@@ -24,7 +24,8 @@ class UploadBankDetail extends Model
         'modified_by',
         'is_reconcile',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'bank_id'
     ];
 
     public function header()

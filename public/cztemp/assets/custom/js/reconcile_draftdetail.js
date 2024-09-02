@@ -316,7 +316,7 @@ var KTDatatablesServerUnmatch = (function () {
                               </div>
                               <!--end::Menu-->
                           `;
-            } else if(row.status_reconcile == "reconciled"){
+            } else if(row.status_reconcile == "reconciled" || row.status_reconcile == "checker"){
               return '';
             } else {
               return `
@@ -492,6 +492,9 @@ var KTDatatablesServerUnmatch = (function () {
         opens: "left",
         startDate: moment().startOf("month"),
         endDate: moment().endOf("month"),
+        locale: {
+          format: 'YYYY-MM-DD'
+        },
       },
       function (start, end, label) {
         startDate = start.format("YYYY-MM-DD");

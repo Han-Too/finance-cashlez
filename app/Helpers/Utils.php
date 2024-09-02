@@ -118,9 +118,18 @@ class Utils
         }
     }
 
-    public static function getNewStatusReconcile($sales, $diff)
+    public static function getNewStatusReconcile($boSettlement, $bankSettlement,$sales)
     {
-        if ($diff == 100 && ($diff / $sales * 100) == 1) {
+        $diff = abs($boSettlement - $bankSettlement);
+        if ($diff <= 100 || (abs($diff / $sales) * 100) <= 1) {
+            return "MATCH";
+        } else {
+            return "NOT_MATCH";
+        }
+    }
+    public static function getNewStatusReconcile2($diff,$sales)
+    {
+        if ($diff <= 100 || (abs($diff / $sales) * 100) <= 1 && $diff != $diff) {
             return "MATCH";
         } else {
             return "NOT_MATCH";

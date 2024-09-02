@@ -24,7 +24,7 @@
     if ($status) {
         if ($token) {
             $downloadUrl = $downloadUrl . '&status=' . $status;
-        } else{
+        } else {
             $downloadUrl = $downloadUrl . '?status=' . $status;
         }
     }
@@ -46,30 +46,30 @@
                 <div class="d-flex flex-wrap">
                     <div class="border border-gray-300 border-dashed rounded  w-300px py-3 px-4 me-6 mb-3">
                         
-                        <p  class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
+                        <p class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
                             <!--begin::Hidden-->
-                            <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
-                                <div class="me-2">
-                                    <span class="fw-bolder text-gray-800 d-block fs-3">Match</span>
-                                    <span class="text-gray-400 fw-bold"><?php echo e($resmatch); ?> Trx</span>
-                                </div>
-                                <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($ressumMatch)); ?></div>
+                        <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
+                            <div class="me-2">
+                                <span class="fw-bolder text-gray-800 d-block fs-3">Match</span>
+                                <span class="text-gray-400 fw-bold"><?php echo e($resmatch); ?> Trx</span>
                             </div>
-                            <!--end::Hidden-->
+                            <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($ressumMatch)); ?></div>
+                        </div>
+                        <!--end::Hidden-->
                         </p>
                     </div>
                     <div class="border border-gray-300 border-dashed rounded  w-300px py-3 px-4 me-6 mb-3">
                         
-                        <p  class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
+                        <p class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
                             <!--begin::Hidden-->
-                            <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
-                                <div class="me-2">
-                                    <span class="fw-bolder text-gray-800 d-block fs-3">Dispute</span>
-                                    <span class="text-gray-400 fw-bold"><?php echo e($dispcount); ?> Trx</span>
-                                </div>
-                                <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($disp)); ?></div>
+                        <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
+                            <div class="me-2">
+                                <span class="fw-bolder text-gray-800 d-block fs-3">Dispute</span>
+                                <span class="text-gray-400 fw-bold"><?php echo e($dispcount); ?> Trx</span>
                             </div>
-                            <!--end::Hidden-->
+                            <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($disp)); ?></div>
+                        </div>
+                        <!--end::Hidden-->
                         </p>
                     </div>
                     
@@ -82,7 +82,7 @@
                     <?php if(request()->query('status') !== null): ?>
                         <div class="fw-bolder fs-3 my-4">Result For <?php echo e($status); ?> Transaction</div>
                     <?php endif; ?>
-    
+
                     <!--begin::Search-->
                     <div class="d-flex">
                         <div class="d-flex align-items-center position-relative my-1 rounded-sm">
@@ -94,8 +94,8 @@
                         <div class="d-flex align-items-center position-relative my-1">
                             <!--begin::Svg Icon | path: icons/duotune/general/gen021.svg-->
                             <span class="svg-icon svg-icon-1 position-absolute ms-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24" fill="none">
                                     <rect opacity="0.5" x="17.0365" y="15.1223" width="8.15546" height="2"
                                         rx="1" transform="rotate(45 17.0365 15.1223)" fill="black" />
                                     <path
@@ -117,12 +117,12 @@
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
-    
+
                     </div>
                     <!--end::Search-->
                 </div>
                 <!--end::Search-->
-    
+
                 <!--begin::Toolbar-->
                 <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
                     <!--begin::Filter-->
@@ -131,16 +131,21 @@
                     
                     <a href="#" class="btn btn-sm btn-light-warning me-3 rounded-sm" data-bs-toggle="modal"
                         data-bs-target="#kt_modal_download">Download</a>
-    
+                    <?php if($checkapprove > 0): ?>
+                        <button id="approveAll" class="btn btn-sm btn-success me-3 rounded-sm">
+                            Approve
+                        </button>
+                    <?php endif; ?>
+
                     <!--end::Filter-->
                 </div>
                 <!--end::Toolbar-->
-    
+
             </div>
             <!--end::Wrapper-->
-    
+
             <!--begin::Datatable-->
-    
+
             <table id="kt_datatable_example_99" class="table align-middle table-row-dashed fs-6 gy-5">
                 <thead>
                     <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
@@ -161,6 +166,7 @@
                         <th>Variance</th>
                         <th>Status</th>
                         <th>Type</th>
+                        <th>Created Date</th>
                         <th>Actions</th>
                     </tr>
                 </thead>

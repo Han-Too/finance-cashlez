@@ -35,8 +35,8 @@
 
             <div class="d-flex flex-wrap justify-content-between">
                 <!--begin::Stats-->
-                <div class="d-flex flex-wrap">
-                    <div class="border border-gray-300 border-dashed rounded  w-300px py-3 px-4 me-6 mb-3">
+                <div class="d-flex flex-wrap ">
+                    <div class="border border-gray-300 border-dashed rounded  w-auto py-3 px-4 me-6 mb-3">
                         {{-- <a href={{ url('/reconcile/result?status=match&token=' . $token) }} --}}
                         <p  class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
                             <!--begin::Hidden-->
@@ -50,34 +50,20 @@
                             <!--end::Hidden-->
                         </p>
                     </div>
-                    <div class="border border-gray-300 border-dashed rounded  w-300px py-3 px-4 me-6 mb-3">
+                    <div class="border border-gray-300 border-dashed rounded  w-auto py-3 px-4 me-6 mb-3">
                         {{-- <a href={{ url('/reconcile/result?status=dispute&token=' . $token) }} --}}
                         <p  class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
                             <!--begin::Hidden-->
                             <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
                                 <div class="me-2">
                                     <span class="fw-bolder text-gray-800 d-block fs-3">Variance</span>
-                                    <span class="text-gray-400 fw-bold">{{ $dispcount }} Trx</span>
+                                    <span class="text-gray-400 fw-bold">{{ $resdispute }} Trx</span>
                                 </div>
-                                <div class="fw-bolder fs-5 text-primary">IDR Rp. {{ number_format($disp) }}</div>
+                                <div class="fw-bolder fs-5 text-primary">IDR Rp. {{ number_format($ressumDispute) }}</div>
                             </div>
                             <!--end::Hidden-->
                         </p>
                     </div>
-                    {{-- <div class="border border-gray-300 border-dashed rounded  w-300px py-3 px-4 me-6 mb-3">
-                        <a href={{ url('/reconcile/result?status=onHold&token=' . $token) }}
-                            class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
-                            <!--begin::Hidden-->
-                            <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
-                                <div class="me-2">
-                                    <span class="fw-bolder text-gray-800 d-block fs-3">On Hold</span>
-                                    <span class="text-gray-400 fw-bold">{{ $resonHold }} Trx</span>
-                                </div>
-                                <div class="fw-bolder fs-5 text-primary">IDR Rp. {{ number_format($ressumHold) }}</div>
-                            </div>
-                            <!--end::Hidden-->
-                        </a>
-                    </div> --}}
                 </div>
             </div>
             <!--begin::Wrapper-->
@@ -134,8 +120,9 @@
                     <button id="resrefreshButton" class="btn btn-sm btn-light-primary w-100 me-3 rounded-sm">Refresh
                         Table</button>
                     {{-- <a href="{{ url($downloadUrl) }} " class="btn btn-light-warning me-3 rounded-sm">Download</a> --}}
-                    <a href="#" class="btn btn-sm btn-light-warning me-3 rounded-sm" data-bs-toggle="modal"
-                        data-bs-target="#kt_modal_download">Download</a>
+                    <a href="{{ route('reconcile.downloadunmatch') }}" class="btn btn-sm btn-light-warning me-3 rounded-sm" 
+                    {{-- data-bs-toggle="modal" data-bs-target="#kt_modal_download" --}}
+                    >Download</a>
     
                     <!--end::Filter-->
                 </div>
@@ -153,20 +140,21 @@
                         {{-- <th>Batch</th> --}}
                         {{-- <th>No</th> --}}
                         <th>MID / MRC</th>
+                        {{-- <th>Bank Code</th> --}}
+                        <th>Settlement Date</th>
                         <th>Bank Code</th>
                         <th>Merchant Name</th>
                         <th>Account Number</th>
-                        <th>Identify</th>
+                        <th>Bank Code</th>
                         <th>Bank Type</th>
-                        <th>Account Name</th>
+                        <th>Merchant Name</th>
                         <th>Transfer Amount</th>
                         <th>Sales Amount</th>
                         <th>Bank Transfer</th>
                         <th>Bank Movement</th>
                         <th>Variance</th>
                         <th>Status</th>
-                        <th>Type</th>
-                        <th>Actions</th>
+                        {{-- <th></th> --}}
                     </tr>
                 </thead>
                 <tbody class="text-gray-600 fw-bold">

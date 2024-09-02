@@ -117,19 +117,21 @@
             <!--begin::Toolbar-->
             <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
                 <!--begin::Filter-->
-                <button id="resrefreshButton" class="btn btn-sm btn-light-primary w-100 me-3 rounded-sm">Refresh
-                    Table</button>
+                <button id="resrefreshButton" class="btn btn-sm btn-primary w-100 me-3 rounded-sm">
+                    Refresh
+                    Table
+                </button>
                 
-                <?php if($reportapprov != 0): ?>
+                
+                <?php if($reportapprov != 0 || $checkcount > 0): ?>
                     
-                    <form id="download_reconcile_form" class="form" action="#">
-                        <button type="submit" class="btn btn-sm btn-light-warning me-3 rounded-sm">Download</button>
+                    <form class="form" action="/reconcile/download">
+                        <button type="submit" class="btn btn-sm btn-warning me-3 rounded-sm">Download</button>
                     </form>
                 <?php endif; ?>
-
-                <?php if($reportcount != 0 || $approved < 0): ?>
-                    <button id="approveAll" class="btn btn-sm btn-light-success w-100 me-3 rounded-sm">
-                        Approve All
+                <?php if($checkcount < 0 || $reportcount != 0 || $approved < 0 ): ?>
+                    <button id="approveAll" class="btn btn-sm btn-info w-100 me-3 rounded-sm">
+                        Send to Checker
                     </button>
                 <?php endif; ?>
 

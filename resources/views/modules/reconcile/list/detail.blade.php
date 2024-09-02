@@ -52,7 +52,7 @@
                     <button class="col nav-link py-3" id="nav-report-tab" data-bs-toggle="tab" data-bs-target="#nav-report"
                         type="button" role="tab" aria-controls="nav-report" aria-selected="true">
                         <div class="fw-bold fs-6 text-active-primary">
-                            Disbursement List
+                            Result
                         </div>
                     </button>
                 {{-- @endif --}}

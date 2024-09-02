@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('created_by', 150)->nullable();
             $table->string('modified_by', 150)->nullable();
             $table->boolean('modified_by')->default(false);
+            $table->bigInteger('bank_id')->nullable();
             $table->timestamps();
         });
     }

@@ -4,6 +4,9 @@ $("#kt_daterangepicker_99").daterangepicker();
 
 var token = $('meta[name="csrf-token"]').attr("content");
 
+var regex = /\/reconcile-list\/detail\/([^\/]+)/;
+var tokenA = getTokenFromUrl(regex);
+
 var KTDatatablesServerSideRes = (function () {
   var dt;
   var uuid = "";
@@ -83,7 +86,15 @@ var KTDatatablesServerSideRes = (function () {
               APPROVED
               </div>
               `;
-            } else if (row.category_report == "manual") {
+            } 
+            else if (row.status_reconcile == "pending") {
+              return `
+              <div class="badge badge-info">
+              CHECKER
+              </div>
+              `;
+            } 
+            else if (row.category_report == "manual") {
               return `
                   <a href="javascript:void()" onclick="goManual('${row.id}')" 
                   class="btn btn-light btn-active-light-danger btn-sm">
@@ -272,7 +283,7 @@ var KTDatatablesServerSideRes = (function () {
           className: "text-start",
           width: "150px",
           render: function (data, type, row) {
-            return to_rupiah(row.dispute_amount);
+            return to_rupiah(row.variance);
           },
         },
         {
@@ -350,6 +361,9 @@ var KTDatatablesServerSideRes = (function () {
         opens: "left",
         startDate: moment().startOf("month"),
         endDate: moment().endOf("month"),
+        locale: {
+          format: 'YYYY-MM-DD'
+        },
       },
       function (start, end, label) {
         startDate = start.format("YYYY-MM-DD");
@@ -424,7 +438,7 @@ $("#download_reconcile_form").on("submit", function (event) {
     "-" +
     endDateParts[1].padStart(2, "0");
 
-  return (window.location.href = `${baseUrl}/reconcile/download?bank=${bank}&status=${status}&startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
+  return (window.location.href = `${baseUrl}/reconcile/download?startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
 });
 
 function goDraft(id) {
@@ -615,7 +629,7 @@ $(document).ready(function () {
   $("#approveAll").on("click", function (event) {
     Swal.fire({
       title: "Are you sure?",
-      text: "Approved data cannot be restored",
+      text: "Send This Data to Checker?",
       icon: "warning",
       showCancelButton: true,
       // confirmButtonColor: "#3085d6",
@@ -624,7 +638,7 @@ $(document).ready(function () {
     }).then((result) => {
       if (result.isConfirmed) {
         $.ajax({
-          url: baseUrl + "/reconcilereport/approveall",
+          url: baseUrl + "/reconcilereport/checkall/"+tokenA,
           headers: {
             "X-CSRF-TOKEN": token, // Menyertakan token CSRF di header permintaan
           },

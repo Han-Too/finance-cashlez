@@ -80,76 +80,103 @@ var KTDatatablesServerSideRes = (function () {
               APPROVED
               </div>
               `;
-            } else if (row.category_report == "manual") {
+            } 
+//             else if (row.category_report == "manual" && row.status_reconcile == "checker") {
+//               return `
+// <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click"
+//     data-kt-menu-placement="bottom-end" data-kt-menu-flip="top-end"> Actions <span
+//         class="svg-icon svg-icon-5 m-0">
+//         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+//             width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+//             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+//                 <polygon points="0 0 24 0 24 24 0 24"></polygon>
+//                 <path
+//                     d="M6.70710678,15.7071068 C6.31658249,16.0976311 5.68341751,16.0976311 5.29289322,15.7071068 C4.90236893,15.3165825 4.90236893,14.6834175 5.29289322,14.2928932 L11.2928932,8.29289322 C11.6714722,7.91431428 12.2810586,7.90106866 12.6757246,8.26284586 L18.6757246,13.7628459 C19.0828436,14.1360383 19.1103465,14.7686056 18.7371541,15.1757246 C18.3639617,15.5828436 17.7313944,15.6103465 17.3242754,15.2371541 L12.0300757,10.3841378 L6.70710678,15.7071068 Z"
+//                     fill="#000000" fill-rule="nonzero"
+//                     transform="translate(12.000003, 11.999999) rotate(-180.000000) translate(-12.000003, -11.999999)"></path>
+//             </g>
+//         </svg>
+//     </span>
+// </a>
+// <div
+//     class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4"
+//     data-kt-menu="true">
+    
+//     <div class="menu-item px-3">
+//         <a href="javascript:void()" onclick="approveReport(${row.id})" class="menu-link px-3"
+//             data-kt-docs-table-filter="delete_row">
+//             Approved
+//         </a>
+//     </div>
+//     <div class="menu-item px-3">
+//         <a href="javascript:void()"
+//             onclick="goManual('${row.id}')"
+//             class="menu-link px-3">
+//             Cancel
+//         </a>
+//     </div>
+// </div>
+// <!--end::Menu-->
+//               `;
+//             } 
+            else {
               return `
-                  <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-flip="top-end">
-                          Actions
-                          <span class="svg-icon svg-icon-5 m-0">
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
-          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-              <polygon points="0 0 24 0 24 24 0 24"></polygon>
-              <path d="M6.70710678,15.7071068 C6.31658249,16.0976311 5.68341751,16.0976311 5.29289322,15.7071068 C4.90236893,15.3165825 4.90236893,14.6834175 5.29289322,14.2928932 L11.2928932,8.29289322 C11.6714722,7.91431428 12.2810586,7.90106866 12.6757246,8.26284586 L18.6757246,13.7628459 C19.0828436,14.1360383 19.1103465,14.7686056 18.7371541,15.1757246 C18.3639617,15.5828436 17.7313944,15.6103465 17.3242754,15.2371541 L12.0300757,10.3841378 L6.70710678,15.7071068 Z" fill="#000000" fill-rule="nonzero" transform="translate(12.000003, 11.999999) rotate(-180.000000) translate(-12.000003, -11.999999)"></path>
-          </g>
-      </svg>
-                          </span>
-                      </a>
-                      <!--begin::Menu-->
-                      <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4" data-kt-menu="true">
-                          <!--begin::Menu item-->
-                          <div class="menu-item px-3">
-      <a href="javascript:void()" 
-      onclick="goManual('${row.id}')"
-      class="menu-link px-3">
-          Manual
-      </a>
-                          </div>
-                          <!--end::Menu item-->
-            
-                          <!--begin::Menu item-->
-                          <div class="menu-item px-3">
-                          <a href="javascript:void()" onclick="approveReport(${row.id})" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
-                          Approved
-                          </a>
-                          </div>
-                          <!--end::Menu item-->
-                      </div>
-                      <!--end::Menu-->
-                                    `;
-            } else {
-              return `
-                  <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-flip="top-end">
-                          Actions
-                          <span class="svg-icon svg-icon-5 m-0">
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
-          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-              <polygon points="0 0 24 0 24 24 0 24"></polygon>
-              <path d="M6.70710678,15.7071068 C6.31658249,16.0976311 5.68341751,16.0976311 5.29289322,15.7071068 C4.90236893,15.3165825 4.90236893,14.6834175 5.29289322,14.2928932 L11.2928932,8.29289322 C11.6714722,7.91431428 12.2810586,7.90106866 12.6757246,8.26284586 L18.6757246,13.7628459 C19.0828436,14.1360383 19.1103465,14.7686056 18.7371541,15.1757246 C18.3639617,15.5828436 17.7313944,15.6103465 17.3242754,15.2371541 L12.0300757,10.3841378 L6.70710678,15.7071068 Z" fill="#000000" fill-rule="nonzero" transform="translate(12.000003, 11.999999) rotate(-180.000000) translate(-12.000003, -11.999999)"></path>
-          </g>
-      </svg>
-                          </span>
-                      </a>
-                      <!--begin::Menu-->
-                      <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4" data-kt-menu="true">
-                          <!--begin::Menu item-->
-                          <div class="menu-item px-3">
-      <a href="javascript:void()"
-      onclick="goDraft('${row.id}')"
-      class="menu-link px-3">
-          Draft
-      </a>
-                          </div>
-                          <!--end::Menu item-->
-            
-                          <!--begin::Menu item-->
-                          <div class="menu-item px-3">
-                          <a href="javascript:void()" onclick="approveReport(${row.id})" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
-                          Approved
-                          </a>
-                          </div>
-                          <!--end::Menu item-->
-                      </div>
-                      <!--end::Menu-->
-                                    `;
+              <a
+  href="#"
+  class="btn btn-light btn-active-light-primary btn-sm"
+  data-kt-menu-trigger="click"
+  data-kt-menu-placement="bottom-end"
+  data-kt-menu-flip="top-end"
+>
+  Actions
+  <span class="svg-icon svg-icon-5 m-0">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      width="24px"
+      height="24px"
+      viewBox="0 0 24 24"
+      version="1.1"
+    >
+      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <polygon points="0 0 24 0 24 24 0 24"></polygon>
+        <path
+          d="M6.70710678,15.7071068 C6.31658249,16.0976311 5.68341751,16.0976311 5.29289322,15.7071068 C4.90236893,15.3165825 4.90236893,14.6834175 5.29289322,14.2928932 L11.2928932,8.29289322 C11.6714722,7.91431428 12.2810586,7.90106866 12.6757246,8.26284586 L18.6757246,13.7628459 C19.0828436,14.1360383 19.1103465,14.7686056 18.7371541,15.1757246 C18.3639617,15.5828436 17.7313944,15.6103465 17.3242754,15.2371541 L12.0300757,10.3841378 L6.70710678,15.7071068 Z"
+          fill="#000000"
+          fill-rule="nonzero"
+          transform="translate(12.000003, 11.999999) rotate(-180.000000) translate(-12.000003, -11.999999)"
+        ></path>
+      </g>
+    </svg>
+  </span>
+</a>
+
+<div
+  class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4"
+  data-kt-menu="true"
+>
+  <div class="menu-item px-3">
+    <a
+      href="javascript:void()"
+      onclick="approveReport(${row.id})"
+      class="menu-link px-3"
+      data-kt-docs-table-filter="delete_row"
+    >
+      Approved
+    </a>
+  </div>
+  
+  <div class="menu-item px-3">
+    <a
+      href="javascript:void()"
+      onclick="goReport('${row.id}')"
+      class="menu-link px-3"
+    >
+      Cancel
+    </a>
+  </div>
+</div>
+                `;
             }
           },
         },
@@ -344,7 +371,7 @@ var KTDatatablesServerSideRes = (function () {
           className: "text-start",
           width: "150px",
           render: function (data, type, row) {
-            return to_rupiah(row.dispute_amount);
+            return to_rupiah(row.variance);
           },
         },
         {
@@ -391,6 +418,15 @@ var KTDatatablesServerSideRes = (function () {
             }
           },
         },
+        {
+          targets: 14,
+          orderable: true,
+          className: "text-center",
+          width: "150px",
+          render: function (data, type, row) {
+            return to_date(row.created_at);
+          },
+        },
       ],
 
       createdRow: function (row, data, dataIndex) {
@@ -420,8 +456,13 @@ var KTDatatablesServerSideRes = (function () {
     $("#kt_daterangepicker_1").daterangepicker(
       {
         opens: "left",
-        startDate: moment().startOf("month"),
-        endDate: moment().endOf("month"),
+        // startDate: moment().startOf("month"),
+        startDate: moment(),
+        // endDate: moment().endOf("month"),
+        endDate: moment(),
+        locale: {
+          format: 'YYYY-MM-DD'
+        },
       },
       function (start, end, label) {
         startDate = start.format("YYYY-MM-DD");
@@ -470,9 +511,6 @@ var KTDatatablesServerSideRes = (function () {
 $("#download_reconcile_form").on("submit", function (event) {
   event.preventDefault();
 
-  // var bank = document.getElementById(`bankInput`).value;
-  var bank = "5";
-  var status = document.getElementById(`statusInput`).value;
   var dateRange = document.getElementById(`kt_daterangepicker_99`).value;
 
   var dates = dateRange.split(" - ");
@@ -496,12 +534,54 @@ $("#download_reconcile_form").on("submit", function (event) {
     "-" +
     endDateParts[1].padStart(2, "0");
 
-  return (window.location.href = `${baseUrl}/reconcile/download?bank=${bank}&status=${status}&startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
+  return (window.location.href = `${baseUrl}/reconcile/downloaddisburst?&startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
 });
 
 function goDraft(id) {
   $.ajax({
     url: baseUrl + "/reconcilereport/draft/" + id,
+    headers: {
+      "X-CSRF-TOKEN": token, // Menyertakan token CSRF di header permintaan
+    },
+    type: "POST",
+    success: function (response) {
+      // console.log(response);
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+        },
+      });
+      Toast.fire({
+        icon: "success",
+        title: "Data Have Been Remove",
+      });
+    },
+    error: function (xhr, status, error) {
+      // toast('Data Have Been Remove!','success');
+      Swal.fire({
+        text: "error",
+        icon: "error",
+        buttonsStyling: false,
+        confirmButtonText: "Ok, got it!",
+        customClass: {
+          confirmButton: "btn fw-bold btn-primary",
+        },
+      });
+    },
+  }).then(function () {
+    // reloadDatatable();
+    window.location.reload();
+  });
+}
+function goReport(id) {
+  $.ajax({
+    url: baseUrl + "/reconcilereport/report/" + id,
     headers: {
       "X-CSRF-TOKEN": token, // Menyertakan token CSRF di header permintaan
     },
@@ -674,6 +754,60 @@ function mrcDetail(tokenApplicant, id) {
     },
   });
 }
+
+$(document).ready(function () {
+  $("#approveAll").on("click", function (event) {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Approve All Data?",
+      icon: "warning",
+      showCancelButton: true,
+      // confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          url: baseUrl + "/reconcilereport/approveall",
+          headers: {
+            "X-CSRF-TOKEN": token, // Menyertakan token CSRF di header permintaan
+          },
+          type: "POST",
+          beforeSend: function () {
+            swal.showLoading();
+          },
+          success: function (response) {
+            Toast.fire({
+              icon: "success",
+              title: "Data Have Been Approve",
+            });
+          },
+          error: function (xhr, status, error) {
+            // toast('Data Have Been Remove!','success');
+            Swal.fire({
+              text: "error",
+              icon: "error",
+              buttonsStyling: false,
+              confirmButtonText: "Ok, got it!",
+              customClass: {
+                confirmButton: "btn fw-bold btn-primary",
+              },
+            });
+          },
+        }).then(function () {
+          // reloadDatatable();
+          window.location.reload();
+        });
+      } else {
+        Swal.fire({
+          title: "Process Cancelled",
+          text: "The Process Has Been Canceled",
+          icon: "error",
+        });
+      }
+    });
+  });
+});
 
 function selectChannel() {}
 

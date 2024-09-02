@@ -123,12 +123,19 @@
                     </span>
                     <div class="menu-sub menu-sub-accordion">
                         <div class="menu-item">
-                            <a class="menu-link <?php echo e(request()->is('reconcile-list/*') ? 'active' : ''); ?>"
-                                href="<?php echo e(url('reconcile-list')); ?>">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Reconcile List</span>
+                            <?php if(request()->is('reconcile-list/*')): ?>
+                                <a class="menu-link <?php echo e(request()->is('reconcile-list/*') ? 'active' : ''); ?>"
+                                    href="<?php echo e(url('reconcile-list')); ?>">
+                                <?php elseif(request()->is('reconcile-list')): ?>
+                                    <a class="menu-link <?php echo e(request()->is('reconcile-list') ? 'active' : ''); ?>"
+                                        href="<?php echo e(url('reconcile-list')); ?>">
+                                    <?php else: ?>
+                                        <a class="menu-link" href="<?php echo e(url('reconcile-list')); ?>">
+                            <?php endif; ?>
+                            <span class="menu-bullet">
+                                <span class="bullet bullet-dot"></span>
+                            </span>
+                            <span class="menu-title">Reconcile List</span>
                             </a>
                         </div>
                         

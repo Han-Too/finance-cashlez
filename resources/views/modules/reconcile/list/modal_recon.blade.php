@@ -63,17 +63,31 @@
                         <div class="d-flex flex-column mb-8 fv-row">
                             <!--begin::Label-->
                             <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                <span class="required">Channel</span>
+                                <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip"
+                                    title="Name of the channel"></i>
+                            </label>
+                            <!--end::Label-->
+                            <select name="channel" id="channelSearch" aria-label="Select a Channel"
+                                data-placeholder="Select a Channel..." class="form-select form-select-solid fw-bolder">
+                                <option value="">Select a Channel...</option>
+                                @foreach ($channels as $item)
+                                    <option value="{{ $item->bank_id }}">{{ $item->channel }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="d-flex flex-column mb-8 fv-row">
+                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                 <span class="required">File Settlement</span>
                                 <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip"
                                     title="Name of the bank"></i>
                             </label>
-                            <!--end::Label-->
-                            <select name="filesettle" aria-label="Select a Channel" data-control="select1"
+                            <select name="filesettle" aria-label="Select a Channel" data-control="select1" id="filesettlement"
                                 data-placeholder="Select a File..." class="form-select form-select-solid fw-bolder">
-                                <option value="">Select a File...</option>
-                                @foreach ($file as $item)
+                                {{-- <option value="">Select a File...</option> --}}
+                                {{-- @foreach ($file as $item)
                                     <option value="{{ $item->name }}">{{ $item->name }}</option>
-                                @endforeach
+                                @endforeach --}}
                             </select>
                         </div>
                         <div class="d-flex flex-column mb-8 fv-row">
@@ -105,3 +119,4 @@
     </div>
     <!--end::Modal dialog-->
 </div>
+

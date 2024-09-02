@@ -130,12 +130,19 @@
                     </span>
                     <div class="menu-sub menu-sub-accordion">
                         <div class="menu-item">
-                            <a class="menu-link {{ request()->is('reconcile-list/*') ? 'active' : '' }}"
-                                href="{{ url('reconcile-list') }}">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Reconcile List</span>
+                            @if (request()->is('reconcile-list/*'))
+                                <a class="menu-link {{ request()->is('reconcile-list/*') ? 'active' : '' }}"
+                                    href="{{ url('reconcile-list') }}">
+                                @elseif (request()->is('reconcile-list'))
+                                    <a class="menu-link {{ request()->is('reconcile-list') ? 'active' : '' }}"
+                                        href="{{ url('reconcile-list') }}">
+                                    @else
+                                        <a class="menu-link" href="{{ url('reconcile-list') }}">
+                            @endif
+                            <span class="menu-bullet">
+                                <span class="bullet bullet-dot"></span>
+                            </span>
+                            <span class="menu-title">Reconcile List</span>
                             </a>
                         </div>
                         {{-- <div class="menu-item">

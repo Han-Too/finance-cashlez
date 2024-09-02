@@ -73,7 +73,7 @@ class ReconcileExport implements FromCollection, WithHeadings, WithMapping
         // $query->where(DB::raw('DATE(settlement_date)'), '>=', $this->startDate);
         // $query->where(DB::raw('DATE(settlement_date)'), '<=', $this->endDate);
         // $query->where('processor_payment', $this->channel);
-        $query->where('status', '!=', 'deleted');
+        // $query->where('status', '!=', 'deleted');
 
         return $query->get();
     }
@@ -97,7 +97,7 @@ class ReconcileExport implements FromCollection, WithHeadings, WithMapping
             $stt,
             $data->internal_payment,
             $data->bank_settlement_amount,
-            $data->dispute_amount,
+            $data->variance,
             $data->total_sales,
             $data->transfer_amount,
             " " . $data->bank_account->account_number,
@@ -175,12 +175,13 @@ class ReconcileExport implements FromCollection, WithHeadings, WithMapping
         return [
             strval($mrc),
             strval($data->mid),
+            strval($data->settlement_date),
             strval($mername),
             strval($banktype),
             strval($data->total_sales),
             strval($data->bank_transfer),
             strval($data->bank_settlement_amount),
-            strval($data->dispute_amount),
+            strval($data->variance),
             strval($data->transfer_amount),
             strval($data->tax_payment),
             strval($data->transfer_amount - $data->tax_payment),
@@ -195,7 +196,7 @@ class ReconcileExport implements FromCollection, WithHeadings, WithMapping
             strval($bn),
             strval(""),
             strval(""),
-            strval($data->settlement_date),
+            strval($data->updated_at),
             strval(""),
         ];
     }
@@ -232,6 +233,7 @@ class ReconcileExport implements FromCollection, WithHeadings, WithMapping
         return [
             'MRC',
             'MID SECURE',
+            'SETTLEMENT DATE',
             'MERCHANT NAME',
             'BANK TYPE',
             'TOTAL SALES',

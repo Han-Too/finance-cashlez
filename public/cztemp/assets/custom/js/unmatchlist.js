@@ -71,45 +71,15 @@ var KTDatatablesServerSideRes = (function () {
       //   { data: "category_report" },
       // ],
       columnDefs: [
-        {
-          targets: -1,
-          orderable: false,
-          className: "text-center",
-          width: "200px",
-          render: function (data, type, row) {
-            if (row.status_reconcile == "approved") {
-              return `
-              <div class="badge badge-success">
-              APPROVED
-              </div>
-              `;
-            } else if (row.category_report == "manual") {
-              return `
-                  <a href="javascript:void()" onclick="goManual('${row.id}')" 
-                  class="btn btn-light btn-active-light-danger btn-sm">
-                          Cancel
-                          </a>
-                                    `;
-            } else {
-              return `
-              <a href="javascript:void()" onclick="goDraft('${row.id}')"
-                  class="btn btn-light btn-active-light-danger btn-sm">
-                          Cancel
-                          </a>
-                                    `;
-            }
-            // <div class="menu-item px-3">
-            //               <a href="javascript:void()" onclick="approveReport(${row.id})" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
-            //               Approved
-            //               </a>
-            //               </div>
-            // <div class="menu-item px-3">
-            //               <a href="javascript:void()" onclick="approveReport(${row.id})" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
-            //               Approved
-            //               </a>
-            //               </div>
-          },
-        },
+        // {
+        //   targets: -1,
+        //   orderable: false,
+        //   className: "text-center",
+        //   width: "200px",
+        //   render: function (data, type, row) {
+        //     return '';
+        //   },
+        // },
         {
           targets: 0,
           orderable: true,
@@ -272,7 +242,7 @@ var KTDatatablesServerSideRes = (function () {
           className: "text-start",
           width: "150px",
           render: function (data, type, row) {
-            return to_rupiah(row.dispute_amount);
+            return to_rupiah(row.variance);
           },
         },
         {
@@ -284,10 +254,10 @@ var KTDatatablesServerSideRes = (function () {
             var status = "";
             var badge = "";
             if (row.status == "MATCH") {
-              status = "match";
+              status = "MATCH";
               badge = "badge-light-success";
-            } else if (row.status == "NOT_MATCH" || data == "NOT_FOUND") {
-              status = "dispute";
+            } else if (row.status == "deleted") {
+              status = "NOT MATCH";
               badge = "badge-light-danger";
             } else {
               status = "on hold";
@@ -296,27 +266,6 @@ var KTDatatablesServerSideRes = (function () {
             return `
                               <span class="badge ${badge}">${status.toUpperCase()}</span>
                           `;
-          },
-        },
-        {
-          targets: 14,
-          orderable: true,
-          className: "text-center",
-          width: "150px",
-          render: function (data, type, row) {
-            if (row.category_report == "system") {
-              return `
-              <div class="badge badge-primary">
-                ${row.category_report.toUpperCase()}
-              </div>
-              `;
-            } else {
-              return `
-              <div class="badge badge-warning">
-                ${row.category_report.toUpperCase()}
-              </div>
-              `;
-            }
           },
         },
       ],
@@ -350,6 +299,9 @@ var KTDatatablesServerSideRes = (function () {
         opens: "left",
         startDate: moment().startOf("month"),
         endDate: moment().endOf("month"),
+        locale: {
+          format: 'YYYY-MM-DD'
+        },
       },
       function (start, end, label) {
         startDate = start.format("YYYY-MM-DD");
@@ -421,10 +373,10 @@ $("#download_reconcile_form").on("submit", function (event) {
     endDateParts[2] +
     "-" +
     endDateParts[0].padStart(2, "0") +
-    "-" +
+    "-" + 
     endDateParts[1].padStart(2, "0");
 
-  return (window.location.href = `${baseUrl}/reconcile/download?bank=${bank}&status=${status}&startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
+  return (window.location.href = `${baseUrl}/reconcile/downloadunmatch`);
 });
 
 function goDraft(id) {

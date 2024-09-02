@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReconcileDisburstExport;
 use App\Exports\ReconcileExport;
+use App\Exports\ReconcileUnmatchExport;
 use App\Helpers\Reconcile;
 use App\Helpers\Utils;
 use App\Models\Bank;
@@ -42,8 +44,12 @@ class ReconcileController extends Controller
     public function reconcilelist()
     {
         $list = ReconcileList::get();
+        $channels = Channel::with('parameter')
+            ->where('status', 'active')
+            ->whereHas('parameter')
+            ->get();
         $file = UploadBank::where('is_reconcile', '0')->get();
-        return view('modules.reconcile.list.list', compact('list', 'file'));
+        return view('modules.reconcile.list.list', compact('list', 'file', 'channels'));
     }
     public function reconcilelistdata(Request $request)
     {
@@ -82,7 +88,7 @@ class ReconcileController extends Controller
                     'bank_transfer' => $data->bank_transfer,
                     'transfer_amount' => $data->transfer_amount,
                     'bank_settlement_amount' => $data->bank_settlement_amount,
-                    'dispute_amount' => $data->dispute_amount,
+                    // 'dispute_amount' => $data->dispute_amount,
                     'created_by' => $data->created_by,
                     'modified_by' => $data->modified_by,
                     'settlement_date' => $data->settlement_date,
@@ -142,7 +148,7 @@ class ReconcileController extends Controller
                         'bank_transfer' => $val->bank_transfer,
                         'transfer_amount' => $val->transfer_amount,
                         'bank_settlement_amount' => $val->bank_settlement_amount,
-                        'dispute_amount' => $val->dispute_amount,
+                        // 'dispute_amount' => $val->dispute_amount,
                         'created_by' => $val->created_by,
                         'modified_by' => $val->modified_by,
                         'settlement_date' => $val->settlement_date,
@@ -181,7 +187,7 @@ class ReconcileController extends Controller
                         'merchant_id' => $val->merchant_id,
                         'transfer_amount' => $val->transfer_amount,
                         'bank_settlement_amount' => $val->bank_settlement_amount,
-                        'dispute_amount' => $val->dispute_amount,
+                        // 'dispute_amount' => $val->dispute_amount,
                         'created_by' => $val->created_by,
                         'variance' => $val->variance,
                         'modified_by' => $val->modified_by,
@@ -191,13 +197,13 @@ class ReconcileController extends Controller
                     ]);
                     $val->status_manual = true;
                     $val->status_reconcile = "manual";
+                    $val->status = "deleted";
 
                     DraftBackOffice::where('id', $val->bo_id)->update([
                         'status_reconcile' => NULL,
                         'reconcile_date' => NULL,
                     ]);
                 }
-                $val->status = "deleted";
                 $val->save();
             }
             return response()->json(['message' => ['Successfully moving data!'], 'status' => true], 200);
@@ -209,8 +215,8 @@ class ReconcileController extends Controller
     }
     public function manualReport($id)
     {
+        $data = ReconcileReport::where('id', $id)->first();
         try {
-            $data = ReconcileReport::where('id', $id)->first();
             if ($data) {
                 $idbo = explode("//", $data->bo_id);
                 $idbank = explode("//", $data->draft_id);
@@ -225,6 +231,9 @@ class ReconcileController extends Controller
                 //                 'status_reconcile' => "manual",
                 //             ]);
                 // }
+                ReconcileReport::where('id', $id)->update([
+                    'status_reconcile' => "report",
+                ]);
 
                 foreach ($idbank as $val) {
                     ReconcileDraft::where('token_applicant', $data->token_applicant)
@@ -232,7 +241,8 @@ class ReconcileController extends Controller
                                 'status' => "deleted",
                                 'status_reconcile' => "manual",
                             ]);
-                    ReconcileUnmatch::where('token_applicant', $list->token_applicant)
+
+                    ReconcileUnmatch::where('token_applicant', $data->token_applicant)
                         ->where('id', $val)
                         ->update([
                             'status' => 'NOT_MATCH',
@@ -254,6 +264,56 @@ class ReconcileController extends Controller
                 // ReconcileReport::where('id', $id)->delete();
                 return response()->json(['message' => ['Success Draft Data!'], 'status' => true], 200);
 
+            }
+            return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
+        } catch (\Throwable $th) {
+            Log::info($th);
+            dd($th);
+            return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
+        }
+    }
+    public function goReport($id)
+    {
+        $data = ReconcileReport::where('id', $id)->first();
+        try {
+            if ($data) {
+                if (strpos($data->draft_id, "//") !== false) {
+                    $draftid = explode("//", $data->draft_id);
+                    foreach ($draftid as $draft) {
+                        ReconcileDraft::where('id', $draft)->update([
+                            'status_reconcile' => 'report',
+                            'status' => $data->status,
+                            // 'reconcile_date' => Carbon::now(),
+                            'modified_by' => Auth::user()->username,
+                        ]);
+                    }
+                } else {
+                    ReconcileDraft::where('id', $data->draft_id)->update([
+                        'status_reconcile' => 'report',
+                        'status' => $data->status,
+                        // 'reconcile_date' => Carbon::now(),
+                        'modified_by' => Auth::user()->username,
+                    ]);
+                }
+                $boIds = explode("//", $data->bo_id);
+
+                foreach ($boIds as $boId) {
+                    DraftBackOffice::where('id', $boId)->update([
+                        'status_reconcile' => 'reconciled',
+                        'reconcile_date' => Carbon::now(),
+                    ]);
+                }
+                $data->status_reconcile = "report";
+                $data->save();
+
+                ReconcileList::where("token_applicant", $data->token_applicant)->update([
+                    'status' => 'draft',
+                ]);
+                UploadBank::where('token_applicant', $data->token_applicant)
+                    ->update([
+                        'is_reconcile' => 3,
+                    ]);
+                return response()->json(['message' => ['Success Approved Data!'], 'status' => true], 200);
             }
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         } catch (\Throwable $th) {
@@ -295,15 +355,35 @@ class ReconcileController extends Controller
         $data = ReconcileReport::where('id', $id)->first();
         try {
             if ($data) {
-                ReconcileDraft::where('id', $data->draft_id)->update([
-                    'status_reconcile' => 'reconciled',
-                    'status' => $data->status,
-                    'reconcile_date' => Carbon::now(),
-                    'modified_by' => Auth::user()->username,
-                ]);
+                if (strpos($data->draft_id, "//") !== false) {
+                    $draftid = explode("//", $data->draft_id);
+                    foreach ($draftid as $draft) {
+                        ReconcileDraft::where('id', $draft)->update([
+                            'status_reconcile' => 'reconciled',
+                            'status' => $data->status,
+                            'reconcile_date' => Carbon::now(),
+                            'modified_by' => Auth::user()->username,
+                        ]);
+                    }
+                } else {
+                    ReconcileDraft::where('id', $data->draft_id)->update([
+                        'status_reconcile' => 'reconciled',
+                        'status' => $data->status,
+                        'reconcile_date' => Carbon::now(),
+                        'modified_by' => Auth::user()->username,
+                    ]);
+                }
+                $boIds = explode("//", $data->bo_id);
+
+                foreach ($boIds as $boId) {
+                    DraftBackOffice::where('id', $boId)->update([
+                        'status_reconcile' => 'approved',
+                        'reconcile_date' => Carbon::now(),
+                    ]);
+                }
                 $data->status_reconcile = "approved";
                 $data->save();
-                return response()->json(['message' => ['Success Draft Data!'], 'status' => true], 200);
+                return response()->json(['message' => ['Success Approved Data!'], 'status' => true], 200);
             }
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         } catch (\Throwable $th) {
@@ -312,9 +392,9 @@ class ReconcileController extends Controller
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
     }
-    public function approveAll()
+    public function checkerAll($token)
     {
-        $data = ReconcileReport::get();
+        $data = ReconcileReport::where('token_applicant', $token)->get();
         try {
             if ($data) {
                 // foreach ($data as $val) {
@@ -345,7 +425,7 @@ class ReconcileController extends Controller
 
                     foreach ($draftIds as $draftId) {
                         ReconcileDraft::where('id', $draftId)->update([
-                            'status_reconcile' => 'reconciled',
+                            'status_reconcile' => 'checker',
                             'status' => $val->status,
                             'reconcile_date' => Carbon::now(),
                             'modified_by' => Auth::user()->username,
@@ -358,7 +438,7 @@ class ReconcileController extends Controller
 
                     foreach ($boIds as $boId) {
                         DraftBackOffice::where('id', $boId)->update([
-                            'status_reconcile' => 'reconciled',
+                            'status_reconcile' => 'checker',
                             'reconcile_date' => Carbon::now(),
                         ]);
                     }
@@ -366,7 +446,65 @@ class ReconcileController extends Controller
 
                     ReconcileList::where('token_applicant', $val->token_applicant)
                         ->update([
-                            'status' => "reconciled",
+                            'status' => "pending",
+                            'reconcile_date' => Carbon::now(),
+                        ]);
+                    UploadBank::where('token_applicant', $val->token_applicant)
+                        ->update([
+                            'is_reconcile' => true,
+                        ]);
+                    UploadBankDetail::where('token_applicant', $val->token_applicant)
+                        ->update([
+                            'is_reconcile' => true,
+                        ]);
+
+                    // Update status_reconcile pada objek $val
+                    $val->status_reconcile = "pending";
+                    $val->save();
+                }
+                return response()->json(['message' => ['Success Approve Data!'], 'status' => true], 200);
+            }
+            return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
+        } catch (\Throwable $th) {
+            Log::info($th);
+            dd($th);
+            return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
+        }
+    }
+    public function approveAll()
+    {
+        $data = ReconcileReport::where('status_reconcile', 'pending')->get();
+        try {
+            if ($data) {
+
+                foreach ($data as $val) {
+                    // Pisahkan draft_id berdasarkan delimiter '//'
+                    $draftIds = explode("//", $val->draft_id);
+
+                    foreach ($draftIds as $draftId) {
+                        ReconcileDraft::where('id', $draftId)->update([
+                            'status_reconcile' => 'approved',
+                            'status' => $val->status,
+                            'reconcile_date' => Carbon::now(),
+                            'modified_by' => Auth::user()->username,
+                        ]);
+
+                    }
+
+                    // Pisahkan bo_id berdasarkan delimiter '//'
+                    $boIds = explode("//", $val->bo_id);
+
+                    foreach ($boIds as $boId) {
+                        DraftBackOffice::where('id', $boId)->update([
+                            'status_reconcile' => 'approved',
+                            'reconcile_date' => Carbon::now(),
+                        ]);
+                    }
+
+
+                    ReconcileList::where('token_applicant', $val->token_applicant)
+                        ->update([
+                            'status' => "approved",
                             'reconcile_date' => Carbon::now(),
                         ]);
                     UploadBank::where('token_applicant', $val->token_applicant)
@@ -427,7 +565,7 @@ class ReconcileController extends Controller
                         'bank_transfer' => $data->bank_transfer,
                         'transfer_amount' => $data->transfer_amount,
                         'bank_settlement_amount' => $data->bank_settlement_amount,
-                        'dispute_amount' => $data->dispute_amount,
+                        // 'dispute_amount' => $data->dispute_amount,
                         'created_by' => $data->created_by,
                         'modified_by' => $data->modified_by,
                         'settlement_date' => $data->settlement_date,
@@ -477,7 +615,7 @@ class ReconcileController extends Controller
                     'merchant_id' => $data->merchant_id,
                     'transfer_amount' => $data->transfer_amount,
                     'bank_settlement_amount' => $data->bank_settlement_amount,
-                    'dispute_amount' => $data->dispute_amount,
+                    // 'dispute_amount' => $data->dispute_amount,
                     'created_by' => $data->created_by,
                     'variance' => $data->variance,
                     'modified_by' => $data->modified_by,
@@ -516,27 +654,16 @@ class ReconcileController extends Controller
             $end = date('d-m-Y', strtotime($splitDate[1]));
         }
         $fileset = $request->filesettle;
+        $channel = $request->channel;
+        // $bank = Channel::where('channel', $channel)->first();
         $name = $request->name;
-        $filehead = UploadBank::where('name', $fileset)->first();
+        $filehead = UploadBank::where('url', $fileset)->first();
         $user = Auth::user();
         // $detail = UploadBankDetail::where('token_applicant',$filehead->token_applicant)->get();
         // dd($filehead);
 
         $reconResult = false;
         try {
-
-            $list = ReconcileList::create([
-                'name' => $name,
-                'type' => "mid",
-                // 'token_applicant' => Str::uuid(),
-                'token_applicant' => $filehead->token_applicant,
-                'settlement_file' => $filehead->url,
-                'bo_date' => $request->bo_date,
-                'status' => "draft",
-                "is_parnert" => false,
-                "reconcile_date" => Carbon::now(),
-                "reconcile_by" => $user->name,
-            ]);
 
             $boData = InternalBatch::selectRaw('
                     SUM(transaction_count) as transaction_count,
@@ -553,9 +680,9 @@ class ReconcileController extends Controller
                     id,bank_id,tid,merchant_name,processor,batch_running_no,merchant_id,mid_ppn,
                     settlement_audit_id,tax_payment,created_by,created_at,status,settlement_date
                 ')
-                ->where(DB::raw('DATE(created_at)'), '>=', $BoStartDate)
-                ->where(DB::raw('DATE(created_at)'), '<=', $BoEndDate)
-                // ->where('bank_id', $channel)
+                ->where(DB::raw('DATE(settlement_date)'), '>=', $BoStartDate)
+                ->where(DB::raw('DATE(settlement_date)'), '<=', $BoEndDate)
+                ->where('bank_id', $channel)
                 ->where('status', 'SUCCESSFUL')
                 ->groupBy(
                     'mid',
@@ -581,7 +708,7 @@ class ReconcileController extends Controller
 
             if ($boData->isEmpty()) {
                 Log::info('Data BO EMPTY = ' . $boData->isEmpty());
-                ReconcileList::where('token_applicant', $list->token_applicant)->delete();
+                // ReconcileList::where('token_applicant', $list->token_applicant)->delete();
                 return response()->json(
                     [
                         'message' => ['Data Back Office ' . $start . ' until ' . $end . ' Not Found '],
@@ -591,8 +718,20 @@ class ReconcileController extends Controller
                 );
             } else {
 
+                $list = ReconcileList::create([
+                    'name' => $name,
+                    'type' => "mid",
+                    // 'token_applicant' => Str::uuid(),
+                    'token_applicant' => $filehead->token_applicant,
+                    'settlement_file' => $filehead->url,
+                    'bo_date' => $request->bo_date,
+                    'status' => "draft",
+                    "is_parnert" => false,
+                    "reconcile_date" => Carbon::now(),
+                    "reconcile_by" => $user->name,
+                ]);
                 // $reconResult = Reconcile::midBoBankDraft($BoStartDate, $BoEndDate, $filehead->token_applicant, $name, $list->token_applicant);
-                $reconResult = Reconcile::midBoBankDraft($BoStartDate, $BoEndDate, $filehead->token_applicant, $name, $filehead->token_applicant, $filehead->processor);
+                $reconResult = Reconcile::midBoBankDraft($BoStartDate, $BoEndDate, $filehead->token_applicant, $name, $list->token_applicant, $channel);
                 // dd($reconResult);
 
                 if ($reconResult == false) {
@@ -608,7 +747,7 @@ class ReconcileController extends Controller
         }
     }
 
-    public function reconcilelistdestroy(Request $request, $token)
+    public function reconcilelistdestroy($token)
     {
         // try {
 
@@ -745,12 +884,12 @@ class ReconcileController extends Controller
 
         $disp = ReconcileReport::where('token_applicant', $token)
             ->where('status_reconcile', 'approved')
-            ->where('dispute_amount', '>', 0)
-            ->pluck('dispute_amount')->sum();
+            ->where('variance', '>', 0)
+            ->pluck('variance')->sum();
         $dispcount = ReconcileReport::where('token_applicant', $token)
             ->where('status_reconcile', 'approved')
-            ->where('dispute_amount', '>', 0)
-            ->pluck('dispute_amount')->count();
+            ->where('variance', '>', 0)
+            ->pluck('variance')->count();
 
         $status = request()->query('status');
 
@@ -807,32 +946,56 @@ class ReconcileController extends Controller
         $data = ReconcileDraft::where('token_applicant', $token)->where('status', '!=', 'deleted')->get();
 
         $countdata = ReconcileDraft::where('token_applicant', $token)
+            // ->where('status_manual', '0')
+            // ->where('status_reconcile', '!=', 'reconciled')
+            // ->where('status_reconcile', '!=', 'checker')
+            // ->where('status', '!=', 'deleted')
+            ->count();
+        $syaratauto = ReconcileDraft::where('token_applicant', $token)
             ->where('status_manual', '0')
-            ->where('status_reconcile', '!=', 'reconciled')
+            ->where('status_reconcile', '!=', 'approved')
+            ->where('status_reconcile', '!=', 'pending')
+            ->where('status_reconcile', '!=', 'checker')
+            ->where('status_reconcile', '!=', 'report')
             ->where('status', '!=', 'deleted')
             ->count();
 
-        $approved = ReconcileReport::where('token_applicant', $token)->where('status_reconcile', 'approved')
-            ->where('status', 'MATCH')->count();
-
         $countapprov = ReconcileDraft::where('token_applicant', $token)
             ->where('status', '!=', 'deleted')->where('status_reconcile', '!=', 'reconciled')->count();
+
+        $approved = ReconcileReport::where('token_applicant', $token)
+            ->where('status_reconcile', 'approved')
+            ->where('status', 'MATCH')
+            ->count();
+
+        $checker = ReconcileReport::where('token_applicant', $token)
+            ->where('status_reconcile', 'pending')
+            ->where('status', 'MATCH')
+            ->count();
+
         $reportapprov = ReconcileReport::where('token_applicant', $token)
             ->where('status', 'MATCH')->where('status_reconcile', 'approved')->count();
+
         $reportcount = ReconcileReport::where('token_applicant', $token)
-            ->where('status', 'MATCH')->where('status_reconcile', '!=', 'approved')->count();
+            ->where('status', 'MATCH')
+            ->where('status_reconcile', 'report')
+            ->count();
+
+        $checkcount = ReconcileReport::where('token_applicant', $token)
+            ->where('status', 'MATCH')
+            ->where('status_reconcile', 'pending')
+            ->count();
 
         $match = ReconcileDraft::where('token_applicant', $token)
             ->where('status', 'MATCH')
-            ->where('status_reconcile', '!=', 'reconciled')
             ->count();
 
         $disp = ReconcileReport::where('token_applicant', $token)
-            ->where('dispute_amount', '>', 0)
-            ->pluck('dispute_amount')->sum();
+            ->where('variance', '>', 0)
+            ->pluck('variance')->sum();
         $dispcount = ReconcileReport::where('token_applicant', $token)
-            ->where('dispute_amount', '>', 0)
-            ->pluck('dispute_amount')->count();
+            ->where('variance', '>', 0)
+            ->pluck('variance')->count();
 
         $status = request()->query('status');
 
@@ -868,7 +1031,9 @@ class ReconcileController extends Controller
         $totalBankTransfer = ReconcileDraft::where('token_applicant', $token)->sum('bank_transfer');
 
         $unmatch = ReconcileDraft::where('token_applicant', $token)
-            ->where('status', 'NOT_MATCH')->count();
+            ->where('status', 'NOT_MATCH')
+            ->orWhere('status_reconcile', 'manual')
+            ->count();
         $onhold = ReconcileDraft::where('token_applicant', $token)->where('status', 'ONHOLD')->count();
         $draft = ReconcileDraft::where('token_applicant', $token)->where('status_reconcile', 'draft')->count();
         $approv = ReconcileDraft::where('token_applicant', $token)->where('status_reconcile', 'approved')->count();
@@ -876,6 +1041,9 @@ class ReconcileController extends Controller
         return view(
             'modules.reconcile.list.detail',
             compact(
+                'token',
+                'checkcount',
+                'syaratauto',
                 'approved',
                 'reportcount',
                 'reportapprov',
@@ -912,6 +1080,8 @@ class ReconcileController extends Controller
 
         $query = ReconcileDraft::where('status', '!=', 'deleted')
             ->where('status_reconcile', '!=', 'reconciled')
+            ->where('status_reconcile', '!=', 'checker')
+            ->where('status_reconcile', '!=', 'report')
             ->where('token_applicant', $token);
 
         if ($token_applicant) {
@@ -1026,7 +1196,7 @@ class ReconcileController extends Controller
                     'merchant_id' => $merchant_id,
                     'transfer_amount' => $sumTransaction, // transaction_amount di internal_batch
                     'bank_settlement_amount' => $amount_credit, // bank_settlement
-                    'dispute_amount' => $diff, // dispute_amount
+                    // 'dispute_amount' => $diff, // dispute_amount
                     'created_by' => $user->name,
                     'modified_by' => $user->name,
                     'settlement_date' => $carbonDate
@@ -1140,7 +1310,7 @@ class ReconcileController extends Controller
                         'bank_transfer' => $boSettlement,
                         'transfer_amount' => $sumTransaction,
                         'bank_settlement_amount' => $amount_credit,
-                        'dispute_amount' => $diff,
+                        // 'dispute_amount' => $diff,
                         'created_by' => $user->name,
                         'modified_by' => $user->name,
                         'settlement_date' => $carbonDate,
@@ -1215,7 +1385,7 @@ class ReconcileController extends Controller
                         'bank_transfer' => $internalBatch->bank_transfer,
                         'transfer_amount' => $internalBatch->transaction_amount,
                         'bank_settlement_amount' => $internalBatch->bank_transfer,
-                        'dispute_amount' => abs((float) $internalBatch->bank_transfer - (float) $bank->bank_transfer),
+                        // 'dispute_amount' => abs((float) $internalBatch->bank_transfer - (float) $bank->bank_transfer),
                         'created_by' => $user->name,
                         'modified_by' => $user->name,
                         'settlement_date' => $carbonDate,
@@ -1317,7 +1487,7 @@ class ReconcileController extends Controller
                         $oldRec->bank_transfer += $boSettlement;
                         $oldRec->transfer_amount += $sumTransaction;
                         $oldRec->bank_settlement_amount += $amount_credit;
-                        $oldRec->dispute_amount += $diff;
+                        // $oldRec->dispute_amount += $diff;
                         $oldRec->variance += $diff;
                         $oldRec->status = $status;
                         $oldRec->modified_by = $user->name;
@@ -1345,7 +1515,7 @@ class ReconcileController extends Controller
                             'bank_transfer' => $boSettlement,
                             'transfer_amount' => $sumTransaction,
                             'bank_settlement_amount' => $amount_credit,
-                            'dispute_amount' => $diff,
+                            // 'dispute_amount' => $diff,
                             'created_by' => $user->name,
                             'modified_by' => $user->name,
                             'settlement_date' => $carbonDate,
@@ -1491,7 +1661,7 @@ class ReconcileController extends Controller
                     $oldRec->bank_transfer += $boSettlement;
                     $oldRec->transfer_amount += $sumTransaction;
                     $oldRec->bank_settlement_amount += $amount_credit;
-                    $oldRec->dispute_amount += $diff;
+                    // $oldRec->dispute_amount += $diff;
                     $oldRec->variance += $diff;
                     $oldRec->status = $status;
                     $oldRec->modified_by = $user->name;
@@ -1519,7 +1689,7 @@ class ReconcileController extends Controller
                         'bank_transfer' => $boSettlement,
                         'transfer_amount' => $sumTransaction,
                         'bank_settlement_amount' => $amount_credit,
-                        'dispute_amount' => $diff,
+                        // 'dispute_amount' => $diff,
                         'created_by' => $user->name,
                         'modified_by' => $user->name,
                         'settlement_date' => $carbonDate,
@@ -1570,11 +1740,21 @@ class ReconcileController extends Controller
     public function reconcile($token, Request $request)
     {
         $user = Auth::user();
-        $approved = ReconcileReport::where('token_applicant', $token)->where('status_reconcile', 'approved')
-            ->where('status', 'MATCH')->count();
+        $approved = ReconcileReport::where('token_applicant', $token)
+            ->where('status_reconcile', 'approved')
+            ->where('status', 'MATCH')
+            ->count();
+
+        $checker = ReconcileReport::where('token_applicant', $token)
+            ->where('status_reconcile', 'pending')
+            ->where('status', 'MATCH')
+            ->count();
 
         if ($approved > 0) {
             return response()->json(['message' => ["This data has been approved! Select Other Data List!"], 'status' => false], 200);
+        }
+        if ($checker > 0) {
+            return response()->json(['message' => ["This data has been sent to Checker! Select Other Data List!"], 'status' => false], 200);
         }
 
         if (!isset($request->selectedBo)) {
@@ -1634,12 +1814,14 @@ class ReconcileController extends Controller
             if (!isset($bankData[$batchMid])) {
                 $bankData[$batchMid] = [
                     'bankSettlement' => 0,
+                    'sales' => 0,
                     'bankIds' => [],
                 ];
             }
 
             // Collect data
-            $bankData[$batchMid]['bankSettlement'] += $bank->bank_transfer;
+            $bankData[$batchMid]['bankSettlement'] += $bank->internal_payment;
+            $bankData[$batchMid]['sales'] += $bank->total_sales;
             $bankData[$batchMid]['bankIds'][] = $bankValue;
         }
 
@@ -1650,82 +1832,99 @@ class ReconcileController extends Controller
                 $amount_credit = number_format($rounded_value, 0, '', '');
                 $diff = abs((float) $bo['boSettlement'] - (float) $bankData[$mid]['bankSettlement']);
                 $treshold = Utils::calculateTreshold($bo['trxCount']);
-                $status = Utils::getStatusReconcile($treshold, $bo['boSettlement'], $bankData[$mid]['bankSettlement']);
+                // $status = Utils::getStatusReconcile($treshold, $bo['boSettlement'], $bankData[$mid]['bankSettlement']);
+                $status = Utils::getStatusReconcile($bo['boSettlement'], $bankData[$mid]['bankSettlement'], $bankData[$mid]['sales']);
 
-                $oldRec = ReconcileReport::where('mid', $mid)
-                    ->whereDate('settlement_date', Carbon::parse($bank->settlement_date))
-                    ->first();
+                // Log::info(abs($bo['boSettlement'] - $bankData[$mid]['bankSettlement']));
+                // Log::info((abs($bo['boSettlement'] - $bankData[$mid]['bankSettlement']) / $bankData[$mid]['sales'] * 100));
+                // Log::info((abs($bo['boSettlement'] - $bankData[$mid]['bankSettlement']) / $bankData[$mid]['sales'] * 100) == 1);
+                // Log::info($status);
+                // Log::info(($bankData[$mid]['bankSettlement'] -$bo['boSettlement']));
+                // die();
 
-                if ($oldRec) {
-                    // Update existing record
-                    $oldRec->draft_id = $oldRec->draft_id . "//" . implode('//', $bankData[$mid]['bankIds']);
-                    $oldRec->bo_id = $oldRec->bo_id . "//" . implode('//', $bo['boIds']);
-                    $oldRec->total_sales += $bo['totalSales'];
-                    $oldRec->internal_payment += $bo['boSettlement'];
-                    $oldRec->merchant_payment += $bo['merchantPayment'];
-                    $oldRec->tax_payment += $bo['taxPayment'];
-                    $oldRec->fee_mdr_merchant += $bo['feeMdrMerchant'];
-                    $oldRec->fee_bank_merchant += $bo['feeBankMerchant'];
-                    $oldRec->bank_transfer += $bo['boSettlement'];
-                    $oldRec->transfer_amount += $bo['sumTransaction'];
-                    $oldRec->bank_settlement_amount += $amount_credit;
-                    $oldRec->dispute_amount += $diff;
-                    $oldRec->variance += $diff;
-                    $oldRec->status = $status;
-                    $oldRec->modified_by = $user->name;
-                    $oldRec->save();
+                if ($status == "NOT_MATCH") {
+                    return response()->json(['message' => ["Data Not Match!"], 'status' => false], 200);
                 } else {
-                    // Create new record
-                    ReconcileReport::create([
-                        'draft_id' => implode('//', $bankData[$mid]['bankIds']),
-                        'bo_id' => implode('//', $bo['boIds']),
-                        'token_applicant' => $bank->token_applicant,
-                        'statement_date' => $bank->settlement_date,
-                        'status' => $status,
-                        'tid' => $bank->tid,
-                        'mid' => $mid,
-                        'trx_counts' => $bo['trxCount'],
-                        'total_sales' => $bo['totalSales'],
-                        'processor_payment' => $bank->processor_payment,
-                        'internal_payment' => $bo['boSettlement'],
-                        'merchant_payment' => $bo['merchantPayment'],
-                        'merchant_id' => $internalBatch->merchant_id,
-                        'merchant_name' => $bank->merchant_name,
-                        'tax_payment' => $bo['taxPayment'],
-                        'fee_mdr_merchant' => $bo['feeMdrMerchant'],
-                        'fee_bank_merchant' => $bo['feeBankMerchant'],
-                        'bank_transfer' => $bo['boSettlement'],
-                        'transfer_amount' => $bo['sumTransaction'],
-                        'bank_settlement_amount' => $amount_credit,
-                        'dispute_amount' => $diff,
-                        'created_by' => $user->name,
-                        'modified_by' => $user->name,
-                        'settlement_date' => Carbon::parse($bank->settlement_date),
-                        'variance' => $diff,
-                        'bank_id' => $bank->bank_id,
-                        'category_report' => 'manual',
-                        'status_manual' => true,
-                        'status_reconcile' => 'report',
+
+                    $oldRec = ReconcileReport::where('mid', $mid)
+                        ->whereDate('settlement_date', Carbon::parse($bank->settlement_date))
+                        ->first();
+
+                    if ($oldRec) {
+                        // Update existing record
+                        $oldRec->draft_id = $oldRec->draft_id . "//" . implode('//', $bankData[$mid]['bankIds']);
+                        $oldRec->bo_id = $oldRec->bo_id . "//" . implode('//', $bo['boIds']);
+                        $oldRec->total_sales += $bo['totalSales'];
+                        $oldRec->internal_payment += $bo['boSettlement'];
+                        $oldRec->merchant_payment += $bo['merchantPayment'];
+                        $oldRec->tax_payment += $bo['taxPayment'];
+                        $oldRec->fee_mdr_merchant += $bo['feeMdrMerchant'];
+                        $oldRec->fee_bank_merchant += $bo['feeBankMerchant'];
+                        $oldRec->bank_transfer += $bo['boSettlement'];
+                        $oldRec->transfer_amount += $bo['sumTransaction'];
+                        $oldRec->bank_settlement_amount += $amount_credit;
+                        // $oldRec->dispute_amount += $diff;
+                        $oldRec->variance += $diff;
+                        $oldRec->status = $status;
+                        $oldRec->modified_by = $user->name;
+                        $oldRec->save();
+                    } else {
+                        // Create new record
+                        ReconcileReport::create([
+                            'draft_id' => implode('//', $bankData[$mid]['bankIds']),
+                            'bo_id' => implode('//', $bo['boIds']),
+                            'token_applicant' => $token,
+                            // 'token_applicant' => $bank->token_applicant,
+                            'statement_date' => $bank->settlement_date,
+                            'status' => $status,
+                            'tid' => $bank->tid,
+                            'mid' => $mid,
+                            'trx_counts' => $bo['trxCount'],
+                            'total_sales' => $bo['totalSales'],
+                            'processor_payment' => $bank->processor_payment,
+                            'internal_payment' => $bo['boSettlement'],
+                            'merchant_payment' => $bo['merchantPayment'],
+                            'merchant_id' => $internalBatch->merchant_id,
+                            'merchant_name' => $bank->merchant_name,
+                            'tax_payment' => $bo['taxPayment'],
+                            'fee_mdr_merchant' => $bo['feeMdrMerchant'],
+                            'fee_bank_merchant' => $bo['feeBankMerchant'],
+                            'bank_transfer' => $bo['boSettlement'],
+                            'transfer_amount' => $bo['sumTransaction'],
+                            'bank_settlement_amount' => $amount_credit,
+                            // 'dispute_amount' => $diff,
+                            'created_by' => $user->name,
+                            'modified_by' => $user->name,
+                            'settlement_date' => Carbon::parse($bank->settlement_date),
+                            'variance' => $diff,
+                            'bank_id' => $bank->bank_id,
+                            'category_report' => 'manual',
+                            'status_manual' => true,
+                            'status_reconcile' => 'report',
+                            'reconcile_date' => Carbon::now(),
+                        ]);
+                    }
+
+                    // Update status of DraftBackOffice and ReconcileUnmatch
+                    DraftBackOffice::whereIn('id', $bo['boIds'])->update([
+                        'status_reconcile' => 'reconciled',
                         'reconcile_date' => Carbon::now(),
                     ]);
+
+                    ReconcileUnmatch::whereIn('id', $bankData[$mid]['bankIds'])->update([
+                        // 'token_applicant' => $token,
+                        'status' => $status,
+                        'modified_by' => $user->name,
+                        'status_reconcile' => true,
+                        'reconcile_date' => Carbon::now(),
+                    ]);
+
+                    return response()->json(['message' => 'Successfully Reconcile data!', 'status' => true], 200);
                 }
 
-                // Update status of DraftBackOffice and ReconcileUnmatch
-                DraftBackOffice::whereIn('id', $bo['boIds'])->update([
-                    'status_reconcile' => 'reconciled',
-                    'reconcile_date' => Carbon::now(),
-                ]);
-
-                ReconcileUnmatch::whereIn('id', $bankData[$mid]['bankIds'])->update([
-                    'status' => $status,
-                    'modified_by' => $user->name,
-                    'status_reconcile' => true,
-                    'reconcile_date' => Carbon::now(),
-                ]);
             }
         }
 
-        return response()->json(['message' => 'Successfully Reconcile data!', 'status' => true], 200);
     }
 
 
@@ -2142,7 +2341,7 @@ class ReconcileController extends Controller
                     'merchant_id' => $merchant_id,
                     'transfer_amount' => $sumTransaction, // transaction_amount di internal_batch
                     'bank_settlement_amount' => $amount_credit, // bank_settlement
-                    'dispute_amount' => $diff, // dispute_amount
+                    // 'dispute_amount' => $diff, // dispute_amount
                     'created_by' => $user->name,
                     'modified_by' => $user->name,
                     'settlement_date' => $carbonDate
@@ -2165,12 +2364,16 @@ class ReconcileController extends Controller
             ->whereHas('parameter')
             ->get();
 
-        $disp = ReconcileReport::where('dispute_amount', '>', 0)
+        $disp = ReconcileReport::where('variance', '>', 0)
             ->where('status_reconcile', 'approved')
-            ->pluck('dispute_amount')->sum();
-        $dispcount = ReconcileReport::where('dispute_amount', '>', 0)
+            ->pluck('variance')->sum();
+        $dispcount = ReconcileReport::where('variance', '>', 0)
             ->where('status_reconcile', 'approved')
-            ->pluck('dispute_amount')->count();
+            ->pluck('variance')->count();
+        $checkapprove = ReconcileReport::where('status_reconcile', 'pending')
+            ->count();
+
+
 
         $status = request()->query('status');
 
@@ -2195,6 +2398,7 @@ class ReconcileController extends Controller
         return view(
             'modules.reconcile.show',
             compact(
+                'checkapprove',
                 'disp',
                 'dispcount',
                 'banks',
@@ -2217,44 +2421,42 @@ class ReconcileController extends Controller
             ->get();
 
         $disp = ReconcileDraft::
-            where('status_reconcile', '!=','approved')
-            ->pluck('dispute_amount')->sum();
-        $dispcount = ReconcileReport::where('dispute_amount', '>', 0)
-            ->where('status_reconcile', 'approved')
-            ->pluck('dispute_amount')->count();
+            where('status_reconcile', '!=', 'approved')
+            ->pluck('variance')->sum();
 
         $status = request()->query('status');
 
-        $query1 = ReconcileReport::where('status_reconcile', 'approved');
-        $query2 = ReconcileReport::where('status_reconcile', 'approved');
-        $query3 = ReconcileReport::where('status_reconcile', 'approved');
-        $query4 = ReconcileReport::where('status_reconcile', 'approved');
-        $query5 = ReconcileReport::where('status_reconcile', 'approved');
-        $query6 = ReconcileReport::where('status_reconcile', 'approved');
+        $query1 = ReconcileDraft::
+            where('status_reconcile', '!=', 'approved');
+        $query2 = ReconcileDraft::
+            where('status_reconcile', '!=', 'approved');
+        $query3 = ReconcileDraft::
+            where('status_reconcile', '!=', 'approved');
+        $query4 = ReconcileDraft::
+            where('status_reconcile', '!=', 'approved');
+        $query5 = ReconcileDraft::
+            where('status_reconcile', '!=', 'approved');
+        $query6 = ReconcileDraft::
+            where('status_reconcile', '!=', 'approved');
 
         $report = ReconcileReport::pluck('id')->where('status_reconcile', 'approved');
 
-        $resmatch = $query1->where('status', 'MATCH')->count();
-        $resdispute = $query2->whereIn('status', ['NOT_MATCH', 'NOT_FOUND'])->count();
-        $resonHold = $query3->where('status', 'ON_HOLD')->count();
+        $resmatch = $query1->where('status', '!=', 'MATCH')->count();
+        $resdispute = $query4->where('status', '!=', 'MATCH')->count();
 
-        $ressumMatch = $query4->where('status', 'MATCH')->sum('total_sales');
-        $ressumDispute = $query5->whereIn('status', ['NOT_MATCH', 'NOT_FOUND'])->sum('total_sales');
-        $ressumHold = $query6->where('status', 'ON_HOLD')->sum('total_sales');
+        $ressumMatch = $query4->where('status', '!=', 'MATCH')->sum('total_sales');
+        $ressumDispute = $query4->where('status', '!=', 'MATCH')->sum('variance');
 
 
         return view(
             'modules.reconcile.unmatch',
             compact(
                 'disp',
-                'dispcount',
                 'banks',
                 'resmatch',
                 'resdispute',
-                'resonHold',
                 'ressumMatch',
                 'ressumDispute',
-                'ressumHold',
                 'report'
             )
         );
@@ -2266,49 +2468,21 @@ class ReconcileController extends Controller
         $token_applicant = request()->query('token');
         $status = request()->query('status');
 
-        $query = ReconcileResult::with('merchant', 'bank_account');
-        if ($token_applicant) {
-            $query->where('token_applicant', $token_applicant);
-        }
-        if ($status) {
-            if ($status == "match") {
-                $query->where('status', 'MATCH');
-            } elseif ($status == "dispute") {
-                $query->whereIn('status', ['NOT_MATCH', 'NOT_FOUND']);
-            }
-        }
-
-        if ($request->input('status') !== null) {
-            switch ($request->input('status')) {
-                case 'match':
-                    $status = ['MATCH'];
-                    break;
-                case 'dispute':
-                    $status = ['NOT_MATCH', 'NOT_FOUND'];
-                    break;
-                case 'onHold':
-                    $status = ['NOT_FOUND'];
-                    break;
-                default:
-                    $status = ['NOT_FOUND'];
-                    break;
-            }
-            $query->whereIn('status', $status);
-        }
+        $query = ReconcileDraft::with('merchant', 'bank_account')
+            ->where('status', '!=', 'MATCH')
+            ->where('status_reconcile', '!=', 'reconciled');
 
         if ($request->input('startDate') && $request->input('endDate')) {
             $startDate = $request->startDate;
             $endDate = $request->endDate;
 
-            $query->whereDate('settlement_date', '>=', $startDate)
-                ->whereDate('settlement_date', '<=', $endDate);
+            $query->whereDate('created_date', '>=', $startDate)
+                ->whereDate('created_date', '<=', $endDate);
         }
 
         if ($request->input('channel') !== null) {
             $query->where('processor_payment', $request->channel);
         }
-
-        $query->where('status', '!=', 'deleted');
 
         return DataTables::of($query->get())->addIndexColumn()->make(true);
     }
@@ -2381,8 +2555,15 @@ class ReconcileController extends Controller
     public function approveddata(Request $request)
     {
         $status = request()->query('status');
+        $startDate = $request->input('startDate') ?? date('Y-m-d');
+        $endDate = $request->input('endDate') ?? date('Y-m-d');
 
-        $query = ReconcileReport::with('merchant', 'bank_account')->where('status_reconcile', 'approved');
+        $query = ReconcileReport::with('merchant', 'bank_account')
+            ->where('status_reconcile', '!=', 'deleted')
+            ->where('status_reconcile', '!=', 'report')
+            ->where('status_reconcile', '!=', 'draft')
+            ->whereDate('created_at', '>=', $startDate)
+            ->whereDate('created_at', '<=', $endDate);
 
         if ($status) {
             if ($status == "match") {
@@ -2408,14 +2589,6 @@ class ReconcileController extends Controller
                     break;
             }
             $query->whereIn('status', $status);
-        }
-
-        if ($request->input('startDate') && $request->input('endDate')) {
-            $startDate = $request->startDate;
-            $endDate = $request->endDate;
-
-            $query->whereDate('settlement_date', '>=', $startDate)
-                ->whereDate('settlement_date', '<=', $endDate);
         }
 
         if ($request->input('channel') !== null) {
@@ -2569,7 +2742,61 @@ class ReconcileController extends Controller
         $filename = Carbon::now() . '-' . $text;
 
         // return Excel::download(new ReconcileExport($token_applicant, $status, $startDate, $endDate, $channel), 'reconcile-' . $filename . '.xlsx');
-        return Excel::download(new ReconcileExport($token_applicant), 'reconcile-' . $filename . '.xlsx');
+        return Excel::download(new ReconcileExport($token_applicant), 'reconcile result-' . $filename . '.xlsx');
+    }
+    public function downloadunmatch()
+    {
+        $token_applicant = request()->query('token');
+        // $status = request()->query('status');
+        // $channel = request()->query('bank');
+        // $channel = "5";
+
+        $startDate = request()->query('startDate');
+        $endDate = request()->query('endDate');
+
+        // if (!$status) {
+        //     $text = 'all';
+        // } else {
+        //     $text = $status;
+        // }
+
+        // $filename = $channel . '-' . $startDate . '-to-' . $endDate . '-' . $text;
+        // $filename = Carbon::now() . '-' . $text;
+
+        // return Excel::download(new ReconcileExport($token_applicant, $status, $startDate, $endDate, $channel), 'reconcile-' . $filename . '.xlsx');
+        return Excel::download(new ReconcileUnmatchExport(), 'reconcile unmach-' . Carbon::now() . '.xlsx');
+    }
+    public function downloaddisburst(Request $request)
+    {
+        // Log::info($date);
+        $token_applicant = request()->query('token');
+        // $status = request()->query('status');
+        // $channel = request()->query('bank');
+        // $channel = "5";
+
+        $startDate = request()->query('startDate');
+        $endDate = request()->query('endDate');
+        // Log::info($request->all());
+
+        $data = ReconcileReport::with('merchant', 'bank_account')
+            ->where(DB::raw('DATE(created_at)'), '>=', $startDate)
+            ->where(DB::raw('DATE(created_at)'), '<=', $endDate)
+            ->get();
+
+        // if (!$status) {
+        //     $text = 'all';
+        // } else {
+        //     $text = $status;
+        // }
+
+        // $filename = $channel . '-' . $startDate . '-to-' . $endDate . '-' . $text;
+        // $filename = Carbon::now() . '-' . $text;
+
+        if ($data->isEmpty()) {
+            return response()->json(['message' => ['Data Not Found'], 'status' => false], 200);
+        }
+        // return Excel::download(new ReconcileExport($token_applicant, $status, $startDate, $endDate, $channel), 'reconcile-' . $filename . '.xlsx');
+        return Excel::download(new ReconcileDisburstExport($startDate, $endDate), 'Disburstment List-' . Carbon::now() . '.xlsx');
     }
 
     public function reportmrcDetail($token_applicant)

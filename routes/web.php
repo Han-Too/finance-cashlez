@@ -110,8 +110,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/reconcilereport/draft/{id}', [ReconcileController::class, 'draftReport'])->name('reconcile.approvereport');
     Route::post('/reconcilereport/store/{id}', [ReconcileController::class, 'storeReport'])->name('reconcile.goreport');
     Route::post('/reconcilereport/manual/{id}', [ReconcileController::class, 'manualReport'])->name('reconcile.gomanual');
+    Route::post('/reconcilereport/report/{id}', [ReconcileController::class, 'goReport'])->name('reconcile.goReport');
 
-    Route::post('/reconcilereport/approveall', [ReconcileController::class, 'approveall'])->name('reconcile.approveall');
+    Route::post('/reconcilereport/checkall/{token}', [ReconcileController::class, 'checkerAll'])->name('reconcile.checkall');
+    Route::post('/reconcilereport/approveall', [ReconcileController::class, 'approveAll'])->name('reconcile.approveall');
 
     Route::post('/reconciledraft/move/{token}', [ReconcileController::class, 'draftmove'])->name('reconcile.draftmove');
 
@@ -129,6 +131,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/reconcile/data', [ReconcileController::class, 'data'])->name('reconcile.data');
     Route::get('/reconcile/detail/data/{token}', [ReconcileController::class, 'detailData'])->name('reconcile.detailData');
     Route::get('/reconcile/download', [ReconcileController::class, 'download'])->name('reconcile.download');
+    Route::get('/reconcile/downloaddisburst', [ReconcileController::class, 'downloaddisburst'])->name('reconcile.downloaddisburst');
+    Route::get('/reconcile/downloadunmatch', [ReconcileController::class, 'downloadunmatch'])->name('reconcile.downloadunmatch');
     Route::post('/reconcile/single/{token}', [ReconcileController::class, 'reconcile'])->name('reconcile.single');
     
     Route::post('/reconcile/channel', [ReconcileController::class, 'channel'])->name('reconcile.channel');

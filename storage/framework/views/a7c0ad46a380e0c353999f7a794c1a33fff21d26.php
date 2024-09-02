@@ -63,17 +63,29 @@
                         <div class="d-flex flex-column mb-8 fv-row">
                             <!--begin::Label-->
                             <label class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                <span class="required">Channel</span>
+                                <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip"
+                                    title="Name of the channel"></i>
+                            </label>
+                            <!--end::Label-->
+                            <select name="channel" id="channelSearch" aria-label="Select a Channel"
+                                data-placeholder="Select a Channel..." class="form-select form-select-solid fw-bolder">
+                                <option value="">Select a Channel...</option>
+                                <?php $__currentLoopData = $channels; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($item->bank_id); ?>"><?php echo e($item->channel); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            </select>
+                        </div>
+                        <div class="d-flex flex-column mb-8 fv-row">
+                            <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                                 <span class="required">File Settlement</span>
                                 <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip"
                                     title="Name of the bank"></i>
                             </label>
-                            <!--end::Label-->
-                            <select name="filesettle" aria-label="Select a Channel" data-control="select1"
+                            <select name="filesettle" aria-label="Select a Channel" data-control="select1" id="filesettlement"
                                 data-placeholder="Select a File..." class="form-select form-select-solid fw-bolder">
-                                <option value="">Select a File...</option>
-                                <?php $__currentLoopData = $file; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($item->name); ?>"><?php echo e($item->name); ?></option>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                
+                                
                             </select>
                         </div>
                         <div class="d-flex flex-column mb-8 fv-row">
@@ -105,4 +117,5 @@
     </div>
     <!--end::Modal dialog-->
 </div>
+
 <?php /**PATH C:\laragon\www\finance-server\resources\views/modules/reconcile/list/modal_recon.blade.php ENDPATH**/ ?>

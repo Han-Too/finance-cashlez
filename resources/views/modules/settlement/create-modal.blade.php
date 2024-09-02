@@ -47,7 +47,7 @@
                         <input type="text" class="form-control form-control-solid"     
                         name="settlename" id="" value="Settlement-{{ \Carbon\Carbon::now() }}">
                     </div>
-                    {{-- <div class="d-flex flex-column mb-8 fv-row">
+                    <div class="d-flex flex-column mb-8 fv-row">
                         <!--begin::Label-->
                         <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                             <span class="required">Channel Name</span>
@@ -62,20 +62,18 @@
                                 <option value="{{ $item->bank_id }}">{{ $item->channel }}</option>
                             @endforeach
                         </select>
-                    </div> --}}
-                    <div class="d-flex flex-column mb-8 fv-row">
-                        <!--begin::Label-->
+                    </div>
+                    {{-- <div class="d-flex flex-column mb-8 fv-row">
                         <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                             <span class="required">Statement Date</span>
                             <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip"
                                 title="Range of Statement Date"></i>
                         </label>
-                        <!--end::Label-->
                         <div class="mb-0 w-100 me-1">
                             <input class="form-control form-control-solid" placeholder="Pick date rage"
                                 id="kt_daterangepicker_1" name="range_date" />
                         </div>
-                    </div>
+                    </div> --}}
                     <!--end::Input group-->
                     <div class="d-flex flex-stack w-100 mb-8">
                         <!--begin::Label-->

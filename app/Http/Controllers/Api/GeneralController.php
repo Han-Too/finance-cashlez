@@ -6,12 +6,27 @@ use App\Helpers\Utils;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\RestController;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Channel;
+use App\Models\UploadBank;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class GeneralController extends RestController
 {
 
+    public function getfile($bank){
+        // $chan = Channel::where('channel',$bank)->first();
+        $file = UploadBank::where("processor",$bank)->select('name','url')->get();
+
+        // return response()->json($file, 200);
+        return response()->json(
+            [
+                'success' => true,
+                'data'    => $file,
+                'message' => 'SUCCESS',
+            ], 200);
+        // RestController::sendResponse(null, $file);
+    }
     public function portalLogin(LoginRequest $request)
     {
         try {
