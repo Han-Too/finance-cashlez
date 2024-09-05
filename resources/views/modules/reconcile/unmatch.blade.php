@@ -120,8 +120,10 @@
                     <button id="resrefreshButton" class="btn btn-sm btn-light-primary w-100 me-3 rounded-sm">Refresh
                         Table</button>
                     {{-- <a href="{{ url($downloadUrl) }} " class="btn btn-light-warning me-3 rounded-sm">Download</a> --}}
+                    
                     <a href="{{ route('reconcile.downloadunmatch') }}" class="btn btn-sm btn-light-warning me-3 rounded-sm" 
-                    {{-- data-bs-toggle="modal" data-bs-target="#kt_modal_download" --}}
+                    {{-- <a href="javascript:void(0)" class="btn btn-sm btn-light-warning me-3 rounded-sm" 
+                    data-bs-toggle="modal" data-bs-target="#kt_modal_download_unmatch" --}}
                     >Download</a>
     
                     <!--end::Filter-->
@@ -164,7 +166,7 @@
         </div>
     </div>
     @include('/modules/reconcile/mrc-modal')
-    @include('/modules/reconcile/download-modal')
+    @include('/modules/reconcile/download-unmatch-modal')
 
     @section('scripts')
         <script src="{{ asset('cztemp/assets/custom/js/unmatchlist.js') }}"></script>

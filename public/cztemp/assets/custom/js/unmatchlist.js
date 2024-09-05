@@ -256,7 +256,7 @@ var KTDatatablesServerSideRes = (function () {
             if (row.status == "MATCH") {
               status = "MATCH";
               badge = "badge-light-success";
-            } else if (row.status == "deleted") {
+            } else if (row.status == "deleted" || row.status == "NOT_MATCH") {
               status = "NOT MATCH";
               badge = "badge-light-danger";
             } else {

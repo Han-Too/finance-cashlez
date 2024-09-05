@@ -2,7 +2,9 @@
 
 namespace App\Helpers;
 
+use App\Models\BankAccount;
 use App\Models\InternalBatch;
+use App\Models\InternalMerchant;
 use App\Models\InternalTransaction;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -18,8 +20,8 @@ class BackOffice
         $now->subDay();
         $yesterdatDate = $now->format('Y-m-d');
 
-        // $url = 'https://api.cashlez.com/helper-service/finance-settlement-reconcile-by-date?settlement-date=2024-03-06';
-        $url = 'https://api.cashlez.com/helper-service/finance-settlement-reconcile-by-date?settlement-date='.$yesterdatDate;
+        // $url = 'https://api.cashlez.com/helper-service/finance-settlement-reconcile-by-date?settlement-date=2024-08-22';
+        $url = 'https://api.cashlez.com/helper-service/finance-settlement-reconcile-by-date?settlement-date=' . $yesterdatDate;
         $client = new Client([
             'verify' => false,
             'timeout' => 240
@@ -45,9 +47,9 @@ class BackOffice
                     'tid' => null,
                     'mid' => $batchDto->mid,
                     'merchant_name' => $merchantDTO->name,
-                    'processor' => $batchDto->processor, 
+                    'processor' => $batchDto->processor,
                     'batch_running_no' => null,
-                    'merchant_id' => $merchantDTO->id ,
+                    'merchant_id' => $merchantDTO->id,
                     'mid_ppn' => $batchDto->midPpn,
                     'transaction_amount' => $batchDto->transactionAmount,
                     'total_sales_amount' => $batchDto->totalSalesAmount,
@@ -76,18 +78,51 @@ class BackOffice
                             'transaction_type' => $trx->transactionType,
                             'tax_amount' => $trx->taxPayment,
                             'bank_id' => $batchDto->bankId,
-                            'created_at'=> $createdAt,
+                            'created_at' => $createdAt,
                             'updated_at' => Carbon::now()
                         ]);
                         $batch->settlement_date = $trx->settlementDate;
                         $batch->save();
                     }
+
+                    // Cek dan buat data InternalMerchant jika belum ada
+                    $merch = InternalMerchant::firstOrCreate(
+                        [ // Kondisi pengecekan
+                            "id" => $merchantDTO->id,
+                        ],
+                        [ // Data yang akan dibuat jika belum ada
+                            "uuid" => $merchantDTO->uniqueId,
+                            "name" => $merchantDTO->name,
+                            "reference_code" => $merchantDTO->referenceCode,
+                            "email" => $merchantDTO->email,
+                            "company_name" => $merchantDTO->companyName,
+                            "created_by" => $merchantDTO->createdBy,
+                            "created_at" => $merchantDTO->createdDate,
+                        ]
+                    );
+
+                    // Jika merchant berhasil dibuat atau sudah ada, cek BankAccount
+                    if ($merch) {
+                        BankAccount::firstOrCreate(
+                            [ // Kondisi pengecekan untuk BankAccount
+                                "merchant_id" => $merchantDTO->id,
+                                "account_number" => $merchantDTO->bankAccountDTO->accountNumber,
+                            ],
+                            [ // Data yang akan dibuat jika belum ada
+                                "account_holder" => $merchantDTO->bankAccountDTO->accountHolder,
+                                "bank_code" => $merchantDTO->bankAccountDTO->bankCode,
+                                "bank_name" => $merchantDTO->bankAccountDTO->bankName,
+                                "created_at" => $merchantDTO->createdDate,
+                            ]
+                        );
+                    }
+
                 }
             }
 
             Log::info("Berhasil menjalankan schedule ke back office tanggal " . $yesterdatDate);
             DB::commit();
-            return  response()->json(['message'=> "Successfully get data!", 'status' => true], 200);
+            return response()->json(['message' => "Successfully get data!", 'status' => true], 200);
         } catch (RequestException $e) {
             DB::rollBack();
             if ($e->hasResponse()) {

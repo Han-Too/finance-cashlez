@@ -16,7 +16,9 @@ class GeneralController extends RestController
 
     public function getfile($bank){
         // $chan = Channel::where('channel',$bank)->first();
-        $file = UploadBank::where("processor",$bank)->select('name','url')->get();
+        $file = UploadBank::where("processor",$bank)
+        ->where('is_reconcile','0')
+        ->select('name','url')->get();
 
         // return response()->json($file, 200);
         return response()->json(

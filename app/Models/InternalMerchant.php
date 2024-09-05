@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class InternalMerchant extends Model
 {
     protected $fillable = [
+        'id',
         'uuid',
         'name',
         'reference_code',

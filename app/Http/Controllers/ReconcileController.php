@@ -473,7 +473,11 @@ class ReconcileController extends Controller
     }
     public function approveAll()
     {
-        $data = ReconcileReport::where('status_reconcile', 'pending')->get();
+        $startDate = request()->query('startDate');
+        $endDate = request()->query('endDate');
+        $data = ReconcileReport::where('status_reconcile', 'pending')
+            ->where(DB::raw('DATE(created_at)'), '>=', $startDate)
+            ->where(DB::raw('DATE(created_at)'), '<=', $endDate)->get();
         try {
             if ($data) {
 
@@ -737,6 +741,8 @@ class ReconcileController extends Controller
                 if ($reconResult == false) {
                     return response()->json(['message' => ['Error while reconciling, please try again'], 'status' => false], 200);
                 } else {
+                    $filehead->is_reconcile = true;
+                    $filehead->save();
                     return response()->json(['message' => ['Successfully reconcile data!'], 'status' => true], 200);
                 }
             }
@@ -2470,7 +2476,8 @@ class ReconcileController extends Controller
 
         $query = ReconcileDraft::with('merchant', 'bank_account')
             ->where('status', '!=', 'MATCH')
-            ->where('status_reconcile', '!=', 'reconciled');
+            ->where('status_reconcile', '!=', ['reconciled', 'checker'])
+        ;
 
         if ($request->input('startDate') && $request->input('endDate')) {
             $startDate = $request->startDate;
@@ -2558,7 +2565,7 @@ class ReconcileController extends Controller
         $startDate = $request->input('startDate') ?? date('Y-m-d');
         $endDate = $request->input('endDate') ?? date('Y-m-d');
 
-        $query = ReconcileReport::with('merchant', 'bank_account')
+        $query = ReconcileReport::with('merchant', 'bank_account','channel')
             ->where('status_reconcile', '!=', 'deleted')
             ->where('status_reconcile', '!=', 'report')
             ->where('status_reconcile', '!=', 'draft')
@@ -2776,7 +2783,8 @@ class ReconcileController extends Controller
 
         $startDate = request()->query('startDate');
         $endDate = request()->query('endDate');
-        // Log::info($request->all());
+        Log::info($startDate);
+        Log::info($endDate);
 
         $data = ReconcileReport::with('merchant', 'bank_account')
             ->where(DB::raw('DATE(created_at)'), '>=', $startDate)

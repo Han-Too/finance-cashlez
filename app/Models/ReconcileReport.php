@@ -14,6 +14,10 @@ class ReconcileReport extends Model
     {
         return $this->belongsTo(InternalMerchant::class, 'merchant_id', 'id');
     }
+    public function channel()
+    {
+        return $this->belongsTo(Channel::class, 'bank_id', 'id');
+    }
     public function bank_account()
     {
         return $this->hasOneThrough(

@@ -1165,8 +1165,18 @@ function renderTable() {
     row.appendChild(tabDateCell);
 
     // Kolom selisih
+    // const selisihCell = document.createElement("td");
+    // selisihCell.textContent = to_rupiah(group.totalTabungan - group.totalUang);
+    // row.appendChild(selisihCell);
     const selisihCell = document.createElement("td");
-    selisihCell.textContent = to_rupiah(group.totalTabungan - group.totalUang);
+    const selisih = group.totalTabungan - group.totalUang;
+
+    if (selisih < 0) {
+      selisihCell.textContent = `( - ${to_rupiah(Math.abs(selisih))} )`;
+    } else {
+      selisihCell.textContent = `${to_rupiah(selisih)}`;
+    }
+
     row.appendChild(selisihCell);
 
     // Kolom status

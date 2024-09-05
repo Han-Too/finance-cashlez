@@ -56,7 +56,7 @@
                             <!--begin::Hidden-->
                         <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
                             <div class="me-2">
-                                <span class="fw-bolder text-gray-800 d-block fs-3">Dispute</span>
+                                <span class="fw-bolder text-gray-800 d-block fs-3">Variance</span>
                                 <span class="text-gray-400 fw-bold">{{ $dispcount }} Trx</span>
                             </div>
                             <div class="fw-bolder fs-5 text-primary">IDR Rp. {{ number_format($disp) }}</div>

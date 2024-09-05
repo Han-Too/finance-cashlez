@@ -74,51 +74,52 @@ var KTDatatablesServerSideRes = (function () {
           className: "text-center",
           width: "200px",
           render: function (data, type, row) {
+            console.log(row);
             if (row.status_reconcile == "approved") {
               return `
               <div class="badge badge-success">
               APPROVED
               </div>
               `;
-            } 
-//             else if (row.category_report == "manual" && row.status_reconcile == "checker") {
-//               return `
-// <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click"
-//     data-kt-menu-placement="bottom-end" data-kt-menu-flip="top-end"> Actions <span
-//         class="svg-icon svg-icon-5 m-0">
-//         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-//             width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
-//             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-//                 <polygon points="0 0 24 0 24 24 0 24"></polygon>
-//                 <path
-//                     d="M6.70710678,15.7071068 C6.31658249,16.0976311 5.68341751,16.0976311 5.29289322,15.7071068 C4.90236893,15.3165825 4.90236893,14.6834175 5.29289322,14.2928932 L11.2928932,8.29289322 C11.6714722,7.91431428 12.2810586,7.90106866 12.6757246,8.26284586 L18.6757246,13.7628459 C19.0828436,14.1360383 19.1103465,14.7686056 18.7371541,15.1757246 C18.3639617,15.5828436 17.7313944,15.6103465 17.3242754,15.2371541 L12.0300757,10.3841378 L6.70710678,15.7071068 Z"
-//                     fill="#000000" fill-rule="nonzero"
-//                     transform="translate(12.000003, 11.999999) rotate(-180.000000) translate(-12.000003, -11.999999)"></path>
-//             </g>
-//         </svg>
-//     </span>
-// </a>
-// <div
-//     class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4"
-//     data-kt-menu="true">
-    
-//     <div class="menu-item px-3">
-//         <a href="javascript:void()" onclick="approveReport(${row.id})" class="menu-link px-3"
-//             data-kt-docs-table-filter="delete_row">
-//             Approved
-//         </a>
-//     </div>
-//     <div class="menu-item px-3">
-//         <a href="javascript:void()"
-//             onclick="goManual('${row.id}')"
-//             class="menu-link px-3">
-//             Cancel
-//         </a>
-//     </div>
-// </div>
-// <!--end::Menu-->
-//               `;
-//             } 
+            }
+            //             else if (row.category_report == "manual" && row.status_reconcile == "checker") {
+            //               return `
+            // <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click"
+            //     data-kt-menu-placement="bottom-end" data-kt-menu-flip="top-end"> Actions <span
+            //         class="svg-icon svg-icon-5 m-0">
+            //         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+            //             width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+            //             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            //                 <polygon points="0 0 24 0 24 24 0 24"></polygon>
+            //                 <path
+            //                     d="M6.70710678,15.7071068 C6.31658249,16.0976311 5.68341751,16.0976311 5.29289322,15.7071068 C4.90236893,15.3165825 4.90236893,14.6834175 5.29289322,14.2928932 L11.2928932,8.29289322 C11.6714722,7.91431428 12.2810586,7.90106866 12.6757246,8.26284586 L18.6757246,13.7628459 C19.0828436,14.1360383 19.1103465,14.7686056 18.7371541,15.1757246 C18.3639617,15.5828436 17.7313944,15.6103465 17.3242754,15.2371541 L12.0300757,10.3841378 L6.70710678,15.7071068 Z"
+            //                     fill="#000000" fill-rule="nonzero"
+            //                     transform="translate(12.000003, 11.999999) rotate(-180.000000) translate(-12.000003, -11.999999)"></path>
+            //             </g>
+            //         </svg>
+            //     </span>
+            // </a>
+            // <div
+            //     class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4"
+            //     data-kt-menu="true">
+
+            //     <div class="menu-item px-3">
+            //         <a href="javascript:void()" onclick="approveReport(${row.id})" class="menu-link px-3"
+            //             data-kt-docs-table-filter="delete_row">
+            //             Approved
+            //         </a>
+            //     </div>
+            //     <div class="menu-item px-3">
+            //         <a href="javascript:void()"
+            //             onclick="goManual('${row.id}')"
+            //             class="menu-link px-3">
+            //             Cancel
+            //         </a>
+            //     </div>
+            // </div>
+            // <!--end::Menu-->
+            //               `;
+            //             }
             else {
               return `
               <a
@@ -461,7 +462,7 @@ var KTDatatablesServerSideRes = (function () {
         // endDate: moment().endOf("month"),
         endDate: moment(),
         locale: {
-          format: 'YYYY-MM-DD'
+          format: "YYYY-MM-DD",
         },
       },
       function (start, end, label) {
@@ -757,6 +758,34 @@ function mrcDetail(tokenApplicant, id) {
 
 $(document).ready(function () {
   $("#approveAll").on("click", function (event) {
+    event.preventDefault();
+
+    var datePick = document.getElementById(`kt_daterangepicker_1`).value;
+
+    var dates = datePick.split(" - ");
+
+    var startDateString = dates[0];
+    var startDateParts = startDateString.split("-");
+    var formattedStartDate =
+      startDateParts[0].padStart(2, "0") +
+      "-" +
+      startDateParts[1].padStart(2, "0") +
+      "-" +
+      startDateParts[2];
+
+    // Parsing tanggal akhir
+    var endDateString = dates[1];
+    var endDateParts = endDateString.split("-");
+    var formattedEndDate =
+      endDateParts[0].padStart(2, "0") +
+      "-" +
+      endDateParts[1].padStart(2, "0") +
+      "-" +
+      endDateParts[2];
+    console.log(dates);
+    console.log(formattedStartDate);
+    console.log(formattedEndDate);
+
     Swal.fire({
       title: "Are you sure?",
       text: "Approve All Data?",
@@ -768,13 +797,23 @@ $(document).ready(function () {
     }).then((result) => {
       if (result.isConfirmed) {
         $.ajax({
-          url: baseUrl + "/reconcilereport/approveall",
+          url:
+            baseUrl +
+            `/reconcilereport/approveall?&startDate=${formattedStartDate}&endDate=${formattedEndDate}`,
+          // `/reconcilereport/approveall`,
           headers: {
             "X-CSRF-TOKEN": token, // Menyertakan token CSRF di header permintaan
           },
           type: "POST",
           beforeSend: function () {
-            swal.showLoading();
+            swal.fire({
+              html: "<h5>Loading...</h5>",
+              showConfirmButton: false,
+              onRender: function () {
+                // there will only ever be one sweet alert open.
+                $(".swal2-content").prepend(sweet_loader);
+              },
+            });
           },
           success: function (response) {
             Toast.fire({

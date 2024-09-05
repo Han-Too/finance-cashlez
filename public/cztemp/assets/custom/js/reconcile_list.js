@@ -37,7 +37,7 @@ var KTDatatablesServerSide = (function () {
           className: "text-start",
           width: "50px",
           render: function (data, type, row, meta) {
-            console.log(row);
+            // console.log(row);
             return meta.row + 1;
           },
         },
@@ -80,8 +80,30 @@ var KTDatatablesServerSide = (function () {
           className: "text-start",
           width: "150px",
           render: function (data, type, row) {
+            var dates = data.split(" - ");
+
+            var startDateString = dates[0];
+            var startDateParts = startDateString.split("/");
+            var formattedStartDate =
+              startDateParts[1].padStart(2, "0") +
+              "/" +
+              startDateParts[0].padStart(2, "0") +
+              "/" +
+              startDateParts[2];
+
+            // Parsing tanggal akhir
+            var endDateString = dates[1];
+            var endDateParts = endDateString.split("/");
+            var formattedEndDate =
+              endDateParts[1].padStart(2, "0") +
+              "/" +
+              endDateParts[0].padStart(2, "0") +
+              "/" +
+              endDateParts[2];
+
+            var tanggal = formattedStartDate + " - " + formattedEndDate;
             return ` 
-                            <div class="text-bold fs-7">${data}</div>
+                            <div class="text-bold fs-7">${tanggal}</div>
                         `;
           },
         },
@@ -91,8 +113,15 @@ var KTDatatablesServerSide = (function () {
           className: "text-start",
           width: "150px",
           render: function (data, type, row) {
+            var startDateParts = to_date(data).split("-");
+            var formattedStartDate =
+              startDateParts[2] + "/" +
+              startDateParts[1].padStart(2, "0") +
+              "/" +
+              startDateParts[0].padStart(2, "0");
+            
             return ` 
-                        <div class="text-bold fs-7">${to_date(data)}</div>
+                        <div class="text-bold fs-7">${formattedStartDate}</div>
                         `;
           },
         },
@@ -418,47 +447,55 @@ $("#store_reconcile_form").on("submit", function (event) {
 });
 
 $("#channelSearch").change(function () {
-    var selectedChannel = $(this).val();
-    
-    if (selectedChannel) {
-        $.ajax({
-            type: "GET",
-            url: `${baseUrl}/api/getfile/` + selectedChannel,
-            dataType: "JSON",
-            success: function (res) {
-                // console.log(res); // Check the response format
-                
-                if (res.success) {
-                    var $filesettlement = $("#filesettlement");
-                    $filesettlement.empty();
-                    
-                    // Add default option
-                    $filesettlement.append("<option value=''>Select a File...</option>");
-                    
-                    // Check if 'data' is an array and has items
-                    if (Array.isArray(res.data) && res.data.length > 0) {
-                        $.each(res.data, function (index, file) {
-                            $filesettlement.append(
-                                '<option value="' + file.url + '">' + file.name + '</option>'
-                            );
-                        });
-                    } else {
-                        // If no files, display a message
-                        $filesettlement.append('<option value="">No files available</option>');
-                    }
-                } else {
-                    // Handle case where success is false
-                    $("#filesettlement").empty().append('<option value="">Error fetching files</option>');
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error('Error fetching data:', error); // Log any errors
-                $("#filesettlement").empty().append('<option value="">Error fetching files</option>');
-            }
-        });
-    } else {
-        $("#filesettlement").empty().append('<option value="">Select a File...</option>');
-    }
+  var selectedChannel = $(this).val();
+
+  if (selectedChannel) {
+    $.ajax({
+      type: "GET",
+      url: `${baseUrl}/api/getfile/` + selectedChannel,
+      dataType: "JSON",
+      success: function (res) {
+        // console.log(res); // Check the response format
+
+        if (res.success) {
+          var $filesettlement = $("#filesettlement");
+          $filesettlement.empty();
+
+          // Add default option
+          $filesettlement.append("<option value=''>Select a File...</option>");
+
+          // Check if 'data' is an array and has items
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            $.each(res.data, function (index, file) {
+              $filesettlement.append(
+                '<option value="' + file.url + '">' + file.name + "</option>"
+              );
+            });
+          } else {
+            // If no files, display a message
+            $filesettlement.append(
+              '<option value="">No files available</option>'
+            );
+          }
+        } else {
+          // Handle case where success is false
+          $("#filesettlement")
+            .empty()
+            .append('<option value="">Error fetching files</option>');
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("Error fetching data:", error); // Log any errors
+        $("#filesettlement")
+          .empty()
+          .append('<option value="">Error fetching files</option>');
+      },
+    });
+  } else {
+    $("#filesettlement")
+      .empty()
+      .append('<option value="">Select a File...</option>');
+  }
 });
 
 // $("#channelSearch").change(function () {

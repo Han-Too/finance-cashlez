@@ -9,19 +9,25 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ReconcileUnmatchExport implements FromCollection, WithHeadings, WithMapping
+class ReconcileUnmatchExport implements FromCollection, WithMapping, WithHeadings, WithColumnFormatting, WithEvents
 {
     // protected $token_applicant, $status, $startDate, $endDate, $channel;
     protected $token_applicant, $status, $startDate, $endDate, $channel;
 
     // public function __construct($token_applicant, $status, $startDate, $endDate, $channel)
-    public function __construct()
+    public function __construct($startDate, $endDate, )
     {
         // $this->token_applicant = $token_applicant;
         // $this->status = $status;
-        // $this->startDate = $startDate;
-        // $this->endDate = $endDate;
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
         // $this->channel = $channel;
     }
     // public function __construct($token_applicant)
@@ -35,13 +41,11 @@ class ReconcileUnmatchExport implements FromCollection, WithHeadings, WithMappin
      */
     public function collection()
     {
-        $query = ReconcileDraft::with('merchant', 'bank_account')
-        ->where('status','!=','MATCH')
-        ->where('status_reconcile','!=','reconciled');
-        
+        $query = ReconcileReport::with('merchant', 'bank_account');
 
-        // $query->where(DB::raw('DATE(settlement_date)'), '>=', $this->startDate);
-        // $query->where(DB::raw('DATE(settlement_date)'), '<=', $this->endDate);
+
+        $query->where(DB::raw('DATE(created_at)'), '>=', $this->startDate);
+        $query->where(DB::raw('DATE(created_at)'), '<=', $this->endDate);
         // $query->where('processor_payment', $this->channel);
         // $query->where('status', '!=', 'deleted');
 
@@ -52,71 +56,31 @@ class ReconcileUnmatchExport implements FromCollection, WithHeadings, WithMappin
     {
         if ($data->status == 'MATCH') {
             $stt = 'MATCH';
-        } elseif($data->status == 'NOT_MATCH' || $data->status == 'deleted'){
+        } elseif ($data->status == 'NOT_MATCH' || $data->status == 'deleted') {
             $stt = 'DISPUTE';
-        } else{
+        } else {
             $stt = 'ONHOLD';
         }
 
-        if(!$data->bank_account){
-            $acnum = "-";
-        } else{
-            $acnum = $data->bank_account->account_number;
-        }
+        $acnum = $data->bank_account ? $data->bank_account->account_number : "-";
+        $bc = $data->bank_account ? $data->bank_account->bank_code : "-";
+        $acn = $data->bank_account ? substr($data->bank_account->account_number, 0, 5) : "-";
+        $email = $data->merchant ? $data->merchant->email : "-";
+        $mrc = $data->merchant ? $data->merchant->reference_code : "-";
+        $achold = $data->bank_account ? $data->bank_account->account_holder : "-";
+        $bn = $data->channel ? $data->channel->channel : "-";
+        // $mername = $data->merchant_name == "-" ? $data->merchant_name : "-";
 
-        if(!$data->bank_account){
-            $bc = "-";
-        } else{
-            $bc = $data->bank_account->bank_code;
-        }
+        $banktype = !$data->bank_account ? "VLOOKUP" :
+            (substr($data->bank_account->account_number, 0, 5) == "88939" ? "VIRTUAL ACCOUNT" : "REGULER");
 
-        if(!$data->bank_account){
-            $acn = "-";
-        } else{
-            $acn = substr($data->bank_account->account_number,0,5);
-        }
-        if(!$data->merchant){
-            $email = "-";
-        } else{
-            $email = $data->merchant->email;
-        }
-
-        if(!$data->merchant){
-            $mrc = "-";
-        } else{
-            $mrc = $data->merchant->reference_code;
-        }
-
-        if(!$data->bank_account){
-            $achold = "-";
-        } else{
-            $achold = $data->bank_account->account_holder;
-        }
-        if(!$data->bank_account){
-            $bn = "-";
-        } else{
-            $bn = $data->bank_account->bank_name;
-        }
-        if(!$data->merchant){
-            $mername = "-";
-        } else{
-            $mername = $data->merchant->name;
-        }
-
-        if(!$data->bank_account){
-            $banktype = "VLOOKUP";
-        } else if(substr($data->bank_account->account_number,0,5)== "88939"){
-            $banktype = "VIRTUAL ACCOUNT";
-        } else {
-            $banktype = "REGULER";
-        }
 
 
         return [
             strval($mrc),
             strval($data->mid),
             strval($data->settlement_date),
-            strval($mername),
+            strval($data->merchant_name),
             strval($banktype),
             strval($data->total_sales),
             strval($data->bank_transfer),
@@ -134,7 +98,7 @@ class ReconcileUnmatchExport implements FromCollection, WithHeadings, WithMappin
             strval($achold),
             strval($email),
             strval($bn),
-            strval(""),
+            strval("BANK DIBURSE"),
             strval(""),
             strval($data->updated_at),
             strval(""),
@@ -194,8 +158,35 @@ class ReconcileUnmatchExport implements FromCollection, WithHeadings, WithMappin
             'BANK',
             'STATUS RELEASE',
             'REMARK',
-            'DATE CONVERTED',
+            'RECONCILIATION DATE',
             'TRX ID PARTIAL PAYMENT',
+        ];
+    }
+
+    public function columnFormats(): array
+    {
+        return [
+            'A' => NumberFormat::FORMAT_TEXT, // Merchant Ref Code as text
+            'B' => NumberFormat::FORMAT_TEXT, // MID as text
+            'Q' => NumberFormat::FORMAT_TEXT, // Account Number as text
+            // Tambahkan kolom lain yang perlu di-set sebagai teks
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+
+                // Menetapkan tipe data kolom tertentu sebagai string
+                foreach ($sheet->getRowIterator() as $row) {
+                    $sheet->getCell('A' . $row->getRowIndex())->setDataType(DataType::TYPE_STRING);
+                    $sheet->getCell('B' . $row->getRowIndex())->setDataType(DataType::TYPE_STRING);
+                    $sheet->getCell('Q' . $row->getRowIndex())->setDataType(DataType::TYPE_STRING);
+                    // Tambahkan kolom lain yang perlu di-set sebagai string
+                }
+            },
         ];
     }
 }

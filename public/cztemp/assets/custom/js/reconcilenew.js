@@ -86,15 +86,13 @@ var KTDatatablesServerSideRes = (function () {
               APPROVED
               </div>
               `;
-            } 
-            else if (row.status_reconcile == "pending") {
+            } else if (row.status_reconcile == "pending") {
               return `
               <div class="badge badge-info">
               CHECKER
               </div>
               `;
-            } 
-            else if (row.category_report == "manual") {
+            } else if (row.category_report == "manual") {
               return `
                   <a href="javascript:void()" onclick="goManual('${row.id}')" 
                   class="btn btn-light btn-active-light-danger btn-sm">
@@ -362,7 +360,7 @@ var KTDatatablesServerSideRes = (function () {
         startDate: moment().startOf("month"),
         endDate: moment().endOf("month"),
         locale: {
-          format: 'YYYY-MM-DD'
+          format: "YYYY-MM-DD",
         },
       },
       function (start, end, label) {
@@ -638,24 +636,33 @@ $(document).ready(function () {
     }).then((result) => {
       if (result.isConfirmed) {
         $.ajax({
-          url: baseUrl + "/reconcilereport/checkall/"+tokenA,
+          url: baseUrl + "/reconcilereport/checkall/" + tokenA,
           headers: {
             "X-CSRF-TOKEN": token, // Menyertakan token CSRF di header permintaan
           },
           type: "POST",
           beforeSend: function () {
-            swal.showLoading();
+            swal.fire({
+              html: "<h5>Loading...</h5>",
+              showConfirmButton: false,
+              onRender: function () {
+                // there will only ever be one sweet alert open.
+                $(".swal2-content").prepend(sweet_loader);
+              },
+            });
           },
           success: function (response) {
+            swal.hideLoading();
+            console.log(response);
             Toast.fire({
               icon: "success",
-              title: "Data Have Been Approve",
+              title: "Data Have Been Sent to Checker",
             });
           },
           error: function (xhr, status, error) {
-            // toast('Data Have Been Remove!','success');
+            console.log(error);
             Swal.fire({
-              text: "error",
+              text: error,
               icon: "error",
               buttonsStyling: false,
               confirmButtonText: "Ok, got it!",

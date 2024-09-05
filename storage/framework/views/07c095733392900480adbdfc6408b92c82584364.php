@@ -128,6 +128,7 @@
                     <button id="resrefreshButton" class="btn btn-sm btn-light-primary w-100 me-3 rounded-sm">Refresh
                         Table</button>
                     
+                    
                     <a href="<?php echo e(route('reconcile.downloadunmatch')); ?>" class="btn btn-sm btn-light-warning me-3 rounded-sm" 
                     
                     >Download</a>
@@ -172,7 +173,7 @@
         </div>
     </div>
     <?php echo $__env->make('/modules/reconcile/mrc-modal', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-    <?php echo $__env->make('/modules/reconcile/download-modal', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+    <?php echo $__env->make('/modules/reconcile/download-unmatch-modal', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
     <?php $__env->startSection('scripts'); ?>
         <script src="<?php echo e(asset('cztemp/assets/custom/js/unmatchlist.js')); ?>"></script>
