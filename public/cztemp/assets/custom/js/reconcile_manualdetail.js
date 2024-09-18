@@ -454,6 +454,8 @@ $("#singleReconcile").on("submit", function (event) {
   var formData = new FormData(this);
   formData.append("selectedBo", selectedBo);
   formData.append("selectedBank", selectedBanks);
+  var formElement = this; // Simpan referensi ke form
+
   $.ajax({
     headers: { "X-CSRF-TOKEN": token },
     type: "POST",
@@ -480,19 +482,12 @@ $("#singleReconcile").on("submit", function (event) {
             },
           })
           .then(function () {
-            // location.href = baseUrl + "/reconcile/result";
             window.location.reload();
           });
-      } else {
-        var values = "";
-        jQuery.each(data.message, function (key, value) {
-          values += value + "<br>";
-        });
-
+      } else if (data.status == "3") {
         swal
           .fire({
             text: data.message,
-            html: values,
             icon: "error",
             buttonsStyling: false,
             confirmButtonText: "Ok, got it!",
@@ -501,6 +496,72 @@ $("#singleReconcile").on("submit", function (event) {
             },
           })
           .then(function () {});
+      } else {
+        var values = "";
+        jQuery.each(data.message, function (key, value) {
+          values += value + "<br>";
+        });
+
+        Swal.fire({
+          icon: "question",
+          title: "Proceed This Data?",
+          html: values,
+          showDenyButton: true,
+          confirmButtonText: "Proceed",
+          denyButtonText: "Cancel",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            var tokenx = $('meta[name="csrf-token"]').attr("content");
+            var formDatax = new FormData(formElement); // Gunakan formElement yang disimpan sebelumnya
+            formDatax.append("selectedBo", selectedBo);
+            formDatax.append("selectedBank", selectedBanks);
+            $.ajax({
+              headers: { "X-CSRF-TOKEN": tokenx },
+              type: "POST",
+              data: formDatax,
+              url: baseUrl + "/reconcile/proceed/" + tokenA,
+              dataType: "JSON",
+              cache: false,
+              contentType: false,
+              processData: false,
+              beforeSend: function () {
+                swal.showLoading();
+              },
+              success: function (data) {
+                if (data.status === true) {
+                  swal.hideLoading();
+                  swal
+                    .fire({
+                      text: data.message,
+                      icon: "success",
+                      buttonsStyling: false,
+                      confirmButtonText: "Ok, got it!",
+                      customClass: {
+                        confirmButton: "btn font-weight-bold btn-light-primary",
+                      },
+                    })
+                    .then(function () {
+                      window.location.reload();
+                    });
+                }
+              },
+              error: function (xhr, status, error) {
+                console.log(error);
+                Swal.fire({
+                  text: error,
+                  icon: "error",
+                  buttonsStyling: false,
+                  confirmButtonText: "Ok, got it!",
+                  customClass: {
+                    confirmButton: "btn fw-bold btn-primary",
+                  },
+                });
+              },
+            });
+          } else if (result.isDenied) {
+            Swal.fire("Changes are not saved", "", "info");
+          }
+        });
       }
     },
     error: function (xhr, status, error) {
@@ -517,6 +578,7 @@ $("#singleReconcile").on("submit", function (event) {
     },
   });
 });
+
 
 $("#kt_daterangepicker_1").daterangepicker();
 $("#kt_daterangepicker_2").daterangepicker();

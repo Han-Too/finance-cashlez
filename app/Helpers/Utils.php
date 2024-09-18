@@ -102,11 +102,12 @@ class Utils
     {
         return (2 + 1) * $trxCount;
     }
-    
+
     public static function getStatusReconcile($treshold, $boSettlement, $bankSettlement)
     {
-        if (($bankSettlement - $boSettlement) < $treshold &&
-            ($bankSettlement - $boSettlement) > (0 - $treshold) 
+        if (
+            ($bankSettlement - $boSettlement) < $treshold &&
+            ($bankSettlement - $boSettlement) > (0 - $treshold)
         ) {
             return "MATCH";
             // if(($bankSettlement - $boSettlement) == 100 || (($bankSettlement - $boSettlement) / $sales * 100) == 1){
@@ -118,7 +119,7 @@ class Utils
         }
     }
 
-    public static function getNewStatusReconcile($boSettlement, $bankSettlement,$sales)
+    public static function getNewStatusReconcile($boSettlement, $bankSettlement, $sales)
     {
         $diff = abs($boSettlement - $bankSettlement);
         if ($diff <= 100 || (abs($diff / $sales) * 100) <= 1) {
@@ -127,9 +128,12 @@ class Utils
             return "NOT_MATCH";
         }
     }
-    public static function getNewStatusReconcile2($diff,$sales)
+
+    public static function getNewStatusReconcile2($diff, $sales)
     {
-        if ($diff <= 100 || (abs($diff / $sales) * 100) <= 1 && $diff != $diff) {
+        if ($diff >= 0 && $diff <= 100) {
+            return "MATCH";
+        } elseif ($diff < 0 && (($diff / $sales) * 100) < 1) {
             return "MATCH";
         } else {
             return "NOT_MATCH";
@@ -179,19 +183,20 @@ class Utils
         return $channel;
     }
 
-    public static function convertDateFormat($date) {
+    public static function convertDateFormat($date)
+    {
         $inputFormat = 'd/m/Y'; // Format input
         $outputFormat = 'Y-m-d H:i:s'; // Format output
-    
+
         // Cek apakah tanggal valid dengan format d/m/Y
         try {
             $carbonDate = Carbon::createFromFormat($inputFormat, $date);
-    
+
             // Jika format valid, atur waktu default
             $carbonDate->hour = 0;
             $carbonDate->minute = 0;
             $carbonDate->second = 0;
-    
+
             // Format tanggal ke format baru
             return $carbonDate->format($outputFormat);
         } catch (InvalidArgumentException $e) {
@@ -199,8 +204,9 @@ class Utils
             return false;
         }
     }
-    
-    public static function isDateInFormat($date, $format) {
+
+    public static function isDateInFormat($date, $format)
+    {
         try {
             $parsedDate = Carbon::createFromFormat($format, $date);
             // Pastikan juga bahwa format yang diinput benar-benar sesuai
@@ -210,14 +216,15 @@ class Utils
         }
     }
 
-    public static function BNIconvertDateFormat($date) {
+    public static function BNIconvertDateFormat($date)
+    {
         $inputFormat = 'd/m/y H.i.s'; // Format input
         $outputFormat = 'Y-m-d H:i:s'; // Format output
-    
+
         // Cek apakah tanggal valid dengan format d/m/y H.i.s
         try {
             $carbonDate = Carbon::createFromFormat($inputFormat, $date);
-    
+
             // Format tanggal ke format baru
             return $carbonDate->format($outputFormat);
         } catch (InvalidArgumentException $e) {
@@ -225,5 +232,5 @@ class Utils
             return false;
         }
     }
-    
+
 }

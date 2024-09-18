@@ -29,14 +29,14 @@ var KTDatatablesServerSide = (function () {
           d.bank = selectedBank;
         },
       },
-      columns: [
-        { data: "settlement_date" },
-        { data: "merchant_name" },
-        // { data: "description2" },
-        { data: "mid" },
-        { data: "bank_transfer" },
-        { data: "id" },
-      ],
+      // columns: [
+      //   { data: "settlement_date" },
+      //   { data: "merchant_name" },
+      //   // { data: "description2" },
+      //   { data: "mid" },
+      //   { data: "bank_transfer" },
+      //   { data: "id" },
+      // ],
       columnDefs: [
         {
           targets: -1,
@@ -65,16 +65,34 @@ var KTDatatablesServerSide = (function () {
           className: "text-start",
           width: "800px",
           render: function (data, type, row) {
-            return to_date(data);
+            return to_date(row.settlement_date);
           },
         },
         {
-          targets: 4,
+          targets: 1,
           orderable: true,
           className: "text-end",
           width: "250px",
           render: function (data, type, row) {
-            return to_rupiah(parseInt(data));
+            return row.merchant_name;
+          },
+        },
+        {
+          targets: 2,
+          orderable: true,
+          className: "text-end",
+          width: "250px",
+          render: function (data, type, row) {
+            return row.mid;
+          },
+        },
+        {
+          targets: 3,
+          orderable: true,
+          className: "text-end",
+          width: "250px",
+          render: function (data, type, row) {
+            return formatRupiah(row.bank_transfer);
           },
         },
       ],

@@ -50,6 +50,13 @@ function to_rupiah(angka) {
     return `Rp. ${rupiah}`;
 }
 
+function formatRupiah(number) {
+    let reverse = number.toString().split('').reverse().join('');
+    let ribuan = reverse.match(/\d{1,3}/g);
+    let hasil = ribuan.join('.').split('').reverse().join('');
+    return 'Rp ' + hasil;
+}
+
 function getTokenFromUrl(regex){
     var currentURL = window.location.href;
 

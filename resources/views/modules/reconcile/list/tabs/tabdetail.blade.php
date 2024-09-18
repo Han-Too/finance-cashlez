@@ -14,7 +14,7 @@
                             class="form-select form-select-solid fw-bolder">
                             <option value="">Select a Status...</option>
                             <option value="MATCH">Match</option>
-                            <option value="NOT_MATCH">Unmatch</option>
+                            <option value="NOT_MATCH">Not Match</option>
                             {{-- @foreach ($channels as $item)
                                             <option value="{{ $item->description2 }}">{{ $item->description2 }}</option>
                                         @endforeach --}}
@@ -183,7 +183,7 @@
 
                         <table id="bank_statement_detail_table" class="table align-middle table-row-dashed fs-6 gy-5">
                             <thead>
-                                <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
+                                <tr class="text-start text-dark fw-bolder fs-7 text-uppercase gs-0">
                                     <th><input type="checkbox" class="form-check-input" id="checkAll"></th>
                                     <th>No</th>
                                     <th>MID</th>

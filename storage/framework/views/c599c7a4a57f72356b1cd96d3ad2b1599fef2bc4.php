@@ -9,7 +9,7 @@
                 id="dataTable"
                 class="table align-middle table-row-dashed fs-6 gy-5">
                     <thead>
-                        <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0 border-bottom border-dark">
+                        <tr class="text-start text-dark fw-bolder fs-7 text-uppercase gs-0 border-bottom border-dark">
                             
                             <th>MID</th>
                             
@@ -41,7 +41,7 @@
             <div class="col-xl-6 d-none">
                 <table id="bo_selected_items" class="table align-middle table-row-dashed fs-6 gy-5">
                     <thead>
-                        <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
+                        <tr class="text-start text-dark fw-bolder fs-7 text-uppercase gs-0">
                             
                             <th>MID</th>
                             <th>Settlement Date</th>
@@ -58,7 +58,7 @@
             <div class="col-xl-6 d-none">
                 <table id="bank_selected_items" class="table align-middle table-row-dashed fs-6 gy-5">
                     <thead>
-                        <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
+                        <tr class="text-start text-dark fw-bolder fs-7 text-uppercase gs-0">
                             <th>MID</th>
                             <th>Settlement Date</th>
                             <th class="text-end">Bank Movement</th>
@@ -195,7 +195,7 @@
 
                         <table id="bo_settlement_table" class="table align-middle table-row-dashed fs-6 gy-5">
                             <thead>
-                                <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
+                                <tr class="text-start text-dark fw-bolder fs-7 text-uppercase gs-0">
                                     <th>Settlement Date</th>
                                     
                                     <th>Merchant Name</th>
@@ -231,7 +231,7 @@
                         <!--begin::Datatable-->
                         <table id="bank_settlement_table" class="table align-middle table-row-dashed fs-6 gy-5">
                             <thead>
-                                <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
+                                <tr class="text-start text-dark fw-bolder fs-7 text-uppercase gs-0">
                                     <th>Transfer Date</th>
                                     <th>Merchant Name</th>
                                     

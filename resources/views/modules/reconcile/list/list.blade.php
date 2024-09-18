@@ -61,7 +61,7 @@
             <!--begin::Datatable-->
             <table id="kt_datatable_example_2" class="table align-middle table-row-dashed fs-6 gy-5">
                 <thead>
-                    <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
+                    <tr class="text-start text-dark fw-bolder fs-7 text-uppercase gs-0">
                         <th>No</th>
                         <th>Name</th>
                         <th>Type</th>

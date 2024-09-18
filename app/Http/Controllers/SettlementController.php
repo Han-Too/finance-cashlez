@@ -342,8 +342,8 @@ class SettlementController extends Controller
             $startDate = $request->startDate;
             $endDate = $request->endDate;
 
-            $query->where(DB::raw('DATE(created_at)'), '>=', $startDate);
-            $query->where(DB::raw('DATE(created_at)'), '<=', $endDate);
+            $query->where(DB::raw('DATE(settlement_date)'), '>=', $startDate);
+            $query->where(DB::raw('DATE(settlement_date)'), '<=', $endDate);
         }
         $query->orderBy('created_at');
 

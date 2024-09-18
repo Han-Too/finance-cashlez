@@ -42,7 +42,7 @@
                     <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
                         <div class="me-2">
                             <span class="fw-bolder text-gray-800 d-block fs-3">Match</span>
-                            <span class="text-gray-400 fw-bold"><?php echo e($resmatch); ?> Trx</span>
+                            <span class="text-dark fw-bold"><?php echo e($resmatch); ?> Trx</span>
                         </div>
                         <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($ressumMatch)); ?></div>
                     </div>
@@ -56,7 +56,7 @@
                     <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
                         <div class="me-2">
                             <span class="fw-bolder text-gray-800 d-block fs-3">Variance</span>
-                            <span class="text-gray-400 fw-bold"><?php echo e($dispcount); ?> Trx</span>
+                            <span class="text-dark fw-bold"><?php echo e($dispcount); ?> Trx</span>
                         </div>
                         <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($disp)); ?></div>
                     </div>
@@ -99,15 +99,7 @@
                             class="form-control form-control-solid w-250px ps-14 rounded-sm ms-2"
                             placeholder="Search Merchant" />
                     </div>
-                    <div class="d-flex align-items-center position-relative my-1 mx-4">
-                        <select name="channel" data-placeholder="Select a Channel..."
-                            class="w-250px form-select form-select-solid fw-bolder rounded-sm" id="channelId">
-                            <option value="">Select a Channel...</option>
-                            <?php $__currentLoopData = $banks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($item->channel); ?>"><?php echo e($item->channel); ?></option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        </select>
-                    </div>
+                    
 
                 </div>
                 <!--end::Search-->
@@ -125,9 +117,7 @@
                 
                 <?php if($reportapprov != 0 || $checkcount > 0): ?>
                     
-                    <form class="form" action="/reconcile/download">
-                        <button type="submit" class="btn btn-sm btn-warning me-3 rounded-sm">Download</button>
-                    </form>
+                    
                 <?php endif; ?>
                 <?php if($checkcount < 0 || $reportcount != 0 || $approved < 0 ): ?>
                     <button id="approveAll" class="btn btn-sm btn-info w-100 me-3 rounded-sm">
@@ -146,7 +136,7 @@
 
         <table id="kt_datatable_example_99" class="table align-middle table-row-dashed fs-6 gy-5">
             <thead>
-                <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
+                <tr class="text-start text-dark fw-bolder fs-7 text-uppercase gs-0">
                     
                     
                     

@@ -20,7 +20,7 @@ class BackOffice
         $now->subDay();
         $yesterdatDate = $now->format('Y-m-d');
 
-        // $url = 'https://api.cashlez.com/helper-service/finance-settlement-reconcile-by-date?settlement-date=2024-08-22';
+        // $url = 'https://api.cashlez.com/helper-service/finance-settlement-reconcile-by-date?settlement-date=2024-08-15';
         $url = 'https://api.cashlez.com/helper-service/finance-settlement-reconcile-by-date?settlement-date=' . $yesterdatDate;
         $client = new Client([
             'verify' => false,
@@ -56,7 +56,7 @@ class BackOffice
                     'settlement_audit_id' => $batchDto->settlementAuditId,
                     'tax_payment' => $batchDto->taxPayment,
                     'fee_mdr_merchant' => $batchDto->feeMdrMerchant,
-                    'fee_bank_merchant' => $batchDto->feeBankMerchant,
+                    'fee_bank_merchant' => $batchDto->feeBankMerchantRound,
                     'bank_transfer' => $batchDto->bankTransfer,
                     'bank_id' => $batchDto->bankId,
                     'created_by' => 'kafka',

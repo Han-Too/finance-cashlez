@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('draft_id');
             $table->string('token_applicant');
-            $table->bigInteger('statement_id');
+            $table->string('statement_id');
             $table->bigInteger('request_id');
             $table->string('tid')->nullable();
             $table->string('mid');

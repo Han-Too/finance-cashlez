@@ -177,7 +177,13 @@ var KTDatatablesServerSide = (function () {
           className: "text-start",
           width: "150px",
           render: function (data, type, row) {
-            return "<div class='text-center'>"+to_date(row.start_date)+"<br> - <br>"+to_date(row.end_date)+"</div>";
+            return (
+              "<div class='text-center'>" +
+              to_date(row.start_date) +
+              "<br> - <br>" +
+              to_date(row.end_date) +
+              "</div>"
+            );
           },
         },
         {
@@ -186,10 +192,14 @@ var KTDatatablesServerSide = (function () {
           className: "text-start",
           width: "150px",
           render: function (data, type, row) {
-            if(row.processor == "5"){
-              return "<div class='text-center'><div class=' badge badge-primary'>Mandiri</div></div>"
+            if (row.processor == "5") {
+              return "<div class='text-center'><div class=' badge badge-primary'>Mandiri</div></div>";
+            } else if (row.processor == "7") {
+              return "<div class='text-center'><div class=' badge badge-info'>BNI</div></div>";
+            } else if (row.processor == "36") {
+              return "<div class='text-center'><div class=' badge badge-primary'>BRI</div></div>";
             } else {
-              return "<div class='text-center'><div class='badge badge-success'>BNI</div></div>"
+              return "<div class='text-center'><div class='badge badge-danger'>UNDEFINED</div></div>";
             }
           },
         },
