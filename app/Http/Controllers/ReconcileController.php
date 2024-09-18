@@ -1860,10 +1860,17 @@ class ReconcileController extends Controller
             ->where('status', 'MATCH')
             ->count();
 
+        $listcheck = ReconcileList::where('token_applicant', $token)
+            ->where('status', 'pending')
+            ->count();
+
         if ($approved > 0) {
             return response()->json(['message' => ["This data has been approved! Select Other Data List!"], 'status' => "3"], 200);
         }
-        if ($checker > 0) {
+        if (
+            // $checker > 0 && 
+            $listcheck > 0
+        ) {
             return response()->json(['message' => ["This data has been sent to Checker! Select Other Data List!"], 'status' => "3"], 200);
         }
 
@@ -2069,10 +2076,17 @@ class ReconcileController extends Controller
             ->where('status', 'MATCH')
             ->count();
 
+        $listcheck = ReconcileList::where('token_applicant', $token)
+            ->where('status', 'pending')
+            ->count();
+
         if ($approved > 0) {
             return response()->json(['message' => ["This data has been approved! Select Other Data List!"], 'status' => "3"], 200);
         }
-        if ($checker > 0) {
+        if (
+            // $checker > 0 && 
+            $listcheck > 0
+        ) {
             return response()->json(['message' => ["This data has been sent to Checker! Select Other Data List!"], 'status' => "3"], 200);
         }
 
@@ -2106,6 +2120,7 @@ class ReconcileController extends Controller
                     'sumTransaction' => 0,
                     'merchantPayment' => 0,
                     'boIds' => [],
+                    'merchant_id' => $internalBatch->merchant_id,
                 ];
             }
 
@@ -2136,6 +2151,11 @@ class ReconcileController extends Controller
                     'bankSettlement' => 0,
                     'sales' => 0,
                     'bankIds' => [],
+                    'settlement_date' => Carbon::parse($bank->settlement_date),
+                    'merchant_name' => $bank->merchant_name,
+                    'bank_id' => $bank->bank_id,
+                    'processor_payment' => $bank->processor_payment,
+                    'tid' => $bank->tid,
                 ];
             }
 
@@ -2147,6 +2167,7 @@ class ReconcileController extends Controller
 
 
         foreach ($boData as $mid => $bo) {
+
             if (isset($bankData[$mid])) {
                 $rounded_value = round((int) $bankData[$mid]['bankSettlement']);
                 $amount_credit = number_format($rounded_value, 0, '', '');
@@ -2191,17 +2212,17 @@ class ReconcileController extends Controller
                         'bo_id' => implode('//', $bo['boIds']),
                         'token_applicant' => $token,
                         // 'token_applicant' => $bank->token_applicant,
-                        'statement_date' => $bank->settlement_date,
+                        'statement_date' => $bankData[$mid]['settlement_date'],
                         'status' => $status,
-                        'tid' => $bank->tid,
+                        'tid' => $bankData[$mid]['tid'],
                         'mid' => $mid,
                         'trx_counts' => $bo['trxCount'],
                         'total_sales' => $bo['totalSales'],
-                        'processor_payment' => $bank->processor_payment,
+                        'processor_payment' => $bankData[$mid]['processor_payment'],
                         'internal_payment' => $bo['boSettlement'],
                         'merchant_payment' => $bo['merchantPayment'],
-                        'merchant_id' => $internalBatch->merchant_id,
-                        'merchant_name' => $bank->merchant_name,
+                        'merchant_id' => $bo['merchant_id'],
+                        'merchant_name' => $bankData[$mid]['merchant_name'],
                         'tax_payment' => $bo['taxPayment'],
                         'fee_mdr_merchant' => $bo['feeMdrMerchant'],
                         'fee_bank_merchant' => $bo['feeBankMerchant'],
@@ -2211,9 +2232,9 @@ class ReconcileController extends Controller
                         // 'dispute_amount' => $diff,
                         'created_by' => $user->name,
                         'modified_by' => $user->name,
-                        'settlement_date' => Carbon::parse($bank->settlement_date),
+                        'settlement_date' => $bankData[$mid]['settlement_date'],
                         'variance' => $diff,
-                        'bank_id' => $bank->bank_id,
+                        'bank_id' => $bankData[$mid]['bank_id'],
                         'category_report' => 'manual',
                         'status_manual' => true,
                         'status_reconcile' => 'report',
@@ -2235,10 +2256,10 @@ class ReconcileController extends Controller
                     'reconcile_date' => Carbon::now(),
                 ]);
 
-                
+
             }
         }
-        
+
         return response()->json(['message' => 'Successfully Reconcile data!', 'status' => true], 200);
     }
 
