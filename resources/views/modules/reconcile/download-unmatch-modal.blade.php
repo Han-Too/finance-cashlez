@@ -36,16 +36,13 @@
                     <!--end::Heading-->
 
                     <!--begin::Input group-->
-                    <div class="d-flex flex-column mb-8 fv-row">
-                        <!--begin::Label-->
+                    {{-- <div class="d-flex flex-column mb-8 fv-row">
                         <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                             <span class="required">Bank Name</span>
                             <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip"
                                 title="Name of the bank"></i>
                         </label>
-                        <!--end::Label-->
                         <select name="bank" aria-label="Select a Bank" 
-                        {{-- data-control="select2" --}}
                             data-placeholder="Select a Bank..." class="form-select form-select-solid fw-bolder" 
                             id="bankInput">
                             <option value="">Select a Bank...</option>
@@ -53,11 +50,11 @@
                                 <option value="{{ $item->channel }}">{{ $item->channel }}</option>
                             @endforeach
                         </select>
-                    </div>
+                    </div> --}}
                     <div class="d-flex flex-column mb-8 fv-row">
                         <!--begin::Label-->
                         <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                            <span class="required">Settlement Date</span>
+                            <span class="required">Created Date</span>
                             <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip"
                                 title="Range of Settlement Date"></i>
                         </label>

@@ -135,6 +135,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/reconcile/downloadunmatch', [ReconcileController::class, 'downloadunmatch'])->name('reconcile.downloadunmatch');
     Route::post('/reconcile/single/{token}', [ReconcileController::class, 'reconcile'])->name('reconcile.single');
     Route::post('/reconcile/proceed/{token}', [ReconcileController::class, 'reconcileproceed'])->name('reconcile.proceed');
+
+    Route::post('/updatebs', [ReconcileController::class, 'updatebs'])->name('updatebs');
     
     Route::post('/reconcile/channel', [ReconcileController::class, 'channel'])->name('reconcile.channel');
     Route::get('/reconcile/partner', [ReconcileController::class, 'partner'])->name('reconcile.partner');

@@ -53,9 +53,9 @@
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         @if ($syaratauto != 0 && $countapprov != 0)
-                        <button class="btn btn-success rounded-sm" id="autoButton" >
-                            Auto
-                        </button>
+                            <button class="btn btn-success rounded-sm" id="autoButton">
+                                Auto
+                            </button>
                         @endif
                         <button class="btn btn-primary rounded-sm" id="bulkUnmatch" style="display: none">
                             Bulk Unmatch
@@ -213,4 +213,7 @@
     </div>
 </div>
 
-{{-- @include('/modalrecon') --}}
+
+
+
+@include('modules.reconcile.list.tabs.modalupdatebs')

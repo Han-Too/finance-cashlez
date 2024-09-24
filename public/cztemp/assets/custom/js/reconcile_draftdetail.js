@@ -642,7 +642,9 @@ function goUnmatch(id) {
         Toast.fire({
           icon: "success",
           title: "Data Have Been Remove",
-        });
+        }).then(function () {
+          window.location.reload();
+        });;
       } else {
         Swal.fire({
           title: "Error",
@@ -676,7 +678,7 @@ function goReport(id) {
     },
     type: "POST",
     success: function (response) {
-      // console.log(response);
+      console.log(response);
       const Toast = Swal.mixin({
         toast: true,
         position: "top-end",
@@ -688,10 +690,20 @@ function goReport(id) {
           toast.onmouseleave = Swal.resumeTimer;
         },
       });
-      Toast.fire({
-        icon: "success",
-        title: "Data Have Been Remove",
-      });
+      if (response.status == true) {
+        Toast.fire({
+          icon: "success",
+          title: "Data Have Been Remove",
+        }).then(function () {
+          window.location.reload();
+        });;
+      } else {
+        Swal.fire({
+          title: "Error",
+          text: response.message,
+          icon: "error"
+        });
+      }
     },
     error: function (xhr, status, error) {
       // toast('Data Have Been Remove!','success');
@@ -706,7 +718,7 @@ function goReport(id) {
       });
     },
   }).then(function () {
-    window.location.reload();
+    // window.location.reload();
   });
 }
 // Fungsi autoMove

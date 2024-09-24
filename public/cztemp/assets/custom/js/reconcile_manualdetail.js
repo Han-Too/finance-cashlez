@@ -97,12 +97,28 @@ var KTDatatablesServerSide = (function () {
           },
         },
         {
-          targets: 4,
+          targets: 1, // Kolom target 1 untuk merchant name
+          orderable: true,
+          searchable: false,
+          className: "text-start",
+          width: "800px",
+          render: function (data, type, row) {
+            // return `<a href="javascript:void(0)" onclick="showMerchantModal('${row.merchant_name}', '${row.internal_payment}','${row.mid}')">${data}</a>`;
+            return data;
+          },
+        },
+
+        {
+          targets: 3, // Kolom target 4
           orderable: true,
           className: "text-end",
           width: "250px",
           render: function (data, type, row) {
-            return to_rupiah(parseInt(data));
+            // Ubah format data menjadi rupiah dan tambahkan onclick untuk memanggil modal
+            return `<a href="javascript:void(0)" onclick="showMerchantModal('${
+              row.merchant_name
+            }', '${row.internal_payment}', '${row.mid}','${row.id}')">
+            ${parseInt(data)}</a>`;
           },
         },
       ],
@@ -174,9 +190,19 @@ var KTDatatablesServerSide = (function () {
       $("#kt_daterangepicker_1")
         .data("daterangepicker")
         .setEndDate(moment().endOf("month"));
-      startDate = moment().startOf("month").format("YYYY-MM-DD");
-      endDate = moment().endOf("month").format("YYYY-MM-DD");
+      startDate = "";
+      endDate = "";
       reloadDatatable();
+
+      // $("#kt_daterangepicker_1")
+      //   .data("daterangepicker")
+      //   .setStartDate(moment().startOf("month"));
+      // $("#kt_daterangepicker_1")
+      //   .data("daterangepicker")
+      //   .setEndDate(moment().endOf("month"));
+      // startDate = moment().startOf("month").format("YYYY-MM-DD");
+      // endDate = moment().endOf("month").format("YYYY-MM-DD");
+      // reloadDatatable();
     });
   };
 
@@ -229,7 +255,7 @@ var KTDatatablesServerSideBO = (function () {
         },
       },
       columns: [
-        { data: "created_at" },
+        { data: "settlement_date" },
         // { data: "batch_fk" },
         { data: "merchant_name" },
         // { data: "processor" },
@@ -561,6 +587,136 @@ $("#singleReconcile").on("submit", function (event) {
           } else if (result.isDenied) {
             Swal.fire("Changes are not saved", "", "info");
           }
+        });
+      }
+    },
+    error: function (xhr, status, error) {
+      console.log(error);
+      Swal.fire({
+        text: error,
+        icon: "error",
+        buttonsStyling: false,
+        confirmButtonText: "Ok, got it!",
+        customClass: {
+          confirmButton: "btn fw-bold btn-primary",
+        },
+      });
+    },
+  });
+});
+
+// Fungsi untuk menghitung updatedInternalPayment
+function updateBankSettlement() {
+  const internalPayment =
+    parseFloat(document.getElementById("internalPayment").value) || 0;
+  const newInternalPayment =
+    parseFloat(document.getElementById("newinternalPayment").value) || 0;
+
+  // Hitung hasil pengurangan
+  const updatedInternalPayment = internalPayment - newInternalPayment;
+
+  if (updatedInternalPayment < 0) {
+    Swal.fire({
+      title: "Error",
+      text: "Data Baru Melebihi Data Yang Ada",
+      icon: "error",
+    });
+    document.getElementById("updatedinternalPayment").value =
+      updatedInternalPayment;
+  } else {
+    // Tampilkan hasilnya di input readonly
+    document.getElementById("updatedinternalPayment").value =
+      updatedInternalPayment;
+  }
+}
+
+// Event listener untuk input newInternalPayment
+document
+  .getElementById("newinternalPayment")
+  .addEventListener("input", updateBankSettlement);
+
+// Fungsi untuk menampilkan modal dengan data yang diberikan
+function showMerchantModal(merchantName, internalPayment, mid, id) {
+  // Isi data ke dalam modal
+  document.getElementById("id").value = id;
+  document.getElementById("merchantName").value = merchantName;
+  document.getElementById("internalPayment").value = internalPayment;
+  document.getElementById("MiD").value = mid;
+
+  // Reset input newinternalPayment setiap kali modal dibuka
+  document.getElementById("newinternalPayment").value = "";
+
+  // Hasil pengurangan juga di-reset
+  document.getElementById("updatedinternalPayment").value = "";
+
+  // Tampilkan modal
+  const merchantModal = new bootstrap.Modal(
+    document.getElementById("merchantModal")
+  );
+  merchantModal.show();
+}
+
+$("#updatebs").on("submit", function (event) {
+  event.preventDefault(); // Mencegah submit default
+
+  const bs = parseFloat(document.getElementById("internalPayment").value) || 0;
+  const updatebs = parseFloat(document.getElementById("updatedinternalPayment").value) || 0;
+  const newbs = parseFloat(document.getElementById("newinternalPayment").value) || 0;
+  const idbs = document.getElementById("id").value;
+  const midbs = document.getElementById("MiD").value;
+  const merchantbs = document.getElementById("merchantName").value;
+
+  var token = $('meta[name="csrf-token"]').attr("content");
+  var formData = new FormData(this);
+  formData.append("bs", bs);
+  formData.append("updatebs", updatebs);
+  formData.append("newbs", newbs);
+  formData.append("idbs", idbs);
+  formData.append("midbs", midbs);
+  formData.append("merchantbs", merchantbs);
+
+  var url = baseUrl + "/updatebs?id=" + idbs 
+  + "&mid=" + midbs 
+  + "&updatebs=" + updatebs 
+  + "&newbs=" + newbs 
+  + "&merchantbs=" + merchantbs 
+  + "&idbs=" + idbs;
+
+  $.ajax({
+    headers: { "X-CSRF-TOKEN": token },
+    type: "POST",
+    url: url, // Sesuaikan dengan URL yang sesuai
+    data: formData,
+    dataType: "JSON",
+    cache: false,
+    contentType: false,
+    processData: false,
+    beforeSend: function () {
+      swal.showLoading();
+    },
+    success: function (data) {
+      swal.hideLoading();
+      if (data.status === true) {
+        swal.fire({
+          text: data.message,
+          icon: "success",
+          buttonsStyling: false,
+          confirmButtonText: "Ok, got it!",
+          customClass: {
+            confirmButton: "btn font-weight-bold btn-light-primary",
+          },
+        }).then(function () {
+          window.location.reload(); // Opsional, reload halaman setelah sukses
+        });
+      } else {
+        swal.fire({
+          text: data.message,
+          icon: "error",
+          buttonsStyling: false,
+          confirmButtonText: "Ok, got it!",
+          customClass: {
+            confirmButton: "btn font-weight-bold btn-light-primary",
+          },
         });
       }
     },

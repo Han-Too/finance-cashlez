@@ -51,9 +51,9 @@
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         <?php if($syaratauto != 0 && $countapprov != 0): ?>
-                        <button class="btn btn-success rounded-sm" id="autoButton" >
-                            Auto
-                        </button>
+                            <button class="btn btn-success rounded-sm" id="autoButton">
+                                Auto
+                            </button>
                         <?php endif; ?>
                         <button class="btn btn-primary rounded-sm" id="bulkUnmatch" style="display: none">
                             Bulk Unmatch
@@ -204,4 +204,7 @@
 </div>
 
 
+
+
+<?php echo $__env->make('modules.reconcile.list.tabs.modalupdatebs', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 <?php /**PATH C:\laragon\www\finance-server\resources\views/modules/reconcile/list/tabs/tabdetail.blade.php ENDPATH**/ ?>

@@ -351,8 +351,8 @@ $("#download_reconcile_form").on("submit", function (event) {
   event.preventDefault();
 
   // var bank = document.getElementById(`bankInput`).value;
-  var bank = "5";
-  var status = document.getElementById(`statusInput`).value;
+  // var bank = "5";
+  // var status = document.getElementById(`statusInput`).value;
   var dateRange = document.getElementById(`kt_daterangepicker_99`).value;
 
   var dates = dateRange.split(" - ");
@@ -376,7 +376,7 @@ $("#download_reconcile_form").on("submit", function (event) {
     "-" + 
     endDateParts[1].padStart(2, "0");
 
-  return (window.location.href = `${baseUrl}/reconcile/downloadunmatch`);
+  return (window.location.href = `${baseUrl}/reconcile/downloadunmatch?startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
 });
 
 function goDraft(id) {

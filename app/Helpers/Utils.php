@@ -129,11 +129,22 @@ class Utils
         }
     }
 
+    // public static function getNewStatusReconcile2($diff, $sales)
+    // {
+    //     if ($diff >= 0 && $diff <= 100) {
+    //         return "MATCH";
+    //     } elseif ($diff < 0 && (($diff / $sales) * 100) < 1) {
+    //         return "MATCH";
+    //     } else {
+    //         return "NOT_MATCH";
+    //     }
+    // }
+
     public static function getNewStatusReconcile2($diff, $sales)
     {
         if ($diff >= 0 && $diff <= 100) {
             return "MATCH";
-        } elseif ($diff < 0 && (($diff / $sales) * 100) < 1) {
+        } elseif ($diff < 0 && abs(($diff / $sales) * 100) <= 1) {
             return "MATCH";
         } else {
             return "NOT_MATCH";

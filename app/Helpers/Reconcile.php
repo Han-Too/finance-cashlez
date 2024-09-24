@@ -186,7 +186,7 @@ class Reconcile
 
                     $merchantPayment = Utils::calculateMerchantPayment($value->bank_transfer, $value->fee_mdr_merchant, $value->fee_bank_merchant, $value->tax_payment);
 
-                    $diff = abs($value->bank_transfer - $bankSettlement);
+                    $diff = ($bankSettlement - $value->bank_transfer);
                     $treshold = Utils::calculateTreshold($value->transaction_count);
                     // $status = Utils::getStatusReconcile($treshold, $value->bank_transfer, $bankSettlement);
                     if ($diff == $value->bank_transfer) {

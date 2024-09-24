@@ -127,9 +127,9 @@
                         Table</button>
                     {{-- <a href="{{ url($downloadUrl) }} " class="btn btn-light-warning me-3 rounded-sm">Download</a> --}}
                     
-                    <a href="{{ route('reconcile.downloadunmatch') }}" class="btn btn-sm btn-light-warning me-3 rounded-sm" 
-                    {{-- <a href="javascript:void(0)" class="btn btn-sm btn-light-warning me-3 rounded-sm" 
-                    data-bs-toggle="modal" data-bs-target="#kt_modal_download_unmatch" --}}
+                    {{-- <a href="{{ route('reconcile.downloadunmatch') }}" class="btn btn-sm btn-light-warning me-3 rounded-sm"  --}}
+                    <a href="javascript:void(0)" class="btn btn-sm btn-light-warning me-3 rounded-sm" 
+                    data-bs-toggle="modal" data-bs-target="#kt_modal_download_unmatch"
                     >Download</a>
     
                     <!--end::Filter-->

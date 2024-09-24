@@ -135,8 +135,9 @@
                         Table</button>
                     
                     
-                    <a href="<?php echo e(route('reconcile.downloadunmatch')); ?>" class="btn btn-sm btn-light-warning me-3 rounded-sm" 
                     
+                    <a href="javascript:void(0)" class="btn btn-sm btn-light-warning me-3 rounded-sm" 
+                    data-bs-toggle="modal" data-bs-target="#kt_modal_download_unmatch"
                     >Download</a>
     
                     <!--end::Filter-->
