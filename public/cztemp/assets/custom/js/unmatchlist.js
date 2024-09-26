@@ -375,8 +375,10 @@ $("#download_reconcile_form").on("submit", function (event) {
     endDateParts[0].padStart(2, "0") +
     "-" + 
     endDateParts[1].padStart(2, "0");
+    
+    return (window.location.href = `${baseUrl}/reconcile/downloadunmatch?startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
+    // return (window.location.href = `${baseUrl}/reconcile/downloadunmatch/${formattedStartDate}/${formattedEndDate}`);
 
-  return (window.location.href = `${baseUrl}/reconcile/downloadunmatch?startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
 });
 
 function goDraft(id) {

@@ -899,115 +899,6 @@ function checkBank(id, settlementDate, mid, bankSettlement, total_sales) {
   }
 }
 
-// function checkBank(id, settlementDate, mid, bankSettlement) {
-//   var checkbox = document.getElementById(`checkbox_bank_${id}`);
-//   var tbody = document.querySelector("#bank_selected_items tbody");
-//   var tfoot = document.querySelector("#bank_selected_items tfoot");
-
-//   if (checkbox.checked) {
-//     if (!selectedBanks.includes(id)) {
-//       selectedBanks.push(id);
-//     }
-
-//     var row = document.getElementById(`row_${mid}`);
-//     if (!row) {
-//       row = document.createElement("tr");
-//       row.setAttribute("id", `row_${mid}`);
-//       row.innerHTML = `
-//                 <td>${mid}</td>
-//                 <td><ul id="dates_${mid}"></ul></td>
-//                 <td class="text-end"><ul id="amounts_${mid}"></ul></td>
-//                 <td class="text-end total" id="total_${mid}">${to_rupiah(
-//         bankSettlement
-//       )}</td>
-//                 <td><button id="remove_${mid}" class="btn btn-danger">x</button></td>
-//             `;
-//       tbody.appendChild(row);
-//     } else {
-//       document.querySelector(`#total_${mid}`).innerText = to_rupiah(
-//         parseInt(
-//           document.querySelector(`#total_${mid}`).innerText.replace(/\D/g, "")
-//         ) + parseInt(bankSettlement)
-//       );
-//     }
-
-//     document.querySelector(
-//       `#dates_${mid}`
-//     ).innerHTML += `<li>${settlementDate}</li>`;
-//     document.querySelector(`#amounts_${mid}`).innerHTML += `<li>${to_rupiah(
-//       bankSettlement
-//     )}</li>`;
-
-//     totalBankSettlement += parseInt(bankSettlement);
-//     tfoot.innerHTML = `
-//             <td colspan="2" class="text-start">Total</td>
-//             <td colspan="2" class="text-end">${to_rupiah(
-//               totalBankSettlement
-//             )}</td>
-//         `;
-
-//     document
-//       .getElementById(`remove_${mid}`)
-//       .addEventListener("click", function () {
-//         var rowToRemove = document.getElementById(`row_${mid}`);
-//         if (rowToRemove) {
-//           rowToRemove.remove();
-//           selectedBanks = selectedBanks.filter((bankId) => bankId !== id);
-//           totalBankSettlement -= parseInt(bankSettlement);
-//           tfoot.innerHTML = `
-//                     <td colspan="2" class="text-start">Total</td>
-//                     <td colspan="2" class="text-end">${to_rupiah(
-//                       totalBankSettlement
-//                     )}</td>
-//                 `;
-
-//           checkbox.checked = false;
-
-//           handleCheckboxChange(
-//             mid,
-//             parseInt(bankSettlement),
-//             false,
-//             settlementDate,
-//             "uang"
-//           );
-//           updateCombinedTotal();
-//         }
-//       });
-
-//     handleCheckboxChange(
-//       mid,
-//       parseInt(bankSettlement),
-//       true,
-//       settlementDate,
-//       "uang"
-//     );
-//     updateCombinedTotal();
-//   } else {
-//     selectedBanks = selectedBanks.filter((bankId) => bankId !== id);
-
-//     totalBankSettlement -= parseInt(bankSettlement);
-//     tfoot.innerHTML = `
-//             <td colspan="2" class="text-start">Total</td>
-//             <td colspan="2" class="text-end">${to_rupiah(
-//               totalBankSettlement
-//             )}</td>
-//         `;
-
-//     var row = document.getElementById(`row_${mid}`);
-//     if (row) {
-//       row.remove();
-//     }
-
-//     handleCheckboxChange(
-//       mid,
-//       parseInt(bankSettlement),
-//       false,
-//       settlementDate,
-//       "uang"
-//     );
-//     updateCombinedTotal();
-//   }
-// }
 
 function checkBo(id, settlementDate, bankType, mid, bankPayment) {
   var checkbox = document.getElementById(`checkbox_bo_${id}`);
@@ -1387,7 +1278,7 @@ function renderTable() {
     // selisihCell.textContent = to_rupiah(group.totalTabungan - group.totalUang);
     // row.appendChild(selisihCell);
     const selisihCell = document.createElement("td");
-    const selisih = group.totalTabungan - group.totalUang;
+    const selisih = group.totalUang - group.totalTabungan;
 
     if (selisih < 0) {
       selisihCell.textContent = `( - ${to_rupiah(Math.abs(selisih))} )`;

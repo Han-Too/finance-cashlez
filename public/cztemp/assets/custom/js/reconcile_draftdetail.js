@@ -643,7 +643,7 @@ function goUnmatch(id) {
           icon: "success",
           title: "Data Have Been Remove",
         }).then(function () {
-          window.location.reload();
+          // window.location.reload();
         });;
       } else {
         Swal.fire({
@@ -666,7 +666,7 @@ function goUnmatch(id) {
       });
     },
   }).then(function () {
-    // window.location.reload();
+    window.location.reload();
   });
 }
 function goReport(id) {
@@ -695,8 +695,8 @@ function goReport(id) {
           icon: "success",
           title: "Data Have Been Remove",
         }).then(function () {
-          window.location.reload();
-        });;
+          // window.location.reload()
+        });
       } else {
         Swal.fire({
           title: "Error",
@@ -718,7 +718,7 @@ function goReport(id) {
       });
     },
   }).then(function () {
-    // window.location.reload();
+    window.location.reload();
   });
 }
 // Fungsi autoMove

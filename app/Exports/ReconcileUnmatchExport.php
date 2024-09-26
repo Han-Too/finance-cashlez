@@ -19,10 +19,14 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class ReconcileUnmatchExport implements FromCollection, WithMapping, WithHeadings, WithColumnFormatting, WithEvents
 {
     // protected $token_applicant, $status, $startDate, $endDate, $channel;
-    protected $token_applicant, $status, $startDate, $endDate, $channel;
+    protected 
+    // $token_applicant, $status, 
+    $startDate, $endDate
+    // , $channel
+    ;
 
     // public function __construct($token_applicant, $status, $startDate, $endDate, $channel)
-    public function __construct($startDate, $endDate, )
+    public function __construct($startDate, $endDate)
     {
         // $this->token_applicant = $token_applicant;
         // $this->status = $status;
@@ -106,33 +110,6 @@ class ReconcileUnmatchExport implements FromCollection, WithMapping, WithHeading
         ];
     }
 
-    public function oldheadings(): array
-    {
-        return [
-            'Settlement Date',
-            'Sequence Batch Number',
-            'Merchant Reference Code',
-            'MID',
-            'Merchant Name',
-            'Bank Type',
-            // 'Trx Status',
-            'Reconcile Status',
-            'BO Settlement Amount',
-            'BANK Settlement Amount',
-            'Dispute Amount',
-            'Total Sales',
-            'Transfer Amount',
-            'Account Number',
-            'Bank Code',
-            'Bank Name',
-            'Account Holder',
-            'Email',
-            'Bank Type',
-            'Others',
-            // 'Id',
-            // 'Transaction Id',
-        ];
-    }
     public function headings(): array
     {
         return [
