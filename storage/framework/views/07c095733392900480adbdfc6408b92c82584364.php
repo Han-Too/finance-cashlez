@@ -24,10 +24,11 @@
     if ($status) {
         if ($token) {
             $downloadUrl = $downloadUrl . '&status=' . $status;
-        } else{
+        } else {
             $downloadUrl = $downloadUrl . '?status=' . $status;
         }
     }
+
 ?>
 <?php if (isset($component)) { $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da = $component; } ?>
 <?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
@@ -38,6 +39,21 @@
 <?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
+    <?php 
+    $can = auth()
+        ->user()
+        ->hasAnyPermission(['view-unmatchlist', 'download-unmatchlist']);
+    $canview = auth()
+        ->user()
+        ->hasAnyPermission(['view-unmatchlist']);
+    $candownload = auth()
+        ->user()
+        ->hasAnyPermission(['download-unmatchlist']);
+
+        echo "<script>var authUserCan = '$can';</script>";
+        echo "<script>var authUserCanDelete = '$canview';</script>";
+        echo "<script>var authUserCanDownload = '$candownload';</script>";
+    ?>
     <div class="container">
         <div class="card card-flush px-10 py-6 rounded-sm">
 
@@ -49,37 +65,37 @@
                             
                             <p class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
                                 <!--begin::Hidden-->
-                                <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
-                                    <div class="me-2">
-                                        <span class="fw-bolder text-gray-800 d-block fs-3">Match</span>
-                                        <span class="text-dark fw-bold" id="resmatch"></span>
-                                    </div>
-                                    <div class="fw-bolder fs-5 text-primary" id="ressumMatch"></div>
+                            <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
+                                <div class="me-2">
+                                    <span class="fw-bolder text-gray-800 d-block fs-3">Match</span>
+                                    <span class="text-dark fw-bold" id="resmatch"></span>
                                 </div>
-                                <!--end::Hidden-->
+                                <div class="fw-bolder fs-5 text-primary" id="ressumMatch"></div>
+                            </div>
+                            <!--end::Hidden-->
                             </p>
                         </div>
                     </div>
-                    
+
                     <div class="col-6">
                         <div class="border border-gray-300 border-dashed rounded w-100 py-3 px-4 mb-3">
                             
                             <p class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
                                 <!--begin::Hidden-->
-                                <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
-                                    <div class="me-2">
-                                        <span class="fw-bolder text-gray-800 d-block fs-3">Variance</span>
-                                        <span class="text-dark fw-bold" id="resdispute"></span>
-                                    </div>
-                                    <span class="fw-bolder fs-5 text-primary" id="ressumDispute"></span>
+                            <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
+                                <div class="me-2">
+                                    <span class="fw-bolder text-gray-800 d-block fs-3">Variance</span>
+                                    <span class="text-dark fw-bold" id="resdispute"></span>
                                 </div>
-                                <!--end::Hidden-->
+                                <span class="fw-bolder fs-5 text-primary" id="ressumDispute"></span>
+                            </div>
+                            <!--end::Hidden-->
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!--begin::Wrapper-->
             <div class="d-flex flex-stack mb-5">
                 <!--begin::Search-->
@@ -87,7 +103,7 @@
                     <?php if(request()->query('status') !== null): ?>
                         <div class="fw-bolder fs-3 my-4">Result For <?php echo e($status); ?> Transaction</div>
                     <?php endif; ?>
-    
+
                     <!--begin::Search-->
                     <div class="d-flex">
                         <div class="d-flex align-items-center position-relative my-1 rounded-sm">
@@ -99,8 +115,8 @@
                         <div class="d-flex align-items-center position-relative my-1">
                             <!--begin::Svg Icon | path: icons/duotune/general/gen021.svg-->
                             <span class="svg-icon svg-icon-1 position-absolute ms-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24" fill="none">
                                     <rect opacity="0.5" x="17.0365" y="15.1223" width="8.15546" height="2"
                                         rx="1" transform="rotate(45 17.0365 15.1223)" fill="black" />
                                     <path
@@ -122,33 +138,34 @@
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
-    
+
                     </div>
                     <!--end::Search-->
                 </div>
                 <!--end::Search-->
-    
+
                 <!--begin::Toolbar-->
                 <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
                     <!--begin::Filter-->
                     <button id="resrefreshButton" class="btn btn-sm btn-light-primary w-100 me-3 rounded-sm">Refresh
                         Table</button>
                     
-                    
-                    
-                    <a href="javascript:void(0)" class="btn btn-sm btn-light-warning me-3 rounded-sm" 
-                    data-bs-toggle="modal" data-bs-target="#kt_modal_download_unmatch"
-                    >Download</a>
-    
+
+                    <?php if(auth()->user()->hasAnyPermission(['download-unmatchlist'])): ?>
+                        
+                        <a href="javascript:void(0)" class="btn btn-sm btn-light-warning me-3 rounded-sm"
+                            data-bs-toggle="modal" data-bs-target="#kt_modal_download_unmatch">Download</a>
+                    <?php endif; ?>
+
                     <!--end::Filter-->
                 </div>
                 <!--end::Toolbar-->
-    
+
             </div>
             <!--end::Wrapper-->
-    
+
             <!--begin::Datatable-->
-    
+
             <table id="kt_datatable_example_99" class="table align-middle table-row-dashed fs-6 gy-5">
                 <thead>
                     <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">

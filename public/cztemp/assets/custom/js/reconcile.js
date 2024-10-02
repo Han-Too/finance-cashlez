@@ -63,14 +63,12 @@ var KTDatatablesServerSideRes = (function () {
           // Jika data lain seperti resmatch atau resdispute perlu ditampilkan
           document.getElementById("resmatch").innerText =
             (json.resmatch || 0) + " Trx";
-          document.getElementById("ressumMatch").innerText = to_rupiah(
-            json.ressumMatch
-          ) || 0;
+          document.getElementById("ressumMatch").innerText =
+            to_rupiah(json.ressumMatch) || 0;
           document.getElementById("resdispute").innerText =
             (json.resdispute || 0) + " Trx";
-          document.getElementById("ressumDispute").innerText = to_rupiah(
-            json.ressumDispute
-          ) || 0;
+          document.getElementById("ressumDispute").innerText =
+            to_rupiah(json.ressumDispute) || 0;
 
           // Ensure the data is returned for DataTables
           // console.log(json.data);
@@ -85,7 +83,9 @@ var KTDatatablesServerSideRes = (function () {
           width: "200px",
           render: function (data, type, row) {
             // console.log(row);
-            if (row.status_reconcile == "approved") {
+            if (authUserCanApprove == false && authUserCanCancel == false) {
+              return "";
+            } else if (row.status_reconcile == "approved") {
               return `
               <div class="badge badge-success">
                 APPROVED
@@ -107,21 +107,31 @@ var KTDatatablesServerSideRes = (function () {
                       <!--begin::Menu-->
                       <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4" data-kt-menu="true">
                           <!--begin::Menu item-->
+                          ${
+                            authUserCanCancel
+                              ? `
                           <div class="menu-item px-3">
       <a href="javascript:void()" 
       onclick="goManual('${row.id}')"
       class="menu-link px-3">
           Manual
       </a>
-                          </div>
+                          </div>`
+                              : ""
+                          }
                           <!--end::Menu item-->
             
                           <!--begin::Menu item-->
+                          ${
+                            authUserCanApprove
+                              ? `
                           <div class="menu-item px-3">
                           <a href="javascript:void()" onclick="approveReport(${row.id})" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
                           Approved
                           </a>
-                          </div>
+                          </div>`
+                              : ""
+                          }
                           <!--end::Menu item-->
                       </div>
                       <!--end::Menu-->
@@ -142,21 +152,31 @@ var KTDatatablesServerSideRes = (function () {
                       <!--begin::Menu-->
                       <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4" data-kt-menu="true">
                           <!--begin::Menu item-->
+                          ${
+                            authUserCanCancel
+                              ? `
                           <div class="menu-item px-3">
       <a href="javascript:void()"
       onclick="goDraft('${row.id}')"
       class="menu-link px-3">
-          Draft
+          Cancel
       </a>
-                          </div>
+                          </div>`
+                              : ""
+                          }
                           <!--end::Menu item-->
             
                           <!--begin::Menu item-->
+                          ${
+                            authUserCanApprove
+                              ? `
                           <div class="menu-item px-3">
                           <a href="javascript:void()" onclick="approveReport(${row.id})" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
                           Approved
                           </a>
-                          </div>
+                          </div>`
+                              : ""
+                          }
                           <!--end::Menu item-->
                       </div>
                       <!--end::Menu-->

@@ -30,6 +30,29 @@
     }
 @endphp
 <x-app-layout>
+    <?php
+    $can = auth()
+        ->user()
+        ->hasAnyPermission(['view-disburslist', 'approve-disburslist', 'cancel-disburslist','download-disburslist']);
+    $canview = auth()
+        ->user()
+        ->hasAnyPermission(['view-disburslist']);
+    $canapprove = auth()
+        ->user()
+        ->hasAnyPermission(['approve-disburslist']);
+    $cancancel = auth()
+        ->user()
+        ->hasAnyPermission(['cancel-disburslist']);
+    $candownload = auth()
+        ->user()
+        ->hasAnyPermission(['download-disburslist']);
+    
+    echo "<script>var authUserCan = '$can';</script>";
+    echo "<script>var authUserCanView = '$canview';</script>";
+    echo "<script>var authUserCanApprove = '$canapprove';</script>";
+    echo "<script>var authUserCanCancel = '$cancancel';</script>";
+    echo "<script>var authUserCanDownload = '$candownload';</script>";
+    ?>
     <div class="container">
         <div class="card card-flush px-10 py-6 rounded-sm">
 
@@ -41,37 +64,37 @@
                             {{-- <a href={{ url('/reconcile/result?status=match&token=' . $token) }} --}}
                             <p class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
                                 <!--begin::Hidden-->
-                                <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
-                                    <div class="me-2">
-                                        <span class="fw-bolder text-gray-800 d-block fs-3">Match</span>
-                                        <span class="text-dark fw-bold" id="resmatch"></span>
-                                    </div>
-                                    <div class="fw-bolder fs-5 text-primary" id="ressumMatch"></div>
+                            <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
+                                <div class="me-2">
+                                    <span class="fw-bolder text-gray-800 d-block fs-3">Match</span>
+                                    <span class="text-dark fw-bold" id="resmatch"></span>
                                 </div>
-                                <!--end::Hidden-->
+                                <div class="fw-bolder fs-5 text-primary" id="ressumMatch"></div>
+                            </div>
+                            <!--end::Hidden-->
                             </p>
                         </div>
                     </div>
-                    
+
                     <div class="col-6">
                         <div class="border border-gray-300 border-dashed rounded w-100 py-3 px-4 mb-3">
                             {{-- <a href={{ url('/reconcile/result?status=dispute&token=' . $token) }} --}}
                             <p class="card-body p-0 d-flex justify-content-between flex-column overflow-hidden">
                                 <!--begin::Hidden-->
-                                <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
-                                    <div class="me-2">
-                                        <span class="fw-bolder text-gray-800 d-block fs-3">Variance</span>
-                                        <span class="text-dark fw-bold" id="resdispute"></span>
-                                    </div>
-                                    <span class="fw-bolder fs-5 text-primary" id="ressumDispute"></span>
+                            <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
+                                <div class="me-2">
+                                    <span class="fw-bolder text-gray-800 d-block fs-3">Variance</span>
+                                    <span class="text-dark fw-bold" id="resdispute"></span>
                                 </div>
-                                <!--end::Hidden-->
+                                <span class="fw-bolder fs-5 text-primary" id="ressumDispute"></span>
+                            </div>
+                            <!--end::Hidden-->
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!--begin::Wrapper-->
             <div class="d-flex flex-stack mb-5">
                 <!--begin::Search-->
@@ -125,10 +148,14 @@
                     <!--begin::Filter-->
                     <button id="resrefreshButton" class="btn btn-sm btn-light-primary w-100 me-3 rounded-sm">Refresh
                         Table</button>
-                    {{-- <a href="{{ url($downloadUrl) }} " class="btn btn-light-warning me-3 rounded-sm">Download</a> --}}
-                    <a href="#" class="btn btn-sm btn-light-warning me-3 rounded-sm" data-bs-toggle="modal"
-                        data-bs-target="#kt_modal_download">Download</a>
-                    @if ($checkapprove > 0)
+                    @if (auth()->user()->hasAnyPermission(['download-disburslist']))
+                        {{-- <a href="{{ url($downloadUrl) }} " class="btn btn-light-warning me-3 rounded-sm">Download</a> --}}
+                        <a href="#" class="btn btn-sm btn-light-warning me-3 rounded-sm" data-bs-toggle="modal"
+                            data-bs-target="#kt_modal_download">Download</a>
+                    @endif
+                    @if (
+                        $checkapprove > 0 &&
+                            auth()->user()->hasAnyPermission(['approve-disburslist']))
                         <button id="approveAll" class="btn btn-sm btn-success me-3 rounded-sm">
                             Approve
                         </button>

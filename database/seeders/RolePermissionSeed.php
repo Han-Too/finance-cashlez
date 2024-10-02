@@ -62,6 +62,7 @@ class RolePermissionSeed extends Seeder
             $permission_delete_reconlist = Permission::create(["name" => 'delete-reconlist']);
             $permission_download_reconlist = Permission::create(["name" => 'download-reconlist']);
             $permission_view_disburslist = Permission::create(["name" => 'view-disburslist']);
+            $permission_view_disburslist = Permission::create(["name" => 'download-disburslist']);
             $permission_approve_disburslist = Permission::create(["name" => 'approve-disburslist']);
             $permission_cancel_disburslist = Permission::create(["name" => 'cancel-disburslist']);
             $permission_view_unmatchlist = Permission::create(["name" => 'view-unmatchlist']);
@@ -99,6 +100,7 @@ class RolePermissionSeed extends Seeder
                 'delete-reconlist',
                 'download-reconlist',
                 'view-disburslist',
+                'download-disburslist',
                 'approve-disburslist',
                 'cancel-disburslist',
                 'view-unmatchlist',
@@ -136,6 +138,7 @@ class RolePermissionSeed extends Seeder
                 'delete-reconlist',
                 'download-reconlist',
                 'view-disburslist',
+                'download-disburslist',
                 'approve-disburslist',
                 'cancel-disburslist',
                 'view-unmatchlist',
@@ -172,6 +175,7 @@ class RolePermissionSeed extends Seeder
                 'update-reconlist',
                 'delete-reconlist',
                 'download-reconlist',
+                'download-disburslist',
                 'view-disburslist',
                 'approve-disburslist',
                 'cancel-disburslist',
@@ -209,6 +213,7 @@ class RolePermissionSeed extends Seeder
                 'update-reconlist',
                 'delete-reconlist',
                 'download-reconlist',
+                'download-disburslist',
                 'view-disburslist',
                 'approve-disburslist',
                 'cancel-disburslist',
