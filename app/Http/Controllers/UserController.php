@@ -7,39 +7,64 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         return view('modules.users.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function add()
     {
-        //
+        $role = Role::with('permission')->select('id', 'name')->get();
+        return view('modules.users.add', compact('role'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        //
+        DB::beginTransaction();
+        try {
+
+            $data = User::where('username', $request->username)->first();
+
+            if ($data) {
+                return response()->json(['message' => "User Already Exist!", 'status' => false], 200);
+            }
+
+            if (empty($request->password) || empty($request->password_confirmation)) {
+                return response()->json(['message' => "Input Password", 'status' => false], 200);
+            }
+
+            if ($request->password !== $request->password_confirmation) {
+                return response()->json(['message' => "Password And Confirm Doesn't Match!", 'status' => false], 200);
+            }
+
+            $password = Hash::make($request->password);
+
+
+            $create = User::create([
+                'uuid' => Str::uuid(),
+                'username' => $request->username,
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => $password,
+                'status' => "active",
+            ]);
+
+            if ($create) {
+                $create->assignRole([$request->role_id]);
+                DB::commit();
+                return response()->json(['message' => "Successfully update data!", 'status' => true], 200);
+            }
+        } catch (\Throwable $th) {
+            Log::info($th);
+            DB::commit();
+            return response()->json(['message' => "Failed update data!", 'status' => false], 200);
+        }
     }
 
     /**
@@ -51,42 +76,42 @@ class UserController extends Controller
     public function edit($uuid)
     {
         $data = User::where('uuid', $uuid)->first();
-        $role = Role::where('id', '!=', 1)->get();
-        return view('modules.users.edit', compact('data', 'role'));
+        $role = Role::with('permission')->select('id', 'name')->get();
+        $mod = DB::table('model_has_roles')->where('model_id', $data->id)->first();
+        return view('modules.users.edit', compact('data', 'role', 'mod'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request)
     {
         DB::beginTransaction();
         try {
+
             $data = User::where('uuid', $request->uuid)->first();
+            $data->username = $request->username;
             $data->name = $request->name;
             $data->email = $request->email;
-            $data->password = Hash::make($request->password);
-            $data->role = $request->role_id;
+
+            if ($request->password != '') {
+                if ($request->password == $request->password_confirmation) {
+                    $data->password = Hash::make($request->password);
+                } else {
+                    return response()->json(['message' => "Failed update data!", 'status' => false], 200);
+                }
+            }
+
+
             if ($data->save()) {
+                $data->syncRoles([$request->role_id]);
                 DB::commit();
-                return  response()->json(['message'=> "Successfully update data!", 'status' => true], 200);
+                return response()->json(['message' => "Successfully update data!", 'status' => true], 200);
             }
         } catch (\Throwable $th) {
+            Log::info($th);
             DB::commit();
-            return  response()->json(['message'=> "Failed update data!", 'status' => false], 200);
+            return response()->json(['message' => "Failed update data!", 'status' => false], 200);
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($uuid)
     {
         $data = User::where('uuid', $uuid)->first();
@@ -96,15 +121,42 @@ class UserController extends Controller
                 'success' => true,
                 'message' => "Berhasil Hapus Data",
             ];
-    
+
             return response()->json($response, 200);
         }
     }
 
-    
-    public function userData(Request $request) {
-        $query = User::where('status', '!=', 'deleted')->orderByDesc('created_at');
+
+    public function userData(Request $request)
+    {
+        $query = User::with('roles')->where('status', '!=', 'deleted')->orderByDesc('created_at');
 
         return DataTables::of($query->get())->addIndexColumn()->make(true);
+    }
+
+    public function aktivasi()
+    {
+        return view('modules.users.aktivasi');
+    }
+
+    public function aktivasiData(Request $request)
+    {
+        $query = User::with('roles')->where('status',  'deleted')->orderByDesc('created_at');
+
+        return DataTables::of($query->get())->addIndexColumn()->make(true);
+    }
+
+    public function activated($uuid)
+    {
+        $data = User::where('uuid', $uuid)->first();
+        $data->status = 'active';
+        if ($data->save()) {
+            $response = [
+                'success' => true,
+                'message' => "Berhasil Mengaktivasi User",
+            ];
+
+            return response()->json($response, 200);
+        }
     }
 }

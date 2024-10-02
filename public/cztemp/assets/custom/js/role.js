@@ -1,14 +1,15 @@
 "use strict";
 
+
 var KTDatatablesServerSide = (function () {
     var dt;
 
     var initDatatable = function () {
-        dt = $("#kt_datatable_example_1").DataTable({
+        dt = $("#kt_datatable_role_1").DataTable({
             searchDelay: 200,
             processing: true,
             serverSide: true,
-            order: [[3, "desc"]],
+            order: [[1, "desc"]],
             stateSave: true,
             select: {
                 style: "os",
@@ -18,22 +19,31 @@ var KTDatatablesServerSide = (function () {
             ajax: {
                 url: baseUrl + "/roles/data",
             },
-            columns: [
-                { data: "title" },
-                { data: "status" },
-                { data: "created_by" },
-                { data: "created_at" },
-                { data: "modified_by" },
-                { data: "updated_at" },
-                { data: "id" },
-            ],
             columnDefs: [
                 {
                     targets: 0,
                     orderable: true,
                     className: "text-start",
+                    width: "50px",
+                    render: function (data, type, row, meta) {
+                      // console.log(row);
+                        return meta.row + 1;
+                    },
+                },
+                {
+                    targets: 1,
+                    orderable: true,
+                    className: "text-start",
                     render: function (data, type, row) {
-                        return `<p class="fw-bolder fs-5">${data}</p>`;
+                        return `<p class="fw-bolder fs-5">${row.name}</p>`;
+                    },
+                },
+                {
+                    targets: 2,
+                    orderable: true,
+                    className: "text-start",
+                    render: function (data, type, row) {
+                        return `<p class="fw-bolder fs-5">${(row.roles_count)+" User"}</p>`;
                     },
                 },
                 {
@@ -65,7 +75,7 @@ var KTDatatablesServerSide = (function () {
 
                                 <!--begin::Menu item-->
                                 <div class="menu-item px-3">
-                                    <a href="javascript:void()" onclick="deleteRow('${data}')" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
+                                    <a href="javascript:void()" onclick="deleteRow('${row.id}')" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
                                         Delete
                                     </a>
                                 </div>
@@ -75,28 +85,12 @@ var KTDatatablesServerSide = (function () {
                         `;
                     },
                 },
-                {
-                    targets: -2,
-                    orderable: true,
-                    className: "text-start",
-                    render: function (data, type, row) {
-                        return to_date_time(data);
-                    },
-                },
-                {
-                    targets: -4,
-                    orderable: true,
-                    className: "text-start",
-                    render: function (data, type, row) {
-                        return to_date_time(data);
-                    },
-                },
             ],
 
             createdRow: function (row, data, dataIndex) {
                 $(row)
-                    .find("td:eq(4)")
-                    .attr("data-filter", data.name);
+                    .find("td:eq(1)")
+                    .attr("data-filter", row.name);
             },
         });
 
@@ -121,6 +115,24 @@ var KTDatatablesServerSide = (function () {
         },
     };
 })();
+
+
+
+function getTotalRoles(id) {
+    let count = 0;
+    $.ajax({
+        url: `/roles/count/${id}`,
+        type: 'GET',
+        async: false,  // Agar hasilnya dapat digunakan secara langsung (synchronous)
+        success: function(response) {
+            count = response.count;
+        },
+        error: function(xhr) {
+            console.error(xhr.responseText);
+        }
+    });
+    return count;
+}
 
 function deleteRow($id) {
     if (!$id) {
@@ -182,56 +194,6 @@ function deleteRow($id) {
     });
 }
 
-$("#update_role_form").on("submit", function (event) {
-    event.preventDefault();
-    var token = $('meta[name="csrf-token"]').attr('content');
-    var formData = new FormData(this);
-    $.ajax({
-        headers: { 'X-CSRF-TOKEN': token },
-        type : 'POST',
-        data: formData,
-        url  : baseUrl + '/roles/update',
-        dataType: 'JSON',
-        cache: false,
-        contentType: false,
-        processData: false,
-        beforeSend: function() {
-            swal.showLoading();
-        },
-        success: function(data){
-            if(data.status === true) {
-                swal.hideLoading();
-                swal.fire({
-                    text: data.message,
-                    icon: "success",
-                    buttonsStyling: false,
-                    confirmButtonText: "Ok, got it!",
-                    customClass: {
-                        confirmButton: "btn font-weight-bold btn-light-primary"
-                    }
-                }).then(function() {
-                    location.href = baseUrl + "/roles";
-                });
-            }else {
-                var values = '';
-                jQuery.each(data.message, function (key, value) {
-                    values += value+"<br>";
-                });
-
-                swal.fire({
-                    text: data.message,
-                    html: values,
-                    icon: "error",
-                    buttonsStyling: false,
-                    confirmButtonText: "Ok, got it!",
-                    customClass: {
-                        confirmButton: "btn font-weight-bold btn-light-primary"
-                    }
-                }).then(function() { });
-            }
-        }
-    });
-});
 
 KTUtil.onDOMContentLoaded(function () {
     KTDatatablesServerSide.init();

@@ -14,7 +14,6 @@
             break;
     }
 
-    $priv = App\Helpers\Utils::getPrivilege('reconcile');
 ?>
 <?php if (isset($component)) { $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da = $component; } ?>
 <?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
@@ -54,13 +53,11 @@
                 <!--end::Search-->
 
                 <!--begin::Toolbar-->
-                <?php if($priv->create): ?>
                     <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
                         <a href="#" class="btn btn-light-primary me-3 rounded-sm" data-bs-toggle="modal"
                             data-bs-target="#kt_modal_reconcile">Add New Record</a>
                         <!--end::Filter-->
                     </div>
-                <?php endif; ?>
                 <!--end::Toolbar-->
 
             </div>
@@ -92,9 +89,6 @@
 
 
     <?php $__env->startSection('scripts'); ?>
-        <script>
-            var privCreate = <?php echo $priv->create; ?>;
-        </script>
         <script src="<?php echo e(asset('cztemp/assets/custom/js/reconcile_list.js')); ?>"></script>
     <?php $__env->stopSection(); ?>
  <?php echo $__env->renderComponent(); ?>

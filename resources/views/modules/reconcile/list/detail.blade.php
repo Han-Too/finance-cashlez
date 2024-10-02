@@ -1,5 +1,4 @@
 @php
-    $priv = App\Helpers\Utils::getPrivilege('reconcile');
     switch (request()->query('status')) {
         case 'match':
             $status = 'MATCH';

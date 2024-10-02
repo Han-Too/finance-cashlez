@@ -3,10 +3,6 @@
     data-kt-drawer-width="{default:'200px', '300px': '250px'}" data-kt-drawer-direction="start"
     data-kt-drawer-toggle="#kt_aside_mobile_toggle">
     <!--begin::Brand-->
-    @php
-        $priv = App\Helpers\Utils::getPrivilege('reconcile/result');
-        $privDis = App\Helpers\Utils::getPrivilege('disbursement');
-    @endphp
     <div class="aside-logo flex-column-auto" id="kt_aside_logo">
         <!--begin::Logo-->
         <a href="/">
@@ -49,7 +45,11 @@
                         <span class="menu-title">Dashboard</span>
                     </a>
                 </div>
-                @if (Auth::user()->role == 1)
+
+
+
+                @if (auth()->user()->hasRole('superadmin') ||
+                        auth()->user()->can(['view-user', 'create-user', 'update-user', 'delete-user']))
                     <div class="menu-item">
                         <div class="menu-content pb-2">
                             <span class="menu-section text-muted text-uppercase fs-8 ls-1">User</span>
@@ -65,6 +65,22 @@
                         </a>
                     </div>
                     <div class="menu-item">
+                        <a class="menu-link {{ Str::startsWith(request()->path(), 'aktivasi') ? 'active' : '' }}"
+                            href="{{ url('aktivasi') }}">
+                            <span class="menu-icon">
+                                <i class="bi bi-person-x fs-2"></i>
+                            </span>
+                            <span class="menu-title">Deleted User List</span>
+                        </a>
+                    </div>
+                @endif
+                @if (auth()->user()->can(['view-role', 'create-role', 'update-role', 'delete-role']))
+                    <div class="menu-item">
+                        <div class="menu-content pb-2">
+                            <span class="menu-section text-muted text-uppercase fs-8 ls-1">Role & Permission</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
                         <a class="menu-link {{ Str::startsWith(request()->path(), 'roles') ? 'active' : '' }}"
                             href="{{ url('roles') }}">
                             <span class="menu-icon">
@@ -73,7 +89,8 @@
                             <span class="menu-title">Role List</span>
                         </a>
                     </div>
-                    {{-- <div class="menu-item">
+                @endif
+                {{-- <div class="menu-item">
                         <a class="menu-link" href="/user-privilege">
                             <span class="menu-icon">
                                 <i class="bi bi-app-indicator fs-3"></i>
@@ -81,11 +98,23 @@
                             <span class="menu-title">User Privilege</span>
                         </a>
                     </div> --}}
+                @if (auth()->user()->can([
+                            'view-channel',
+                            'create-channel',
+                            'update-channel',
+                            'delete-channel',
+                            'view-param',
+                            'create-param',
+                            'update-param',
+                            'delete-param',
+                        ]))
                     <div class="menu-item">
                         <div class="menu-content pt-8 pb-2">
                             <span class="menu-section text-muted text-uppercase fs-8 ls-1">Master Data</span>
                         </div>
                     </div>
+                @endif
+                @if (auth()->user()->can(['view-channel', 'create-channel', 'update-channel', 'delete-channel']))
                     <div class="menu-item">
                         <a class="menu-link {{ Str::startsWith(request()->path(), 'banks') ? 'active' : '' }}"
                             href="{{ url('banks') }}">
@@ -95,6 +124,8 @@
                             <span class="menu-title">Channel</span>
                         </a>
                     </div>
+                @endif
+                @if (auth()->user()->can(['view-param', 'create-param', 'update-param', 'delete-param']))
                     <div class="menu-item">
                         <a class="menu-link {{ Str::startsWith(request()->path(), 'parameters') ? 'active' : '' }}"
                             href="{{ url('parameters') }}">
@@ -105,47 +136,80 @@
                         </a>
                     </div>
                 @endif
-                <div class="menu-item">
-                    <div class="menu-content pt-8 pb-2">
-                        <span class="menu-section text-muted text-uppercase fs-8 ls-1">Settlement</span>
-                    </div>
-                </div>
-                <div class="menu-item">
-                    <a class="menu-link {{ Str::startsWith(request()->path(), 'settlement') ? 'active' : '' }}"
-                        href="{{ url('settlement') }}">
-                        <span class="menu-icon">
-                            <i class="bi bi-archive fs-3"></i>
-                        </span>
-                        <span class="menu-title">Upload Bank Settlement</span>
-                    </a>
-                </div>
-                <div data-kt-menu-trigger="click"
-                    class="menu-item {{ Str::startsWith(request()->path(), 'reconcile') ? 'here show' : '' }} menu-accordion">
-                    <span class="menu-link">
-                        <span class="menu-icon">
-                            <i class="bi bi-patch-check fs-3"></i>
-                        </span>
-                        <span class="menu-title">Reconciliation</span>
-                        <span class="menu-arrow"></span>
-                    </span>
-                    <div class="menu-sub menu-sub-accordion">
-                        <div class="menu-item">
-                            @if (request()->is('reconcile-list/*'))
-                                <a class="menu-link {{ request()->is('reconcile-list/*') ? 'active' : '' }}"
-                                    href="{{ url('reconcile-list') }}">
-                                @elseif (request()->is('reconcile-list'))
-                                    <a class="menu-link {{ request()->is('reconcile-list') ? 'active' : '' }}"
-                                        href="{{ url('reconcile-list') }}">
-                                    @else
-                                        <a class="menu-link" href="{{ url('reconcile-list') }}">
-                            @endif
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Reconcile List</span>
-                            </a>
+                @if (auth()->user()->can([
+                            'view-bs',
+                            'create-bs',
+                            'update-bs',
+                            'delete-bs',
+                            'view-reconlist',
+                            'create-reconlist',
+                            'update-reconlist',
+                            'delete-reconlist',
+                            'download-reconlist',
+                            'view-disburslist',
+                            'approve-disburslist',
+                            'cancel-disburslist',
+                            'view-unmatchlist',
+                            'download-unmatchlist',
+                        ]))
+                    <div class="menu-item">
+                        <div class="menu-content pt-8 pb-2">
+                            <span class="menu-section text-muted text-uppercase fs-8 ls-1">Settlement</span>
                         </div>
-                        {{-- <div class="menu-item">
+                    </div>
+                @endif
+                @if (auth()->user()->can(['view-bs', 'create-bs', 'update-bs', 'delete-bs']))
+                    <div class="menu-item">
+                        <a class="menu-link {{ Str::startsWith(request()->path(), 'settlement') ? 'active' : '' }}"
+                            href="{{ url('settlement') }}">
+                            <span class="menu-icon">
+                                <i class="bi bi-archive fs-3"></i>
+                            </span>
+                            <span class="menu-title">Upload Bank Settlement</span>
+                        </a>
+                    </div>
+                @endif
+                @if (auth()->user()->can([
+                            'view-reconlist',
+                            'create-reconlist',
+                            'update-reconlist',
+                            'delete-reconlist',
+                            'download-reconlist',
+                            'view-disburslist',
+                            'approve-disburslist',
+                            'cancel-disburslist',
+                            'view-unmatchlist',
+                            'download-unmatchlist',
+                        ]))
+                    <div data-kt-menu-trigger="click"
+                        class="menu-item {{ Str::startsWith(request()->path(), 'reconcile') ? 'here show' : '' }} menu-accordion">
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="bi bi-patch-check fs-3"></i>
+                            </span>
+                            <span class="menu-title">Reconciliation</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <div class="menu-sub menu-sub-accordion">
+                            @if (auth()->user()->can(['view-reconlist', 'create-reconlist', 'update-reconlist', 'delete-reconlist', 'download-reconlist']))
+                                <div class="menu-item">
+                                    @if (request()->is('reconcile-list/*'))
+                                        <a class="menu-link {{ request()->is('reconcile-list/*') ? 'active' : '' }}"
+                                            href="{{ url('reconcile-list') }}">
+                                        @elseif (request()->is('reconcile-list'))
+                                            <a class="menu-link {{ request()->is('reconcile-list') ? 'active' : '' }}"
+                                                href="{{ url('reconcile-list') }}">
+                                            @else
+                                                <a class="menu-link" href="{{ url('reconcile-list') }}">
+                                    @endif
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Reconcile List</span>
+                                    </a>
+                                </div>
+                            @endif
+                            {{-- <div class="menu-item">
                             <a class="menu-link {{ request()->is('reconcile-manual') ? 'active' : '' }}"
                                 href="{{ url('reconcile-manual') }}">
                                 <span class="menu-bullet">
@@ -154,7 +218,7 @@
                                 <span class="menu-title">Reconcile Manual</span>
                             </a>
                         </div> --}}
-                        {{-- <div class="menu-item">
+                            {{-- <div class="menu-item">
                             <a class="menu-link {{ request()->is('reconcile') ? 'active' : '' }}" href="{{ url('reconcile') }}">
                                 <span class="menu-bullet">
                                     <span class="bullet bullet-dot"></span>
@@ -171,29 +235,34 @@
                             </a>
                         </div> --}}
 
-                        @if ($priv->read)
-                            <div class="menu-item">
-                                <a class="menu-link {{ request()->is('reconcile/disburstment-list') ? 'active' : '' }}"
-                                    href="{{ url('reconcile/disburstment-list') }}">
-                                    <span class="menu-bullet">
-                                        <span class="bullet bullet-dot"></span>
-                                    </span>
-                                    <span class="menu-title">Disbursment List</span>
-                                </a>
-                            </div>
-                        @endif
+                            @if (auth()->user()->can(['view-disburslist', 'approve-disburslist', 'cancel-disburslist']))
+                                <div class="menu-item">
+                                    <a class="menu-link {{ request()->is('reconcile/disburstment-list') ? 'active' : '' }}"
+                                        href="{{ url('reconcile/disburstment-list') }}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <span class="menu-title">Disbursement List</span>
+                                    </a>
+                                </div>
+                            @endif
+                            @if (auth()->user()->can('view-unmatchlist') ||
+                                    auth()->user()->can(['view-unmatchlist', 'download-unmatchlist']))
+                                <div class="menu-item">
+                                    <a class="menu-link {{ request()->is('reconcile/unmatch-list') ? 'active' : '' }}"
+                                        href="{{ url('reconcile/unmatch-list') }}">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <span class="menu-title">Unmatch List</span>
+                                    </a>
+                                </div>
+                            @endif
 
-                        <div class="menu-item">
-                            <a class="menu-link {{ request()->is('reconcile/unmatch-list') ? 'active' : '' }}"
-                                href="{{ url('reconcile/unmatch-list') }}">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Unmatch List</span>
-                            </a>
                         </div>
                     </div>
-                </div>
+
+                @endif
                 {{-- @if ($privDis->read)
                     <div class="menu-item">
                         <a class="menu-link" href="{{ url('disbursement') }}">

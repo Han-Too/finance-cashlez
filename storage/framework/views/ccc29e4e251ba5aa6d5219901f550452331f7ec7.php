@@ -1,19 +1,5 @@
 <div class="tab-pane fade show " id="nav-report" role="tabpanel" aria-labelledby="nav-report-tab" tabindex="0">
     <?php
-        switch (request()->query('status')) {
-            case 'match':
-                $status = 'MATCH';
-                break;
-            case 'dispute':
-                $status = 'DISPUTE';
-                break;
-            case 'onHold':
-                $status = 'ON HOLD';
-                break;
-            default:
-                $status = 'DISPUTE';
-                break;
-        }
 
         $token = request()->query('token');
         $status = request()->query('status');
@@ -99,7 +85,15 @@
                             class="form-control form-control-solid w-250px ps-14 rounded-sm ms-2"
                             placeholder="Search Merchant" />
                     </div>
-                    
+                    <div class="d-flex align-items-center position-relative my-1 mx-4">
+                        <select name="statusrecon" data-placeholder="Select a Status"
+                            class="w-250px form-select form-select-solid fw-bolder rounded-sm" id="channelId">
+                            <option value="">Select a Status</option>
+                                <option value="check">Send to Checker</option>
+                                <option value="approve">Approved</option>
+                                <option value="pending">Reject / Pending</option>
+                        </select>
+                    </div>
 
                 </div>
                 <!--end::Search-->

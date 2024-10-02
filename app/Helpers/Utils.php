@@ -11,10 +11,10 @@ use App\Models\Merchant;
 use App\Models\MerchantDocument;
 use App\Models\MerchantPayment;
 use App\Models\Privilege;
-use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Unique;
@@ -83,14 +83,14 @@ class Utils
 
     public static function countTotalRoles($roleId)
     {
-        return User::where('role', $roleId)->where('status', 'active')->count();
+        return DB::table('model_has_roles')->where('role_id', $roleId)->count();
     }
 
-    public static function restOfPrivilege($roleId)
-    {
-        $privilege = Privilege::where('role_id', $roleId)->where('status', 'active')->count();
-        return 5 - $privilege;
-    }
+    // public static function restOfPrivilege($roleId)
+    // {
+    //     $privilege = Privilege::where('role_id', $roleId)->where('status', 'active')->count();
+    //     return 5 - $privilege;
+    // }
 
     public static function calculateMerchantPayment($bankTransfer, $feeMdrMerchant, $feeBankMerchant, $taxPayment)
     {
@@ -151,18 +151,18 @@ class Utils
         }
     }
 
-    public static function getPrivilege($desc)
-    {
-        $user = Auth::user();
-        $data = Privilege::where('description', $desc)->where('role_id', $user->role)->first();
-        return $data;
-    }
+    // public static function getPrivilege($desc)
+    // {
+    //     $user = Auth::user();
+    //     $data = Privilege::where('description', $desc)->where('role_id', $user->role)->first();
+    //     return $data;
+    // }
 
-    public static function getRoleName($roleId)
-    {
-        $roleName = Role::where('id', $roleId)->pluck('title')->first();
-        return $roleName;
-    }
+    // public static function getRoleName($roleId)
+    // {
+    //     $roleName = Role::where('id', $roleId)->pluck('title')->first();
+    //     return $roleName;
+    // }
 
     public static function customRound($number)
     {

@@ -38,7 +38,8 @@
                 <!--begin::Toolbar-->
                 <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
                     <!--begin::Filter-->
-                    
+                    <a href="<?php echo e(route('user.add')); ?>" class="btn btn-light-primary me-3 rounded-sm"
+                        >Add New User</a>
                     <!--end::Filter-->
                 </div>
                 <!--end::Toolbar-->
@@ -53,6 +54,7 @@
                         <th>Name</th>
                         <th>Username</th>
                         <th>Email</th>
+                        <th>Role</th>
                         <th>Created Date</th>
                         <th class="text-end min-w-100px">Actions</th>
                     </tr>

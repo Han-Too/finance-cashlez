@@ -18,20 +18,45 @@ var KTDatatablesServerSide = (function () {
             ajax: {
                 url: baseUrl + "/users/data",
             },
-            columns: [
-                { data: "name" },
-                { data: "username" },
-                { data: "email" },
-                { data: "created_at" },
-                { data: "uuid" },
-            ],
             columnDefs: [
                 {
                     targets: 0,
                     orderable: true,
                     className: "text-start",
                     render: function (data, type, row) {
-                        return `<p class="fw-bolder fs-5">${data}</p>`;
+                        return `<p class="fw-bolder fs-5">${row.name}</p>`;
+                    },
+                },
+                {
+                    targets: 1,
+                    orderable: true,
+                    className: "text-start",
+                    render: function (data, type, row) {
+                        return `${row.username}`;
+                    },
+                },
+                {
+                    targets: 2,
+                    orderable: true,
+                    className: "text-start",
+                    render: function (data, type, row) {
+                        return `${row.email}`;
+                    },
+                },
+                {
+                    targets: 3,
+                    orderable: true,
+                    className: "text-start",
+                    render: function (data, type, row) {
+                        return row.roles[0].name;
+                    },
+                },
+                {
+                    targets: 4,
+                    orderable: true,
+                    className: "text-start",
+                    render: function (data, type, row) {
+                        return to_date_time(row.created_at);
                     },
                 },
                 {
@@ -63,7 +88,7 @@ var KTDatatablesServerSide = (function () {
 
                                 <!--begin::Menu item-->
                                 <div class="menu-item px-3">
-                                    <a href="javascript:void()" onclick="deleteRow('${data}')" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
+                                    <a href="javascript:void()" onclick="deleteRow('${row.uuid}')" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
                                         Delete
                                     </a>
                                 </div>
@@ -71,14 +96,6 @@ var KTDatatablesServerSide = (function () {
                             </div>
                             <!--end::Menu-->
                         `;
-                    },
-                },
-                {
-                    targets: -2,
-                    orderable: true,
-                    className: "text-start",
-                    render: function (data, type, row) {
-                        return to_date_time(data);
                     },
                 },
             ],
@@ -112,6 +129,167 @@ var KTDatatablesServerSide = (function () {
     };
 })();
 
+var KTDatatablesAktivasi = (function () {
+    var dt;
+
+    var initDatatable = function () {
+        dt = $("#aktivasi").DataTable({
+            searchDelay: 200,
+            processing: true,
+            serverSide: true,
+            order: [[3, "desc"]],
+            stateSave: true,
+            select: {
+                style: "os",
+                selector: "td:first-child",
+                className: "row-selected",
+            },
+            ajax: {
+                url: baseUrl + "/users/aktivasidata",
+            },
+            columnDefs: [
+                {
+                    targets: 0,
+                    orderable: true,
+                    className: "text-start",
+                    render: function (data, type, row) {
+                        return `<p class="fw-bolder fs-5">${row.name}</p>`;
+                    },
+                },
+                {
+                    targets: 1,
+                    orderable: true,
+                    className: "text-start",
+                    render: function (data, type, row) {
+                        return `${row.username}`;
+                    },
+                },
+                {
+                    targets: 2,
+                    orderable: true,
+                    className: "text-start",
+                    render: function (data, type, row) {
+                        return `${row.email}`;
+                    },
+                },
+                {
+                    targets: 3,
+                    orderable: true,
+                    className: "text-start",
+                    render: function (data, type, row) {
+                        return row.roles[0].name;
+                    },
+                },
+                {
+                    targets: 4,
+                    orderable: true,
+                    className: "text-start",
+                    render: function (data, type, row) {
+                        return to_date_time(row.created_at);
+                    },
+                },
+                {
+                    targets: -1,
+                    orderable: false,
+                    className: "text-end",
+                    render: function (data, type, row) {
+                        return `
+                            <a href="javascript:void()" onclick="activated('${row.uuid}')" class="btn btn-light btn-active-light-primary btn-sm">
+                                Aktivasi
+                            </a>
+                        `;
+                    },
+                },
+            ],
+
+            createdRow: function (row, data, dataIndex) {
+                $(row)
+                    .find("td:eq(4)")
+                    .attr("data-filter", data.name);
+            },
+        });
+
+        dt.on("draw", function () {
+            KTMenu.createInstances();
+        });
+    };
+
+    var handleSearchDatatable = function () {
+        const filterSearch = document.querySelector(
+            '[data-kt-docs-table-filter="search"]'
+        );
+        filterSearch.addEventListener("keyup", function (e) {
+            dt.search(e.target.value).draw();
+        });
+    };
+
+    return {
+        init: function () {
+            initDatatable();
+            handleSearchDatatable();
+        },
+    };
+})();
+
+function activated($token) {
+    if (!$token) {
+        console.error("Token is empty.");
+        return;
+    }
+    Swal.fire({
+        text: "Are you sure you want to activated this record?",
+        icon: "warning",
+        showCancelButton: true,
+        buttonsStyling: false,
+        confirmButtonText: "Yes, activate!",
+        cancelButtonText: "No, cancel",
+        customClass: {
+            confirmButton: "btn fw-bold btn-primary",
+            cancelButton: "btn fw-bold btn-active-light-primary",
+        },
+    }).then(function (result) {
+        if (result.value) {
+            $.ajax({
+                url: baseUrl + "/users/activated/" + $token,
+                type: "GET",
+                success: function (response) {
+                    Swal.fire({
+                        text: "You have activated the record!",
+                        icon: "success",
+                        buttonsStyling: false,
+                        confirmButtonText: "Ok, got it!",
+                        customClass: {
+                            confirmButton: "btn fw-bold btn-primary",
+                        },
+                    }).then(function () {
+                        window.location.reload();
+                    });
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        text: "Failed to activated the record.",
+                        icon: "error",
+                        buttonsStyling: false,
+                        confirmButtonText: "Ok, got it!",
+                        customClass: {
+                            confirmButton: "btn fw-bold btn-primary",
+                        },
+                    });
+                },
+            });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            Swal.fire({
+                text: "Record was not deleted.",
+                icon: "error",
+                buttonsStyling: false,
+                confirmButtonText: "Ok, got it!",
+                customClass: {
+                    confirmButton: "btn fw-bold btn-primary",
+                },
+            });
+        }
+    });
+}
 function deleteRow($token) {
     if (!$token) {
         console.error("Token is empty.");
@@ -173,6 +351,57 @@ function deleteRow($token) {
 }
 
 
+$("#add_user_form").on("submit", function (event) {
+    event.preventDefault();
+    var token = $('meta[name="csrf-token"]').attr('content');
+    var formData = new FormData(this);
+    $.ajax({
+        headers: { 'X-CSRF-TOKEN': token },
+        type : 'POST',
+        data: formData,
+        url  : baseUrl + '/users/store',
+        dataType: 'JSON',
+        cache: false,
+        contentType: false,
+        processData: false,
+        beforeSend: function() {
+            swal.showLoading();
+        },
+        success: function(data){
+            if(data.status === true) {
+                swal.hideLoading();
+                swal.fire({
+                    text: data.message,
+                    icon: "success",
+                    buttonsStyling: false,
+                    confirmButtonText: "Ok, got it!",
+                    customClass: {
+                        confirmButton: "btn font-weight-bold btn-light-primary"
+                    }
+                }).then(function() {
+                    location.href = baseUrl + "/users";
+                });
+            }else {
+                var values = '';
+                jQuery.each(data.message, function (key, value) {
+                    values += value+"<br>";
+                });
+
+                swal.fire({
+                    text: data.message,
+                    html: values,
+                    icon: "error",
+                    buttonsStyling: false,
+                    confirmButtonText: "Ok, got it!",
+                    customClass: {
+                        confirmButton: "btn font-weight-bold btn-light-primary"
+                    }
+                }).then(function() { });
+            }
+        }
+    });
+});
+
 $("#update_user_form").on("submit", function (event) {
     event.preventDefault();
     var token = $('meta[name="csrf-token"]').attr('content');
@@ -226,4 +455,5 @@ $("#update_user_form").on("submit", function (event) {
 
 KTUtil.onDOMContentLoaded(function () {
     KTDatatablesServerSide.init();
+    KTDatatablesAktivasi.init();
 });

@@ -33,8 +33,11 @@ function oldto_rupiah(nominal) {
 }
 
 function to_rupiah(angka) {
+    // Periksa apakah angkanya negatif
+    const isNegative = angka < 0;
 
-    var numberString = angka.toString(),
+    // Konversi angka ke string dan ambil nilai absolut (positif)
+    var numberString = Math.abs(angka).toString(),
         split = numberString.split('.'),
         sisa = split[0].length % 3,
         rupiah = split[0].substr(0, sisa),
@@ -47,8 +50,11 @@ function to_rupiah(angka) {
     }
 
     rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-    return `Rp ${rupiah}`;
+
+    // Kembalikan angka dengan format Rupiah dan tambahkan tanda minus jika negatif
+    return (isNegative ? 'Rp -' : 'Rp ') + rupiah;
 }
+
 
 function formatRupiah(number) {
     let reverse = number.toString().split('').reverse().join('');

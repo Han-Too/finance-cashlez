@@ -92,14 +92,13 @@ var KTUsersUpdatePermissions = (function () {
 
                                 // Make AJAX request
                                 $.ajax({
-                                    url: baseUrl + "/privilege/update",
+                                    url: baseUrl + "/roles/update",
                                     type: "POST",
                                     data: formData,
                                     processData: false,
                                     contentType: false,
                                     success: function (data) {
-                                        console.log(data); // Handle response data as needed
-
+                                        console.log(data);
                                         // Reset form state
                                         i.removeAttribute("data-kt-indicator");
                                         i.disabled = false;
@@ -167,7 +166,7 @@ KTUtil.onDOMContentLoaded(function () {
     KTUsersUpdatePermissions.init();
 });
 
-function privilegeDetail(slug) {
+function privilegeDetail(id) {
     var tbody = document.querySelector("#table_privilege_list tbody");
     tbody.innerHTML = "";
     var row = document.createElement("tr");
@@ -188,92 +187,118 @@ function privilegeDetail(slug) {
         `;
     tbody.appendChild(row);
 
+    function getWordAfterDash(sentence) {
+    // Memecah kalimat berdasarkan karakter '-'
+    let parts = sentence.split('-');
+    
+    // Jika ada karakter '-', kembalikan bagian setelahnya
+    if (parts.length > 1) {
+        return parts.slice(1).join('-').trim(); // Menggabungkan semua bagian setelah '-' dan menghapus spasi
+    } else {
+        return null; // Jika tidak ada '-', kembalikan null atau pesan lainnya
+    }
+    }
+
     $.ajax({
-        url: baseUrl + "/role/detail/" + slug,
+        url: baseUrl + "/role/detail/" + id,
         type: "GET",
         success: function (response) {
             var data = response.data;
             var header = response.header;
-            document.getElementById("roleName").value = header.title;
+            document.getElementById("roleName").value = header.name;
             document.getElementById("idRole").value = header.id;
             data.forEach((item) => {
                 var content = document.createElement("tr");
-                if (item.title == "Disbursement") {
-                    content.innerHTML = `
+                content.innerHTML = `
                         <tr>
-                            <td class="text-gray-800">${item.title}</td>
                             <td>
                                 <div class="d-flex">
                                     <label
                                         class="form-check form-check-sm form-check-custom form-check-solid me-3 me-lg-10">
                                         <input class="form-check-input" type="checkbox"
                                             value="${!item.read ? "0" : "1"}" name="read_${item.id}" ${!item.read ? "" : "checked"}/>
-                                        <span class="form-check-label">View</span>
-                                    </label>
-                                    <label
-                                        class="form-check form-check-custom form-check-solid me-3 me-lg-10">
-                                        <input class="form-check-input" type="checkbox"
-                                            value="${!item.create ? "0" : "1"}" name="create_${item.id}" ${!item.create ? "" : "checked"}/>
-                                        <span class="form-check-label">Create</span>
-                                    </label>
-                                    <label
-                                        class="form-check form-check-custom form-check-solid me-3 me-lg-10">
-                                        <input class="form-check-input" type="checkbox"
-                                            value="${!item.update ? "0" : "1"}" name="update_${item.id}" ${!item.update ? "" : "checked"}/>
-                                        <span class="form-check-label">Approve</span>
-                                    </label>
-                                    <label
-                                        class="form-check form-check-custom form-check-solid">
-                                        <input class="form-check-input" type="checkbox"
-                                            value="${!item.delete ? "0" : "1"}" name="delete_${item.id}" ${!item.delete ? "" : "checked"}/>
-                                        <span class="form-check-label">Reject</span>
+                                        <span class="form-check-label">${item.name}</span>
                                     </label>
                                 </div>
                             </td>
                         </tr>`;
                     tbody.appendChild(content);
-                } else if(item.title == "Reconcile Result"){
-                    content.innerHTML = `
-                        <tr>
-                            <td class="text-gray-800">${item.title}</td>
-                            <td>
-                                <div class="d-flex">
-                                    <label
-                                        class="form-check form-check-sm form-check-custom form-check-solid me-3 me-lg-10">
-                                        <input class="form-check-input" type="checkbox"
-                                            value="${!item.read ? "0" : "1"}" name="read_${item.id}" ${!item.read ? "" : "checked"}/>
-                                        <span class="form-check-label">View</span>
-                                    </label>
-                                </div>
-                            </td>
-                        </tr>`;
-                    tbody.appendChild(content);
-                }
-                else {
-                    content.innerHTML = `
-                        <tr>
-                            <td class="text-gray-800">${item.title}</td>
-                            <td>
-                                <div class="d-flex">
-                                    <label
-                                        class="form-check form-check-sm form-check-custom form-check-solid me-3 me-lg-10">
-                                        <input class="form-check-input" type="checkbox"
-                                            value="${!item.read ? "0" : "1"}" name="read_${item.id}" ${!item.read ? "" : "checked"}/>
-                                        <span class="form-check-label">View</span>
-                                    </label>
-                                    <label
-                                        class="form-check form-check-custom form-check-solid">
-                                        <input class="form-check-input" type="checkbox"
-                                            value="${!item.read ? "0" : "1"}" name="create_${item.id}" ${!item.create ? "" : "checked"}/>
-                                        <span class="form-check-label">Create</span>
-                                    </label>
-                                </div>
-                            </td>
-                        </tr>`;
-                    tbody.appendChild(content);
-                }
-            });
-        },
+                });
+            },
+            // if (getWordAfterDash(item.name) == "disburslist") {
+            //     content.innerHTML = `
+            //         <tr>
+            //             <td class="text-gray-800">${item.name}</td>
+            //             <td>
+            //                 <div class="d-flex">
+            //                     <label
+            //                         class="form-check form-check-sm form-check-custom form-check-solid me-3 me-lg-10">
+            //                         <input class="form-check-input" type="checkbox"
+            //                             value="${!item.read ? "0" : "1"}" name="read_${item.id}" ${!item.read ? "" : "checked"}/>
+            //                         <span class="form-check-label">View</span>
+            //                     </label>
+            //                     <label
+            //                         class="form-check form-check-custom form-check-solid me-3 me-lg-10">
+            //                         <input class="form-check-input" type="checkbox"
+            //                             value="${!item.create ? "0" : "1"}" name="create_${item.id}" ${!item.create ? "" : "checked"}/>
+            //                         <span class="form-check-label">Create</span>
+            //                     </label>
+            //                     <label
+            //                         class="form-check form-check-custom form-check-solid me-3 me-lg-10">
+            //                         <input class="form-check-input" type="checkbox"
+            //                             value="${!item.update ? "0" : "1"}" name="update_${item.id}" ${!item.update ? "" : "checked"}/>
+            //                         <span class="form-check-label">Approve</span>
+            //                     </label>
+            //                     <label
+            //                         class="form-check form-check-custom form-check-solid">
+            //                         <input class="form-check-input" type="checkbox"
+            //                             value="${!item.delete ? "0" : "1"}" name="delete_${item.id}" ${!item.delete ? "" : "checked"}/>
+            //                         <span class="form-check-label">Reject</span>
+            //                     </label>
+            //                 </div>
+            //             </td>
+            //         </tr>`;
+            //     tbody.appendChild(content);
+            // } else if(getWordAfterDash(item.name) == "reconlist"){
+            //     content.innerHTML = `
+            //         <tr>
+            //             <td class="text-gray-800">${item.name}</td>
+            //             <td>
+            //                 <div class="d-flex">
+            //                     <label
+            //                         class="form-check form-check-sm form-check-custom form-check-solid me-3 me-lg-10">
+            //                         <input class="form-check-input" type="checkbox"
+            //                             value="${!item.read ? "0" : "1"}" name="read_${item.id}" ${!item.read ? "" : "checked"}/>
+            //                         <span class="form-check-label">View</span>
+            //                     </label>
+            //                 </div>
+            //             </td>
+            //         </tr>`;
+            //     tbody.appendChild(content);
+            // }
+            // else {
+            //     content.innerHTML = `
+            //         <tr>
+            //             <td class="text-gray-800">${item.name}</td>
+            //             <td>
+            //                 <div class="d-flex">
+            //                     <label
+            //                         class="form-check form-check-sm form-check-custom form-check-solid me-3 me-lg-10">
+            //                         <input class="form-check-input" type="checkbox"
+            //                             value="${!item.read ? "0" : "1"}" name="read_${item.id}" ${!item.read ? "" : "checked"}/>
+            //                         <span class="form-check-label">View</span>
+            //                     </label>
+            //                     <label
+            //                         class="form-check form-check-custom form-check-solid">
+            //                         <input class="form-check-input" type="checkbox"
+            //                             value="${!item.read ? "0" : "1"}" name="create_${item.id}" ${!item.create ? "" : "checked"}/>
+            //                         <span class="form-check-label">Create</span>
+            //                     </label>
+            //                 </div>
+            //             </td>
+            //         </tr>`;
+            //     tbody.appendChild(content);
+            // }
         error: function (xhr, status, error) {
             Swal.fire({
                 text: "Failed to get data.",

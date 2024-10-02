@@ -3,10 +3,6 @@
     data-kt-drawer-width="{default:'200px', '300px': '250px'}" data-kt-drawer-direction="start"
     data-kt-drawer-toggle="#kt_aside_mobile_toggle">
     <!--begin::Brand-->
-    <?php
-        $priv = App\Helpers\Utils::getPrivilege('reconcile/result');
-        $privDis = App\Helpers\Utils::getPrivilege('disbursement');
-    ?>
     <div class="aside-logo flex-column-auto" id="kt_aside_logo">
         <!--begin::Logo-->
         <a href="/">
@@ -49,7 +45,11 @@
                         <span class="menu-title">Dashboard</span>
                     </a>
                 </div>
-                <?php if(Auth::user()->role == 1): ?>
+
+
+
+                <?php if(auth()->user()->hasRole('superadmin') ||
+                        auth()->user()->can(['view-user', 'create-user', 'update-user', 'delete-user'])): ?>
                     <div class="menu-item">
                         <div class="menu-content pb-2">
                             <span class="menu-section text-muted text-uppercase fs-8 ls-1">User</span>
@@ -65,6 +65,22 @@
                         </a>
                     </div>
                     <div class="menu-item">
+                        <a class="menu-link <?php echo e(Str::startsWith(request()->path(), 'aktivasi') ? 'active' : ''); ?>"
+                            href="<?php echo e(url('aktivasi')); ?>">
+                            <span class="menu-icon">
+                                <i class="bi bi-person-x fs-2"></i>
+                            </span>
+                            <span class="menu-title">Deleted User List</span>
+                        </a>
+                    </div>
+                <?php endif; ?>
+                <?php if(auth()->user()->can(['view-role', 'create-role', 'update-role', 'delete-role'])): ?>
+                    <div class="menu-item">
+                        <div class="menu-content pb-2">
+                            <span class="menu-section text-muted text-uppercase fs-8 ls-1">Role & Permission</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
                         <a class="menu-link <?php echo e(Str::startsWith(request()->path(), 'roles') ? 'active' : ''); ?>"
                             href="<?php echo e(url('roles')); ?>">
                             <span class="menu-icon">
@@ -73,12 +89,25 @@
                             <span class="menu-title">Role List</span>
                         </a>
                     </div>
-                    
+                <?php endif; ?>
+                
+                <?php if(auth()->user()->can([
+                            'view-channel',
+                            'create-channel',
+                            'update-channel',
+                            'delete-channel',
+                            'view-param',
+                            'create-param',
+                            'update-param',
+                            'delete-param',
+                        ])): ?>
                     <div class="menu-item">
                         <div class="menu-content pt-8 pb-2">
                             <span class="menu-section text-muted text-uppercase fs-8 ls-1">Master Data</span>
                         </div>
                     </div>
+                <?php endif; ?>
+                <?php if(auth()->user()->can(['view-channel', 'create-channel', 'update-channel', 'delete-channel'])): ?>
                     <div class="menu-item">
                         <a class="menu-link <?php echo e(Str::startsWith(request()->path(), 'banks') ? 'active' : ''); ?>"
                             href="<?php echo e(url('banks')); ?>">
@@ -88,6 +117,8 @@
                             <span class="menu-title">Channel</span>
                         </a>
                     </div>
+                <?php endif; ?>
+                <?php if(auth()->user()->can(['view-param', 'create-param', 'update-param', 'delete-param'])): ?>
                     <div class="menu-item">
                         <a class="menu-link <?php echo e(Str::startsWith(request()->path(), 'parameters') ? 'active' : ''); ?>"
                             href="<?php echo e(url('parameters')); ?>">
@@ -98,72 +129,110 @@
                         </a>
                     </div>
                 <?php endif; ?>
-                <div class="menu-item">
-                    <div class="menu-content pt-8 pb-2">
-                        <span class="menu-section text-muted text-uppercase fs-8 ls-1">Settlement</span>
-                    </div>
-                </div>
-                <div class="menu-item">
-                    <a class="menu-link <?php echo e(Str::startsWith(request()->path(), 'settlement') ? 'active' : ''); ?>"
-                        href="<?php echo e(url('settlement')); ?>">
-                        <span class="menu-icon">
-                            <i class="bi bi-archive fs-3"></i>
-                        </span>
-                        <span class="menu-title">Upload Bank Settlement</span>
-                    </a>
-                </div>
-                <div data-kt-menu-trigger="click"
-                    class="menu-item <?php echo e(Str::startsWith(request()->path(), 'reconcile') ? 'here show' : ''); ?> menu-accordion">
-                    <span class="menu-link">
-                        <span class="menu-icon">
-                            <i class="bi bi-patch-check fs-3"></i>
-                        </span>
-                        <span class="menu-title">Reconciliation</span>
-                        <span class="menu-arrow"></span>
-                    </span>
-                    <div class="menu-sub menu-sub-accordion">
-                        <div class="menu-item">
-                            <?php if(request()->is('reconcile-list/*')): ?>
-                                <a class="menu-link <?php echo e(request()->is('reconcile-list/*') ? 'active' : ''); ?>"
-                                    href="<?php echo e(url('reconcile-list')); ?>">
-                                <?php elseif(request()->is('reconcile-list')): ?>
-                                    <a class="menu-link <?php echo e(request()->is('reconcile-list') ? 'active' : ''); ?>"
-                                        href="<?php echo e(url('reconcile-list')); ?>">
-                                    <?php else: ?>
-                                        <a class="menu-link" href="<?php echo e(url('reconcile-list')); ?>">
-                            <?php endif; ?>
-                            <span class="menu-bullet">
-                                <span class="bullet bullet-dot"></span>
-                            </span>
-                            <span class="menu-title">Reconcile List</span>
-                            </a>
+                <?php if(auth()->user()->can([
+                            'view-bs',
+                            'create-bs',
+                            'update-bs',
+                            'delete-bs',
+                            'view-reconlist',
+                            'create-reconlist',
+                            'update-reconlist',
+                            'delete-reconlist',
+                            'download-reconlist',
+                            'view-disburslist',
+                            'approve-disburslist',
+                            'cancel-disburslist',
+                            'view-unmatchlist',
+                            'download-unmatchlist',
+                        ])): ?>
+                    <div class="menu-item">
+                        <div class="menu-content pt-8 pb-2">
+                            <span class="menu-section text-muted text-uppercase fs-8 ls-1">Settlement</span>
                         </div>
-                        
-                        
-
-                        <?php if($priv->read): ?>
-                            <div class="menu-item">
-                                <a class="menu-link <?php echo e(request()->is('reconcile/disburstment-list') ? 'active' : ''); ?>"
-                                    href="<?php echo e(url('reconcile/disburstment-list')); ?>">
+                    </div>
+                <?php endif; ?>
+                <?php if(auth()->user()->can(['view-bs', 'create-bs', 'update-bs', 'delete-bs'])): ?>
+                    <div class="menu-item">
+                        <a class="menu-link <?php echo e(Str::startsWith(request()->path(), 'settlement') ? 'active' : ''); ?>"
+                            href="<?php echo e(url('settlement')); ?>">
+                            <span class="menu-icon">
+                                <i class="bi bi-archive fs-3"></i>
+                            </span>
+                            <span class="menu-title">Upload Bank Settlement</span>
+                        </a>
+                    </div>
+                <?php endif; ?>
+                <?php if(auth()->user()->can([
+                            'view-reconlist',
+                            'create-reconlist',
+                            'update-reconlist',
+                            'delete-reconlist',
+                            'download-reconlist',
+                            'view-disburslist',
+                            'approve-disburslist',
+                            'cancel-disburslist',
+                            'view-unmatchlist',
+                            'download-unmatchlist',
+                        ])): ?>
+                    <div data-kt-menu-trigger="click"
+                        class="menu-item <?php echo e(Str::startsWith(request()->path(), 'reconcile') ? 'here show' : ''); ?> menu-accordion">
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="bi bi-patch-check fs-3"></i>
+                            </span>
+                            <span class="menu-title">Reconciliation</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <div class="menu-sub menu-sub-accordion">
+                            <?php if(auth()->user()->can(['view-reconlist', 'create-reconlist', 'update-reconlist', 'delete-reconlist', 'download-reconlist'])): ?>
+                                <div class="menu-item">
+                                    <?php if(request()->is('reconcile-list/*')): ?>
+                                        <a class="menu-link <?php echo e(request()->is('reconcile-list/*') ? 'active' : ''); ?>"
+                                            href="<?php echo e(url('reconcile-list')); ?>">
+                                        <?php elseif(request()->is('reconcile-list')): ?>
+                                            <a class="menu-link <?php echo e(request()->is('reconcile-list') ? 'active' : ''); ?>"
+                                                href="<?php echo e(url('reconcile-list')); ?>">
+                                            <?php else: ?>
+                                                <a class="menu-link" href="<?php echo e(url('reconcile-list')); ?>">
+                                    <?php endif; ?>
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>
-                                    <span class="menu-title">Disbursment List</span>
-                                </a>
-                            </div>
-                        <?php endif; ?>
+                                    <span class="menu-title">Reconcile List</span>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                            
+                            
 
-                        <div class="menu-item">
-                            <a class="menu-link <?php echo e(request()->is('reconcile/unmatch-list') ? 'active' : ''); ?>"
-                                href="<?php echo e(url('reconcile/unmatch-list')); ?>">
-                                <span class="menu-bullet">
-                                    <span class="bullet bullet-dot"></span>
-                                </span>
-                                <span class="menu-title">Unmatch List</span>
-                            </a>
+                            <?php if(auth()->user()->can(['view-disburslist', 'approve-disburslist', 'cancel-disburslist'])): ?>
+                                <div class="menu-item">
+                                    <a class="menu-link <?php echo e(request()->is('reconcile/disburstment-list') ? 'active' : ''); ?>"
+                                        href="<?php echo e(url('reconcile/disburstment-list')); ?>">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <span class="menu-title">Disbursement List</span>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                            <?php if(auth()->user()->can('view-unmatchlist') ||
+                                    auth()->user()->can(['view-unmatchlist', 'download-unmatchlist'])): ?>
+                                <div class="menu-item">
+                                    <a class="menu-link <?php echo e(request()->is('reconcile/unmatch-list') ? 'active' : ''); ?>"
+                                        href="<?php echo e(url('reconcile/unmatch-list')); ?>">
+                                        <span class="menu-bullet">
+                                            <span class="bullet bullet-dot"></span>
+                                        </span>
+                                        <span class="menu-title">Unmatch List</span>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+
                         </div>
                     </div>
-                </div>
+
+                <?php endif; ?>
                 
             </div>
             <!--end::Menu-->

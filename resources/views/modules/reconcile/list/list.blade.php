@@ -14,7 +14,6 @@
             break;
     }
 
-    $priv = App\Helpers\Utils::getPrivilege('reconcile');
 @endphp
 <x-app-layout>
     <div class="container">
@@ -46,13 +45,11 @@
                 <!--end::Search-->
 
                 <!--begin::Toolbar-->
-                @if ($priv->create)
                     <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
                         <a href="#" class="btn btn-light-primary me-3 rounded-sm" data-bs-toggle="modal"
                             data-bs-target="#kt_modal_reconcile">Add New Record</a>
                         <!--end::Filter-->
                     </div>
-                @endif
                 <!--end::Toolbar-->
 
             </div>
@@ -84,9 +81,6 @@
 
 
     @section('scripts')
-        <script>
-            var privCreate = {!! $priv->create !!};
-        </script>
         <script src="{{ asset('cztemp/assets/custom/js/reconcile_list.js') }}"></script>
     @endsection
 </x-app-layout>

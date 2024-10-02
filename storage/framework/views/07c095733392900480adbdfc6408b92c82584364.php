@@ -51,10 +51,10 @@
                                 <!--begin::Hidden-->
                                 <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
                                     <div class="me-2">
-                                        <span class="fw-bolder text-gray-800 d-block fs-3">Not Match</span>
-                                        <span class="text-gray-400 fw-bold"><?php echo e($resmatch); ?> Trx</span>
+                                        <span class="fw-bolder text-gray-800 d-block fs-3">Match</span>
+                                        <span class="text-dark fw-bold" id="resmatch"></span>
                                     </div>
-                                    <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($ressumMatch)); ?></div>
+                                    <div class="fw-bolder fs-5 text-primary" id="ressumMatch"></div>
                                 </div>
                                 <!--end::Hidden-->
                             </p>
@@ -69,9 +69,9 @@
                                 <div class="d-flex flex-stack flex-wrap flex-grow-1 px-2 pt-2 pb-3">
                                     <div class="me-2">
                                         <span class="fw-bolder text-gray-800 d-block fs-3">Variance</span>
-                                        <span class="text-gray-400 fw-bold"><?php echo e($resdispute); ?> Trx</span>
+                                        <span class="text-dark fw-bold" id="resdispute"></span>
                                     </div>
-                                    <div class="fw-bolder fs-5 text-primary">IDR Rp. <?php echo e(number_format($ressumDispute)); ?></div>
+                                    <span class="fw-bolder fs-5 text-primary" id="ressumDispute"></span>
                                 </div>
                                 <!--end::Hidden-->
                             </p>

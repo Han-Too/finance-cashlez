@@ -1,7 +1,3 @@
-<?php
-    $priv = App\Helpers\Utils::getPrivilege('settlement');
-    // dd($banks);
-?>
 <?php if (isset($component)) { $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da = $component; } ?>
 <?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
 <?php $component->withName('app-layout'); ?>
@@ -11,6 +7,16 @@
 <?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
+    <?php
+    $can = auth()->user()->can(['view-bs','delete-bs']);
+    $candelete = auth()->user()->can(['delete-bs']);
+    $canedit = auth()->user()->can(['update-bs']);
+    $canview = auth()->user()->can(['view-bs']);
+    echo "<script>var authUserCan = '$can';</script>";
+    echo "<script>var authUserCanDelete = '$candelete';</script>";
+    echo "<script>var authUserCanEdit = '$canedit';</script>";
+    echo "<script>var authUserCanView = '$canview';</script>";
+    ?>
     <div class="container">
         <div class="card card-flush px-10 py-6 rounded-sm">
             <!--begin::Wrapper-->
@@ -40,15 +46,15 @@
                 <!--end::Search-->
 
                 <!--begin::Toolbar-->
-                <?php if($priv->create): ?>
-                    <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
-                        <!--begin::Filter-->
+                <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
+                    <!--begin::Filter-->
+                    <?php if(auth()->user()->can(['create-bs'])): ?>
                         <a href="#" class="btn btn-light-primary me-3 rounded-sm" data-bs-toggle="modal"
                             data-bs-target="#kt_modal_new_target">Add New Record</a>
-                            
-                        <!--end::Filter-->
-                    </div>
-                <?php endif; ?>
+                    <?php endif; ?>
+                    
+                    <!--end::Filter-->
+                </div>
                 <!--end::Toolbar-->
 
             </div>
@@ -84,9 +90,6 @@
     <?php echo $__env->make('/modules/settlement/reconcile-modal', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
     <?php $__env->startSection('scripts'); ?>
-        <script>
-            var privCreate = <?php echo $priv->create; ?>;
-        </script>
         <script src="<?php echo e(asset('cztemp/assets/custom/js/settlement.js')); ?>"></script>
     <?php $__env->stopSection(); ?>
  <?php echo $__env->renderComponent(); ?>

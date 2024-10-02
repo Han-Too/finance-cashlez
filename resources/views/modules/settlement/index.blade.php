@@ -1,8 +1,14 @@
-@php
-    $priv = App\Helpers\Utils::getPrivilege('settlement');
-    // dd($banks);
-@endphp
 <x-app-layout>
+    <?php
+    $can = auth()->user()->can(['view-bs','delete-bs']);
+    $candelete = auth()->user()->can(['delete-bs']);
+    $canedit = auth()->user()->can(['update-bs']);
+    $canview = auth()->user()->can(['view-bs']);
+    echo "<script>var authUserCan = '$can';</script>";
+    echo "<script>var authUserCanDelete = '$candelete';</script>";
+    echo "<script>var authUserCanEdit = '$canedit';</script>";
+    echo "<script>var authUserCanView = '$canview';</script>";
+    ?>
     <div class="container">
         <div class="card card-flush px-10 py-6 rounded-sm">
             <!--begin::Wrapper-->
@@ -32,16 +38,16 @@
                 <!--end::Search-->
 
                 <!--begin::Toolbar-->
-                @if ($priv->create)
-                    <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
-                        <!--begin::Filter-->
+                <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
+                    <!--begin::Filter-->
+                    @if (auth()->user()->can(['create-bs']))
                         <a href="#" class="btn btn-light-primary me-3 rounded-sm" data-bs-toggle="modal"
                             data-bs-target="#kt_modal_new_target">Add New Record</a>
-                            {{-- <a href="#" class="btn btn-light-primary me-3 rounded-sm" data-bs-toggle="modal"
+                    @endif
+                    {{-- <a href="#" class="btn btn-light-primary me-3 rounded-sm" data-bs-toggle="modal"
                                 data-bs-target="#kt_modal_reconcile">Reconcile</a> --}}
-                        <!--end::Filter-->
-                    </div>
-                @endif
+                    <!--end::Filter-->
+                </div>
                 <!--end::Toolbar-->
 
             </div>
@@ -77,9 +83,6 @@
     @include('/modules/settlement/reconcile-modal')
 
     @section('scripts')
-        <script>
-            var privCreate = {!! $priv->create !!};
-        </script>
         <script src="{{ asset('cztemp/assets/custom/js/settlement.js') }}"></script>
     @endsection
 </x-app-layout>

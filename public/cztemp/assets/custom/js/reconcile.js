@@ -47,26 +47,36 @@ var KTDatatablesServerSideRes = (function () {
           d.endDate = endDate;
           d.channel = channel;
         },
+        dataSrc: function (json) {
+          // console.log(json);
+
+          if (
+            typeof json.recordsTotal === "undefined" ||
+            typeof json.recordsFiltered === "undefined"
+          ) {
+            console.error(
+              "Missing recordsTotal or recordsFiltered in response"
+            );
+            return []; // Kembalikan array kosong jika properti tidak ada
+          }
+
+          // Jika data lain seperti resmatch atau resdispute perlu ditampilkan
+          document.getElementById("resmatch").innerText =
+            (json.resmatch || 0) + " Trx";
+          document.getElementById("ressumMatch").innerText = to_rupiah(
+            json.ressumMatch
+          ) || 0;
+          document.getElementById("resdispute").innerText =
+            (json.resdispute || 0) + " Trx";
+          document.getElementById("ressumDispute").innerText = to_rupiah(
+            json.ressumDispute
+          ) || 0;
+
+          // Ensure the data is returned for DataTables
+          // console.log(json.data);
+          return json.data || [];
+        },
       },
-      // columns: [
-      //   // { data: "settlement_date" },
-      //   // { data: "batch_fk" },
-      //   { data: "id" },
-      //   { data: "processor_payment" },
-      //   { data: "id" },
-      //   { data: "id" },
-      //   { data: "status" },
-      //   { data: "bank_transfer" },
-      //   { data: "transfer_amount" },
-      //   { data: "tax_payment" },
-      //   { data: "fee_mdr_merchant" },
-      //   { data: "fee_bank_merchant" },
-      //   { data: "id" },
-      //   { data: "id" },
-      //   { data: "id" },
-      //   { data: "id" },
-      //   { data: "category_report" },
-      // ],
       columnDefs: [
         {
           targets: -1,
@@ -74,259 +84,167 @@ var KTDatatablesServerSideRes = (function () {
           className: "text-center",
           width: "200px",
           render: function (data, type, row) {
-            console.log(row);
+            // console.log(row);
             if (row.status_reconcile == "approved") {
               return `
               <div class="badge badge-success">
-              APPROVED
+                APPROVED
               </div>
               `;
-            }
-            //             else if (row.category_report == "manual" && row.status_reconcile == "checker") {
-            //               return `
-            // <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click"
-            //     data-kt-menu-placement="bottom-end" data-kt-menu-flip="top-end"> Actions <span
-            //         class="svg-icon svg-icon-5 m-0">
-            //         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-            //             width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
-            //             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-            //                 <polygon points="0 0 24 0 24 24 0 24"></polygon>
-            //                 <path
-            //                     d="M6.70710678,15.7071068 C6.31658249,16.0976311 5.68341751,16.0976311 5.29289322,15.7071068 C4.90236893,15.3165825 4.90236893,14.6834175 5.29289322,14.2928932 L11.2928932,8.29289322 C11.6714722,7.91431428 12.2810586,7.90106866 12.6757246,8.26284586 L18.6757246,13.7628459 C19.0828436,14.1360383 19.1103465,14.7686056 18.7371541,15.1757246 C18.3639617,15.5828436 17.7313944,15.6103465 17.3242754,15.2371541 L12.0300757,10.3841378 L6.70710678,15.7071068 Z"
-            //                     fill="#000000" fill-rule="nonzero"
-            //                     transform="translate(12.000003, 11.999999) rotate(-180.000000) translate(-12.000003, -11.999999)"></path>
-            //             </g>
-            //         </svg>
-            //     </span>
-            // </a>
-            // <div
-            //     class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4"
-            //     data-kt-menu="true">
-
-            //     <div class="menu-item px-3">
-            //         <a href="javascript:void()" onclick="approveReport(${row.id})" class="menu-link px-3"
-            //             data-kt-docs-table-filter="delete_row">
-            //             Approved
-            //         </a>
-            //     </div>
-            //     <div class="menu-item px-3">
-            //         <a href="javascript:void()"
-            //             onclick="goManual('${row.id}')"
-            //             class="menu-link px-3">
-            //             Cancel
-            //         </a>
-            //     </div>
-            // </div>
-            // <!--end::Menu-->
-            //               `;
-            //             }
-            else {
+            } else if (row.category_report == "manual") {
               return `
-              <a
-  href="#"
-  class="btn btn-light btn-active-light-primary btn-sm"
-  data-kt-menu-trigger="click"
-  data-kt-menu-placement="bottom-end"
-  data-kt-menu-flip="top-end"
->
-  Actions
-  <span class="svg-icon svg-icon-5 m-0">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      width="24px"
-      height="24px"
-      viewBox="0 0 24 24"
-      version="1.1"
-    >
-      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <polygon points="0 0 24 0 24 24 0 24"></polygon>
-        <path
-          d="M6.70710678,15.7071068 C6.31658249,16.0976311 5.68341751,16.0976311 5.29289322,15.7071068 C4.90236893,15.3165825 4.90236893,14.6834175 5.29289322,14.2928932 L11.2928932,8.29289322 C11.6714722,7.91431428 12.2810586,7.90106866 12.6757246,8.26284586 L18.6757246,13.7628459 C19.0828436,14.1360383 19.1103465,14.7686056 18.7371541,15.1757246 C18.3639617,15.5828436 17.7313944,15.6103465 17.3242754,15.2371541 L12.0300757,10.3841378 L6.70710678,15.7071068 Z"
-          fill="#000000"
-          fill-rule="nonzero"
-          transform="translate(12.000003, 11.999999) rotate(-180.000000) translate(-12.000003, -11.999999)"
-        ></path>
-      </g>
-    </svg>
-  </span>
-</a>
-
-<div
-  class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4"
-  data-kt-menu="true"
->
-  <div class="menu-item px-3">
-    <a
-      href="javascript:void()"
-      onclick="approveReport(${row.id})"
-      class="menu-link px-3"
-      data-kt-docs-table-filter="delete_row"
-    >
-      Approved
-    </a>
-  </div>
-  
-  <div class="menu-item px-3">
-    <a
-      href="javascript:void()"
-      onclick="goReport('${row.id}')"
-      class="menu-link px-3"
-    >
-      Cancel
-    </a>
-  </div>
-</div>
-                `;
+                  <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-flip="top-end">
+                          Actions
+                          <span class="svg-icon svg-icon-5 m-0">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+              <polygon points="0 0 24 0 24 24 0 24"></polygon>
+              <path d="M6.70710678,15.7071068 C6.31658249,16.0976311 5.68341751,16.0976311 5.29289322,15.7071068 C4.90236893,15.3165825 4.90236893,14.6834175 5.29289322,14.2928932 L11.2928932,8.29289322 C11.6714722,7.91431428 12.2810586,7.90106866 12.6757246,8.26284586 L18.6757246,13.7628459 C19.0828436,14.1360383 19.1103465,14.7686056 18.7371541,15.1757246 C18.3639617,15.5828436 17.7313944,15.6103465 17.3242754,15.2371541 L12.0300757,10.3841378 L6.70710678,15.7071068 Z" fill="#000000" fill-rule="nonzero" transform="translate(12.000003, 11.999999) rotate(-180.000000) translate(-12.000003, -11.999999)"></path>
+          </g>
+      </svg>
+                          </span>
+                      </a>
+                      <!--begin::Menu-->
+                      <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4" data-kt-menu="true">
+                          <!--begin::Menu item-->
+                          <div class="menu-item px-3">
+      <a href="javascript:void()" 
+      onclick="goManual('${row.id}')"
+      class="menu-link px-3">
+          Manual
+      </a>
+                          </div>
+                          <!--end::Menu item-->
+            
+                          <!--begin::Menu item-->
+                          <div class="menu-item px-3">
+                          <a href="javascript:void()" onclick="approveReport(${row.id})" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
+                          Approved
+                          </a>
+                          </div>
+                          <!--end::Menu item-->
+                      </div>
+                      <!--end::Menu-->
+                                    `;
+            } else {
+              return `
+                  <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-flip="top-end">
+                          Actions
+                          <span class="svg-icon svg-icon-5 m-0">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+              <polygon points="0 0 24 0 24 24 0 24"></polygon>
+              <path d="M6.70710678,15.7071068 C6.31658249,16.0976311 5.68341751,16.0976311 5.29289322,15.7071068 C4.90236893,15.3165825 4.90236893,14.6834175 5.29289322,14.2928932 L11.2928932,8.29289322 C11.6714722,7.91431428 12.2810586,7.90106866 12.6757246,8.26284586 L18.6757246,13.7628459 C19.0828436,14.1360383 19.1103465,14.7686056 18.7371541,15.1757246 C18.3639617,15.5828436 17.7313944,15.6103465 17.3242754,15.2371541 L12.0300757,10.3841378 L6.70710678,15.7071068 Z" fill="#000000" fill-rule="nonzero" transform="translate(12.000003, 11.999999) rotate(-180.000000) translate(-12.000003, -11.999999)"></path>
+          </g>
+      </svg>
+                          </span>
+                      </a>
+                      <!--begin::Menu-->
+                      <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4" data-kt-menu="true">
+                          <!--begin::Menu item-->
+                          <div class="menu-item px-3">
+      <a href="javascript:void()"
+      onclick="goDraft('${row.id}')"
+      class="menu-link px-3">
+          Draft
+      </a>
+                          </div>
+                          <!--end::Menu item-->
+            
+                          <!--begin::Menu item-->
+                          <div class="menu-item px-3">
+                          <a href="javascript:void()" onclick="approveReport(${row.id})" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
+                          Approved
+                          </a>
+                          </div>
+                          <!--end::Menu item-->
+                      </div>
+                      <!--end::Menu-->
+                                    `;
             }
           },
         },
-        // {
-        //   targets: 0,
-        //   orderable: true,
-        //   className: "text-start",
-        //   width: "150px",
-        //   render: function (data, type, row, meta) {
-        //     return meta.row + 1;
-        //   },
-        // },
-        // {
-        //   targets: 0,
-        //   orderable: true,
-        //   className: "text-center",
-        //   width: "50px",
-        //   render: function (data, type, row) {
-        //     if (row.mid) {
-        //       return `
-        //                           <div class="d-flex justify-content-center mb-1">
-        //                           ${row.mid}
-        //                           </div>
-        //                           <div class="d-flex justify-content-center">
-        //                               <a href="#" class="btn btn-sm btn-light-primary me-3 rounded-sm"
-        //                               data-bs-toggle="modal" data-bs-target="#kt_modal_${row.id}"
-        //                               onclick="mrcDetail('${
-        //                                 row.token_applicant
-        //                               }','${row.id}')">
-        //                               ${
-        //                                 row.merchant
-        //                                   ? row.merchant.reference_code
-        //                                   : "Detail"
-        //                               }</a>
-        //                           </div>
-        //                       `;
-        //     } else {
-        //       return "VLOOKUP";
-        //     }
-        //   },
-        // },
         {
           targets: 0,
           orderable: true,
           className: "text-center",
           width: "50px",
           render: function (data, type, row) {
-            if (row.mid) {
-              return `
-                                  <div class="d-flex justify-content-center mb-1">
-                                  ${row.mid}
-                                  </div>
-                                  <div class="d-flex justify-content-center">
-                                      <p class="badge badge-lg 
-                                      ${
-                                        row.merchant
-                                          ? "badge-primary"
-                                          : "badge-danger"
-                                      }">
-                                      ${
-                                        row.merchant
-                                          ? row.merchant.reference_code
-                                          : "NO MRC"
-                                      }</p>
-                                  </div>
-                              `;
-            } else {
-              return "VLOOKUP";
-            }
+            return row.mid
+              ? `
+                      <div class="d-flex justify-content-center mb-1">
+                          ${row.mid}
+                      </div>
+                      <div class="d-flex justify-content-center">
+                          <p class="badge badge-lg ${
+                            row.merchant ? "badge-primary" : "badge-danger"
+                          }">
+                              ${
+                                row.merchant
+                                  ? row.merchant.reference_code
+                                  : "NO MRC"
+                              }
+                          </p>
+                      </div>
+                  `
+              : "VLOOKUP";
           },
         },
         {
           targets: 1,
           orderable: true,
           className: "text-center",
-          width: "30px",
           render: function (data, type, row) {
-            if (row.bank_account) {
-              return row.bank_account.bank_code;
-            } else {
-              return "VLOOKUP";
-            }
+            return row.bank_account ? row.bank_account.bank_code : "VLOOKUP";
           },
         },
         {
           targets: 2,
           orderable: true,
           className: "text-center",
-          width: "30px",
           render: function (data, type, row) {
-            if (row.merchant) {
-              return row.merchant.name;
-            } else {
-              return "VLOOKUP";
-            }
+            return row.merchant ? row.merchant.name : "VLOOKUP";
           },
         },
         {
           targets: 3,
           orderable: true,
           className: "text-center",
-          width: "30px",
           render: function (data, type, row) {
-            if (row.bank_account) {
-              return row.bank_account.account_number;
-            } else {
-              return "VLOOKUP";
-            }
+            return row.bank_account
+              ? row.bank_account.account_number
+              : "VLOOKUP";
           },
         },
         {
           targets: 4,
           orderable: true,
           className: "text-center",
-          width: "30px",
           render: function (data, type, row) {
-            if (row.bank_account) {
-              return row.bank_account.account_number.substr(0, 5);
-            } else {
-              return "VLOOKUP";
-            }
+            return row.bank_account
+              ? row.bank_account.account_number.substr(0, 5)
+              : "VLOOKUP";
           },
         },
         {
           targets: 5,
           orderable: true,
           className: "text-center",
-          width: "30px",
           render: function (data, type, row) {
-            if (row.bank_account) {
-              return row.bank_account.account_number.substr(0, 5) == "88939"
-                ? "VIRTUAL ACCOUNT"
-                : "REGULER";
-            } else {
-              return "VLOOKUP";
-            }
+            return row.bank_account &&
+              row.bank_account.account_number.substr(0, 5) == "88939"
+              ? "VIRTUAL ACCOUNT"
+              : "REGULER";
           },
         },
         {
           targets: 6,
           orderable: true,
           className: "text-center",
-          width: "30px",
           render: function (data, type, row) {
-            if (row.bank_account) {
-              return row.bank_account.account_holder;
-            } else {
-              return "VLOOKUP";
-            }
+            return row.bank_account
+              ? row.bank_account.account_holder
+              : "VLOOKUP";
           },
         },
         {
@@ -334,7 +252,6 @@ var KTDatatablesServerSideRes = (function () {
           orderable: true,
           searchable: false,
           className: "text-start",
-          width: "150px",
           render: function (data, type, row) {
             return to_rupiah(row.transfer_amount);
           },
@@ -343,7 +260,6 @@ var KTDatatablesServerSideRes = (function () {
           targets: 8,
           orderable: true,
           className: "text-start",
-          width: "150px",
           render: function (data, type, row) {
             return to_rupiah(row.total_sales);
           },
@@ -352,7 +268,6 @@ var KTDatatablesServerSideRes = (function () {
           targets: 9,
           orderable: true,
           className: "text-start",
-          width: "150px",
           render: function (data, type, row) {
             return to_rupiah(row.bank_transfer);
           },
@@ -361,7 +276,6 @@ var KTDatatablesServerSideRes = (function () {
           targets: 10,
           orderable: true,
           className: "text-start",
-          width: "150px",
           render: function (data, type, row) {
             return to_rupiah(row.bank_settlement_amount);
           },
@@ -370,7 +284,6 @@ var KTDatatablesServerSideRes = (function () {
           targets: 11,
           orderable: true,
           className: "text-start",
-          width: "150px",
           render: function (data, type, row) {
             return to_rupiah(row.variance);
           },
@@ -379,58 +292,37 @@ var KTDatatablesServerSideRes = (function () {
           targets: 12,
           orderable: true,
           className: "text-center",
-          width: "50px",
           render: function (data, type, row) {
-            var status = "";
-            var badge = "";
-            if (row.status == "MATCH") {
-              status = "match";
-              badge = "badge-light-success";
-            } else if (row.status == "NOT_MATCH" || data == "NOT_FOUND") {
-              status = "dispute";
-              badge = "badge-light-danger";
-            } else {
-              status = "on hold";
-              badge = "badge-light-warning";
-            }
-            return `
-                              <span class="badge ${badge}">${status.toUpperCase()}</span>
-                          `;
+            let badge =
+              row.status == "MATCH"
+                ? "badge-light-success"
+                : row.status == "NOT_MATCH" || data == "NOT_FOUND"
+                ? "badge-light-danger"
+                : "badge-light-warning";
+            return `<span class="badge ${badge}">${row.status.toUpperCase()}</span>`;
           },
         },
         {
           targets: 13,
           orderable: true,
           className: "text-center",
-          width: "150px",
           render: function (data, type, row) {
-            if (row.category_report == "system") {
-              return `
-              <div class="badge badge-primary">
-                ${row.category_report.toUpperCase()}
-              </div>
-              `;
-            } else {
-              return `
-              <div class="badge badge-warning">
-                ${row.category_report.toUpperCase()}
-              </div>
-              `;
-            }
+            return `<div class="badge badge-${
+              row.category_report == "system" ? "primary" : "warning"
+            }">
+                              ${row.category_report.toUpperCase()}
+                          </div>`;
           },
         },
         {
           targets: 14,
           orderable: true,
           className: "text-center",
-          width: "150px",
           render: function (data, type, row) {
-            // console.log(row);
             return to_date(row.created_at);
           },
         },
       ],
-
       createdRow: function (row, data, dataIndex) {
         $(row).find("td:eq(4)").attr("data-filter", data.name);
       },
@@ -538,6 +430,36 @@ $("#download_reconcile_form").on("submit", function (event) {
 
   return (window.location.href = `${baseUrl}/reconcile/downloaddisburst?&startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
 });
+
+function getHead() {
+  $.ajax({
+    url: baseUrl + "/reconcile/headerapproveddata",
+    type: "GET",
+    success: function (response) {
+      var data = response;
+      document.getElementById("resmatch").innerText = data.resmatch + " Trx";
+      document.getElementById("ressumMatch").innerText = to_rupiah(
+        data.ressumMatch
+      );
+      document.getElementById("resdispute").innerText =
+        data.resdispute + " Trx";
+      document.getElementById("ressumDispute").innerText = to_rupiah(
+        data.ressumDispute
+      );
+    },
+    error: function (xhr, status, error) {
+      Swal.fire({
+        text: "Failed to delete the record.",
+        icon: "error",
+        buttonsStyling: false,
+        confirmButtonText: "Ok, got it!",
+        customClass: {
+          confirmButton: "btn fw-bold btn-primary",
+        },
+      });
+    },
+  });
+}
 
 function goDraft(id) {
   $.ajax({
@@ -783,9 +705,9 @@ $(document).ready(function () {
       endDateParts[1].padStart(2, "0") +
       "-" +
       endDateParts[2];
-    console.log(dates);
-    console.log(formattedStartDate);
-    console.log(formattedEndDate);
+    // console.log(dates);
+    // console.log(formattedStartDate);
+    // console.log(formattedEndDate);
 
     Swal.fire({
       title: "Are you sure?",

@@ -12,6 +12,15 @@
                         <!--begin::Input group-->
                         <div class="fv-row mb-7">
                             <!--begin::Label-->
+                            <label class="required fs-6 fw-bold mb-2">Username</label>
+                            <!--end::Label-->
+                            <!--begin::Input-->
+                            <input type="text" class="form-control form-control-solid" placeholder="Place your name"
+                                name="username" value="{{ $data->username }}" required />
+                            <!--end::Input-->
+                        </div>
+                        <div class="fv-row mb-7">
+                            <!--begin::Label-->
                             <label class="required fs-6 fw-bold mb-2">Name</label>
                             <!--end::Label-->
                             <!--begin::Input-->
@@ -46,17 +55,20 @@
                             </label>
                             <!--end::Label-->
                             <!--begin::Input-->
-                            <select name="role_id" aria-label="Select a Role" data-control="select2"
+                            <select name="role_id" aria-label="Select a Role" {{-- data-control="select2" --}}
                                 data-placeholder="Select a Role..." class="form-select form-select-solid fw-bolder">
-                                <option value="{{ $data->role }}">{{ App\Helpers\Utils::getRoleName($data->role) }}</option>
                                 @foreach ($role as $item)
-                                    <option value="{{ $item->id }}">{{ $item->title }}</option>
+                                    <option
+                                    @if ($mod->role_id == $item->id)
+                                        selected
+                                    @endif
+                                    value="{{ $item->name }}">{{ $item->name }}</option>
                                 @endforeach
                             </select>
                             <!--end::Input-->
                         </div>
                         <!--end::Input group-->
-                        
+
                         <!--begin::Input group-->
                         <div class="fv-row mb-7">
                             <!--begin::Label-->
@@ -65,8 +77,8 @@
                             </label>
                             <!--end::Label-->
                             <!--begin::Input-->
-                            <input type="password" class="form-control form-control-solid" placeholder="Place your password" name="password"
-                                required />
+                            <input type="password" class="form-control form-control-solid"
+                                placeholder="Place your password" name="password" id="password" />
                             <!--end::Input-->
                         </div>
                         <!--end::Input group-->
@@ -78,13 +90,14 @@
                             </label>
                             <!--end::Label-->
                             <!--begin::Input-->
-                            <input type="password" class="form-control form-control-solid" placeholder="Place your password confirmarion" name="password_confirmation"
-                                required />
+                            <input type="password" class="form-control form-control-solid"
+                                placeholder="Place your password confirmarion" name="password_confirmation"
+                                id="password_confirmation" />
                             <!--end::Input-->
                         </div>
                         <!--end::Input group-->
                     </div>
-                    
+
                 </div>
                 <!--end::Modal body-->
                 <div class="modal-footer flex-center">
@@ -92,7 +105,7 @@
                     <a href="/users" class="btn btn-light me-3">Back</a>
                     <!--end::Button-->
                     <!--begin::Button-->
-                    <button type="submit" name="button" class="btn btn-primary">Save</button>
+                    <button type="submit" id="submitedit" name="button" class="btn btn-primary">Save</button>
                     <!--end::Button-->
                 </div>
             </form>

@@ -1,6 +1,5 @@
 "use strict";
 $("#kt_daterangepicker_1").daterangepicker();
-$("#kt_daterangepicker_99").daterangepicker();
 
 var token = $('meta[name="csrf-token"]').attr("content");
 
@@ -50,26 +49,36 @@ var KTDatatablesServerSideRes = (function () {
           d.endDate = endDate;
           d.channel = channel;
         },
+        dataSrc: function (json) {
+          // console.log(json);
+
+          if (
+            typeof json.recordsTotal === "undefined" ||
+            typeof json.recordsFiltered === "undefined"
+          ) {
+            console.error(
+              "Missing recordsTotal or recordsFiltered in response"
+            );
+            return []; // Kembalikan array kosong jika properti tidak ada
+          }
+
+          // Jika data lain seperti resmatch atau resdispute perlu ditampilkan
+          document.getElementById("resmatch").innerText =
+            (json.resmatch || 0) + " Trx";
+          document.getElementById("ressumMatch").innerText = to_rupiah(
+            json.ressumMatch
+          ) || 0;
+          document.getElementById("resdispute").innerText =
+            (json.resdispute || 0) + " Trx";
+          document.getElementById("ressumDispute").innerText = to_rupiah(
+            json.ressumDispute
+          ) || 0;
+
+          // Ensure the data is returned for DataTables
+          // console.log(json.data);
+          return json.data || [];
+        },
       },
-      // columns: [
-      //   // { data: "settlement_date" },
-      //   // { data: "batch_fk" },
-      //   { data: "id" },
-      //   { data: "processor_payment" },
-      //   { data: "id" },
-      //   { data: "id" },
-      //   { data: "status" },
-      //   { data: "bank_transfer" },
-      //   { data: "transfer_amount" },
-      //   { data: "tax_payment" },
-      //   { data: "fee_mdr_merchant" },
-      //   { data: "fee_bank_merchant" },
-      //   { data: "id" },
-      //   { data: "id" },
-      //   { data: "id" },
-      //   { data: "id" },
-      //   { data: "category_report" },
-      // ],
       columnDefs: [
         // {
         //   targets: -1,
@@ -300,7 +309,7 @@ var KTDatatablesServerSideRes = (function () {
         startDate: moment().startOf("month"),
         endDate: moment().endOf("month"),
         locale: {
-          format: 'YYYY-MM-DD'
+          format: "YYYY-MM-DD",
         },
       },
       function (start, end, label) {
@@ -373,12 +382,11 @@ $("#download_reconcile_form").on("submit", function (event) {
     endDateParts[2] +
     "-" +
     endDateParts[0].padStart(2, "0") +
-    "-" + 
+    "-" +
     endDateParts[1].padStart(2, "0");
-    
-    return (window.location.href = `${baseUrl}/reconcile/downloadunmatch?startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
-    // return (window.location.href = `${baseUrl}/reconcile/downloadunmatch/${formattedStartDate}/${formattedEndDate}`);
 
+  return (window.location.href = `${baseUrl}/reconcile/downloadunmatch?startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
+  // return (window.location.href = `${baseUrl}/reconcile/downloadunmatch/${formattedStartDate}/${formattedEndDate}`);
 });
 
 function goDraft(id) {

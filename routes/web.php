@@ -4,6 +4,7 @@ use App\Http\Controllers\BankController;
 use App\Http\Controllers\DisbursementController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\ParameterController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettlementController;
@@ -31,6 +32,10 @@ Route::get('test', function () {
     Log::info("test success");
 });
 
+Route::get('/spatie', function(){
+    return 'Hello Admin';
+})->middleware(['auth', 'verified','role:finance1']);
+
 Route::get('/job', [GeneralController::class, 'job'])->name('job');
 // Route::get('/bank', [GeneralController::class, 'migrateBank'])->name('migrateBank');
 
@@ -41,19 +46,38 @@ Route::middleware('auth')->group(function () {
 
     // User
     Route::get('/users', [UserController::class, 'index'])->name('user.index');
+    Route::get('/users/add', [UserController::class, 'add'])->name('user.add');
+    Route::post('/users/store', [UserController::class, 'store'])->name('user.store');
     Route::get('/users/data', [UserController::class, 'userData'])->name('user.data');
     Route::get('/users/edit/{uuid}', [UserController::class, 'edit'])->name('user.edit');
     Route::post('/users/update', [UserController::class, 'update'])->name('user.update');
     Route::get('/users/destroy/{uuid}', [UserController::class, 'destroy'])->name('user.destroy');
+    Route::get('/aktivasi', [UserController::class, 'aktivasi'])->name('user.aktivasi');
+    Route::get('/users/aktivasidata', [UserController::class, 'aktivasiData'])->name('user.aktivasidata');
+    Route::get('/users/activated/{uuid}', [UserController::class, 'activated'])->name('user.activated');
+
+    // Permission
+    Route::get('/permission', [PermissionController::class, 'index'])->name('permission.index');
+    Route::get('/permission/data', [PermissionController::class, 'data'])->name('permission.data');
+    Route::get('/permission/get/{id}', [PermissionController::class, 'get'])->name('permission.get');
+    Route::post('/permission/update', [PermissionController::class, 'update'])->name('permission.update');
+    Route::post('/permission/store', [PermissionController::class, 'store'])->name('permission.store');
+    Route::get('/permission/add', [PermissionController::class, 'add'])->name('permission.add');
+    Route::get('/permission/destroy/{id}', [PermissionController::class, 'destroy'])->name('permission.destroy');
 
     // Role
     Route::get('/roles', [RoleController::class, 'index'])->name('role.index');
     Route::get('/roles/data', [RoleController::class, 'data'])->name('role.data');
     Route::get('/roles/edit/{id}', [RoleController::class, 'edit'])->name('role.edit');
     Route::post('/roles/update', [RoleController::class, 'update'])->name('role.update');
+    Route::post('/roles/store', [RoleController::class, 'store'])->name('role.store');
+    Route::get('/roles/add', [RoleController::class, 'add'])->name('role.add');
     Route::get('/roles/destroy/{id}', [RoleController::class, 'destroy'])->name('role.destroy');
     Route::get('/role/detail/{slug}', [RoleController::class, 'detail'])->name('role.detail');
     Route::post('/privilege/update', [RoleController::class, 'privilege'])->name('role.privilege');
+    Route::get('/roles/count/{id}', [RoleController::class, 'countTotalRoles']);
+
+
 
     // Bank
     Route::get('/banks', [BankController::class, 'index'])->name('bank.index');
@@ -98,6 +122,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/reconcile-list/detaildata/{token}', [ReconcileController::class, 'datareconcilelistdetail'])->name('reconcile.datalistdetail');
     Route::get('/reconcileresult/data', [ReconcileController::class, 'resultdata'])->name('reconcile.resultdata');
 
+    Route::get('/reconcile/headerapproveddata', [ReconcileController::class, 'headerapproveddata'])->name('reconcile.headerapproveddata');
     Route::get('/reconcile/data/result', [ReconcileController::class, 'approveddata'])->name('reconcile.reportdata');
 
 
@@ -155,7 +180,6 @@ Route::middleware('auth')->group(function () {
     // Disbursement
     Route::get('/disbursement', [DisbursementController::class, 'index'])->name('disbursment.index');
     Route::get('/CHANGES', [ReconcileController::class, 'changes']);
-
     
 });
 

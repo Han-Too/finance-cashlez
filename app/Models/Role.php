@@ -4,19 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Role extends Model
 {
-    protected $fillable = [
-        'title',
-        'status',
-        'created_by',
-        'modified_by',
-        'updated_at'
-    ];
+    use HasFactory;
+    protected $guarded = [];
 
-    public function privileges()
+    // public function permission()
+    // {
+    //     return $this->belongsTo(role_has_permission::class, 'id', 'role_id');
+    // }
+
+    public function permission()
     {
-        return $this->hasMany(Privilege::class, 'role_id', 'id');
+        return $this->hasManyThrough(Permission::class, role_has_permission::class, 'role_id', 'id', 'id', 'permission_id');
     }
 }
