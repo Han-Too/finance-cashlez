@@ -1,9 +1,9 @@
 <x-app-layout>
     <?php
-    $can = auth()->user()->can(['view-bs','delete-bs']);
-    $candelete = auth()->user()->can(['delete-bs']);
-    $canedit = auth()->user()->can(['update-bs']);
-    $canview = auth()->user()->can(['view-bs']);
+    $can = auth()->user()->hasAnyPermission(['view-bs','delete-bs']);
+    $candelete = auth()->user()->hasAnyPermission(['delete-bs']);
+    $canedit = auth()->user()->hasAnyPermission(['update-bs']);
+    $canview = auth()->user()->hasAnyPermission(['view-bs']);
     echo "<script>var authUserCan = '$can';</script>";
     echo "<script>var authUserCanDelete = '$candelete';</script>";
     echo "<script>var authUserCanEdit = '$canedit';</script>";

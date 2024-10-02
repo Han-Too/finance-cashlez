@@ -69,17 +69,36 @@
 
                             <?php $__currentLoopData = $groupedPermissions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $header => $permissions): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <?php if($header == 'param'): ?>
-                                    <h5 class="mb-3">Parameter</h5>
+                                    <h5 class="mb-3">
+                                        <input type="checkbox" class="form-check-input select-all" data-group="<?php echo e($header); ?>">
+                                        Parameter
+                                    </h5>
                                 <?php elseif($header == 'bs'): ?>
-                                    <h5 class="mb-3">Bank Settlement</h5>
+                                    <h5 class="mb-3">
+                                        <input type="checkbox" class="form-check-input select-all" data-group="<?php echo e($header); ?>"> Bank
+                                        Settlement
+                                    </h5>
                                 <?php elseif($header == 'reconlist'): ?>
-                                    <h5 class="mb-3">Reconcile List</h5>
+                                    <h5 class="mb-3">
+                                        <input type="checkbox" class="form-check-input select-all" data-group="<?php echo e($header); ?>">
+                                        Reconcile List
+                                    </h5>
                                 <?php elseif($header == 'disburslist'): ?>
-                                    <h5 class="mb-3">Disbursement List</h5>
+                                    <h5 class="mb-3">
+                                        <input type="checkbox" class="form-check-input select-all" data-group="<?php echo e($header); ?>">
+                                        Disbursement List
+                                    </h5>
                                 <?php elseif($header == 'unmatchlist'): ?>
-                                    <h5 class="mb-3">Unmatch List</h5>
+                                    <h5 class="mb-3">
+                                        <input type="checkbox" class="form-check-input select-all" data-group="<?php echo e($header); ?>">
+                                        Unmatch List
+                                    </h5>
                                 <?php else: ?>
-                                    <h5 class="mb-3"><?php echo e(ucwords($header)); ?></h5>
+                                    <h5 class="mb-3">
+                                        <input type="checkbox" class="form-check-input select-all" data-group="<?php echo e($header); ?>">
+                                        <?php echo e(ucwords($header)); ?>
+
+                                    </h5>
                                 <?php endif; ?>
 
                                 <div class="row">
@@ -88,6 +107,7 @@
                                             <div class="form-check mb-5">
                                                 <input class="form-check-input" type="checkbox" name="permissions[]"
                                                     id="<?php echo e($permis->id); ?>" value="<?php echo e($permis->id); ?>"
+                                                    data-group="<?php echo e($header); ?>"
                                                     <?php echo e(in_array($permis->id, $data->permission->pluck('id')->toArray()) ? 'checked' : ''); ?>>
                                                 <label class="form-check-label" for="<?php echo e($permis->id); ?>">
                                                     <?php echo e(ucwords(getFirstPart($permis->name))); ?>
@@ -101,6 +121,8 @@
                                 <div class="row">
                             <?php endif; ?>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+
                         </div>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
@@ -144,17 +166,56 @@
                 // console.log(selectedPermissions); // Untuk debugging, menampilkan array yang berisi id yang dipilih
             }
 
+            document.querySelectorAll('.select-all').forEach(function(selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function() {
+                    let group = this.getAttribute('data-group');
+                    let checkboxes = document.querySelectorAll(`input.form-check-input[data-group="${group}"]`);
+                    checkboxes.forEach(function(checkbox) {
+                        checkbox.checked = selectAllCheckbox.checked;
+                    });
+                });
+            });
+
             // Mendaftarkan event listener pada semua checkbox
-            document.querySelectorAll('input[name="permissions[]"]').forEach(function(checkbox) {
-                // Ketika checkbox diubah, panggil handleCheckboxChange
-                checkbox.addEventListener('change', function() {
-                    handleCheckboxChange(this);
+            // Function to update the state of the 'select-all' checkbox based on group checkboxes
+            function updateSelectAllState(group) {
+                let groupCheckboxes = document.querySelectorAll(`input.form-check-input[data-group="${group}"]`);
+                let selectAllCheckbox = document.querySelector(`input.select-all[data-group="${group}"]`);
+
+                // Check if all checkboxes in the group are checked
+                let allChecked = Array.from(groupCheckboxes).every(function(checkbox) {
+                    return checkbox.checked;
                 });
 
-                // Jika sudah dicentang saat halaman dimuat, tambahkan id ke array
-                if (checkbox.checked) {
-                    selectedPermissions.push(checkbox.value);
-                }
+                // Update the 'select-all' checkbox state
+                selectAllCheckbox.checked = allChecked;
+            }
+
+            // Handle 'select-all' checkbox change
+            document.querySelectorAll('.select-all').forEach(function(selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function() {
+                    let group = this.getAttribute('data-group');
+                    let checkboxes = document.querySelectorAll(`input.form-check-input[data-group="${group}"]`);
+                    checkboxes.forEach(function(checkbox) {
+                        checkbox.checked = selectAllCheckbox.checked;
+                    });
+                });
+            });
+
+            // Handle individual checkbox change to update 'select-all' state
+            document.querySelectorAll('input.form-check-input').forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    let group = this.getAttribute('data-group');
+                    updateSelectAllState(group);
+                });
+            });
+
+            // On page load, check the 'select-all' state for each group
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.select-all').forEach(function(selectAllCheckbox) {
+                    let group = selectAllCheckbox.getAttribute('data-group');
+                    updateSelectAllState(group);
+                });
             });
         </script>
 

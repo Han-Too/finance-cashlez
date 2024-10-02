@@ -28,8 +28,10 @@
 
             <!--begin::Toolbar-->
             <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
-                <a  class="btn btn-light-primary me-3 rounded-sm" data-bs-toggle="modal"
-                    data-bs-target="#kt_modal_addpermis">Add New Permission</a>
+                <?php if(auth()->user()->can(['create-permission'])): ?>
+                    <a  class="btn btn-light-primary me-3 rounded-sm" data-bs-toggle="modal"
+                        data-bs-target="#kt_modal_addpermis">Add New Permission</a>
+                <?php endif; ?>
                 <!--end::Filter-->
             </div>
             <!--end::Toolbar-->
@@ -58,5 +60,4 @@
 
 <?php echo $__env->make('modules.roles.permission.add', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 <?php echo $__env->make('modules.roles.permission.edit', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-
 <?php /**PATH C:\laragon\www\finance-server\resources\views/modules/roles/permission/index.blade.php ENDPATH**/ ?>

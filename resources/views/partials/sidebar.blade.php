@@ -48,13 +48,14 @@
 
 
 
-                @if (auth()->user()->hasRole('superadmin') ||
-                        auth()->user()->can(['view-user', 'create-user', 'update-user', 'delete-user']))
+                @if (auth()->user()->hasAnyPermission(['view-user', 'create-user', 'update-user', 'delete-user']))
                     <div class="menu-item">
                         <div class="menu-content pb-2">
                             <span class="menu-section text-muted text-uppercase fs-8 ls-1">User</span>
                         </div>
                     </div>
+                @endif
+                @if (auth()->user()->hasAnyPermission(['view-user', 'create-user', 'update-user', 'delete-user']))
                     <div class="menu-item">
                         <a class="menu-link {{ Str::startsWith(request()->path(), 'users') ? 'active' : '' }}"
                             href="{{ url('users') }}">
@@ -64,6 +65,8 @@
                             <span class="menu-title">User List</span>
                         </a>
                     </div>
+                @endif
+                @if (auth()->user()->hasAnyPermission(['activated-user']))
                     <div class="menu-item">
                         <a class="menu-link {{ Str::startsWith(request()->path(), 'aktivasi') ? 'active' : '' }}"
                             href="{{ url('aktivasi') }}">
@@ -74,7 +77,7 @@
                         </a>
                     </div>
                 @endif
-                @if (auth()->user()->can(['view-role', 'create-role', 'update-role', 'delete-role']))
+                @if (auth()->user()->hasAnyPermission(['view-role', 'create-role', 'update-role', 'delete-role']))
                     <div class="menu-item">
                         <div class="menu-content pb-2">
                             <span class="menu-section text-muted text-uppercase fs-8 ls-1">Role & Permission</span>
@@ -98,7 +101,7 @@
                             <span class="menu-title">User Privilege</span>
                         </a>
                     </div> --}}
-                @if (auth()->user()->can([
+                @if (auth()->user()->hasAnyPermission([
                             'view-channel',
                             'create-channel',
                             'update-channel',
@@ -114,7 +117,7 @@
                         </div>
                     </div>
                 @endif
-                @if (auth()->user()->can(['view-channel', 'create-channel', 'update-channel', 'delete-channel']))
+                @if (auth()->user()->hasAnyPermission(['view-channel', 'create-channel', 'update-channel', 'delete-channel']))
                     <div class="menu-item">
                         <a class="menu-link {{ Str::startsWith(request()->path(), 'banks') ? 'active' : '' }}"
                             href="{{ url('banks') }}">
@@ -125,7 +128,7 @@
                         </a>
                     </div>
                 @endif
-                @if (auth()->user()->can(['view-param', 'create-param', 'update-param', 'delete-param']))
+                @if (auth()->user()->hasAnyPermission(['view-param', 'create-param', 'update-param', 'delete-param']))
                     <div class="menu-item">
                         <a class="menu-link {{ Str::startsWith(request()->path(), 'parameters') ? 'active' : '' }}"
                             href="{{ url('parameters') }}">
@@ -136,7 +139,7 @@
                         </a>
                     </div>
                 @endif
-                @if (auth()->user()->can([
+                @if (auth()->user()->hasAnyPermission([
                             'view-bs',
                             'create-bs',
                             'update-bs',
@@ -148,7 +151,7 @@
                             'download-reconlist',
                             'view-disburslist',
                             'approve-disburslist',
-                            'cancel-disburslist',
+                            'hasAnyPermissioncel-disburslist',
                             'view-unmatchlist',
                             'download-unmatchlist',
                         ]))
@@ -158,7 +161,7 @@
                         </div>
                     </div>
                 @endif
-                @if (auth()->user()->can(['view-bs', 'create-bs', 'update-bs', 'delete-bs']))
+                @if (auth()->user()->hasAnyPermission(['view-bs', 'create-bs', 'update-bs', 'delete-bs']))
                     <div class="menu-item">
                         <a class="menu-link {{ Str::startsWith(request()->path(), 'settlement') ? 'active' : '' }}"
                             href="{{ url('settlement') }}">
@@ -169,7 +172,7 @@
                         </a>
                     </div>
                 @endif
-                @if (auth()->user()->can([
+                @if (auth()->user()->hasAnyPermission([
                             'view-reconlist',
                             'create-reconlist',
                             'update-reconlist',
@@ -177,7 +180,7 @@
                             'download-reconlist',
                             'view-disburslist',
                             'approve-disburslist',
-                            'cancel-disburslist',
+                            'hasAnyPermissioncel-disburslist',
                             'view-unmatchlist',
                             'download-unmatchlist',
                         ]))
@@ -191,7 +194,7 @@
                             <span class="menu-arrow"></span>
                         </span>
                         <div class="menu-sub menu-sub-accordion">
-                            @if (auth()->user()->can(['view-reconlist', 'create-reconlist', 'update-reconlist', 'delete-reconlist', 'download-reconlist']))
+                            @if (auth()->user()->hasAnyPermission(['view-reconlist', 'create-reconlist', 'update-reconlist', 'delete-reconlist', 'download-reconlist']))
                                 <div class="menu-item">
                                     @if (request()->is('reconcile-list/*'))
                                         <a class="menu-link {{ request()->is('reconcile-list/*') ? 'active' : '' }}"
@@ -235,7 +238,7 @@
                             </a>
                         </div> --}}
 
-                            @if (auth()->user()->can(['view-disburslist', 'approve-disburslist', 'cancel-disburslist']))
+                            @if (auth()->user()->hasAnyPermission(['view-disburslist', 'approve-disburslist', 'hasAnyPermissioncel-disburslist']))
                                 <div class="menu-item">
                                     <a class="menu-link {{ request()->is('reconcile/disburstment-list') ? 'active' : '' }}"
                                         href="{{ url('reconcile/disburstment-list') }}">
@@ -246,8 +249,8 @@
                                     </a>
                                 </div>
                             @endif
-                            @if (auth()->user()->can('view-unmatchlist') ||
-                                    auth()->user()->can(['view-unmatchlist', 'download-unmatchlist']))
+                            @if (auth()->user()->hasAnyPermission('view-unmatchlist') ||
+                                    auth()->user()->hasAnyPermission(['view-unmatchlist', 'download-unmatchlist']))
                                 <div class="menu-item">
                                     <a class="menu-link {{ request()->is('reconcile/unmatch-list') ? 'active' : '' }}"
                                         href="{{ url('reconcile/unmatch-list') }}">

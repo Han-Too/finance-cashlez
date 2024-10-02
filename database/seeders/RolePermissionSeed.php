@@ -35,10 +35,15 @@ class RolePermissionSeed extends Seeder
             $permission_create_user = Permission::create(["name" => 'create-user']);
             $permission_update_user = Permission::create(["name" => 'update-user']);
             $permission_delete_user = Permission::create(["name" => 'delete-user']);
+            $permission_delete_user = Permission::create(["name" => 'activated-user']);
             $permission_view_role = Permission::create(["name" => 'view-role']);
             $permission_create_role = Permission::create(["name" => 'create-role']);
             $permission_update_role = Permission::create(["name" => 'update-role']);
             $permission_delete_role = Permission::create(["name" => 'delete-role']);
+            $permission_view_role = Permission::create(["name" => 'view-permission']);
+            $permission_create_role = Permission::create(["name" => 'create-permission']);
+            $permission_update_role = Permission::create(["name" => 'update-permission']);
+            $permission_delete_role = Permission::create(["name" => 'delete-permission']);
             $permission_view_channel = Permission::create(["name" => 'view-channel']);
             $permission_create_channel = Permission::create(["name" => 'create-channel']);
             $permission_update_channel = Permission::create(["name" => 'update-channel']);
@@ -67,10 +72,15 @@ class RolePermissionSeed extends Seeder
                 'create-user',
                 'update-user',
                 'delete-user',
+                'activated-user',
                 'view-role',
                 'create-role',
                 'update-role',
                 'delete-role',
+                'view-permission',
+                'create-permission',
+                'update-permission',
+                'delete-permission',
                 'view-channel',
                 'create-channel',
                 'update-channel',
@@ -99,10 +109,15 @@ class RolePermissionSeed extends Seeder
                 'create-user',
                 'update-user',
                 'delete-user',
+                'activated-user',
                 'view-role',
                 'create-role',
                 'update-role',
                 'delete-role',
+                'view-permission',
+                'create-permission',
+                'update-permission',
+                'delete-permission',
                 'view-channel',
                 'create-channel',
                 'update-channel',
@@ -131,10 +146,15 @@ class RolePermissionSeed extends Seeder
                 'create-user',
                 'update-user',
                 'delete-user',
+                'activated-user',
                 'view-role',
                 'create-role',
                 'update-role',
                 'delete-role',
+                'view-permission',
+                'create-permission',
+                'update-permission',
+                'delete-permission',
                 'view-channel',
                 'create-channel',
                 'update-channel',
@@ -163,10 +183,15 @@ class RolePermissionSeed extends Seeder
                 'create-user',
                 'update-user',
                 'delete-user',
+                'activated-user',
                 'view-role',
                 'create-role',
                 'update-role',
                 'delete-role',
+                'view-permission',
+                'create-permission',
+                'update-permission',
+                'delete-permission',
                 'view-channel',
                 'create-channel',
                 'update-channel',

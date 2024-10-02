@@ -1,4 +1,16 @@
 <x-app-layout>
+    <?php
+    $can = auth()->user()->hasAnyPermission(['view-user','delete-user']);
+    $candelete = auth()->user()->hasAnyPermission(['delete-user']);
+    $canedit = auth()->user()->hasAnyPermission(['update-user']);
+    $canview = auth()->user()->hasAnyPermission(['view-user']);
+    $myself = auth()->user()->id;
+    echo "<script>var authUserCan = '$can';</script>";
+    echo "<script>var authUserCanDelete = '$candelete';</script>";
+    echo "<script>var authUserCanEdit = '$canedit';</script>";
+    echo "<script>var authUserCanView = '$canview';</script>";
+    echo "<script>var myself = '$myself';</script>";
+    ?>
     <div class="container">
         <div class="card card-flush px-10 py-6 rounded-sm">
             <!--begin::Wrapper-->
@@ -30,8 +42,10 @@
                 <!--begin::Toolbar-->
                 <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
                     <!--begin::Filter-->
-                    <a href="{{ route('user.add') }}" class="btn btn-light-primary me-3 rounded-sm"
-                        {{-- data-bs-toggle="modal" data-bs-target="#kt_modal_reconcile" --}}>Add New User</a>
+                    @if (auth()->user()->can(['create-user']))
+                        <a href="{{ route('user.add') }}" class="btn btn-light-primary me-3 rounded-sm"
+                            {{-- data-bs-toggle="modal" data-bs-target="#kt_modal_reconcile" --}}>Add New User</a>
+                    @endif
                     <!--end::Filter-->
                 </div>
                 <!--end::Toolbar-->

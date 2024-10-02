@@ -27,8 +27,10 @@
 
             <!--begin::Toolbar-->
             <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
-                <a href="{{ route('role.add') }}" class="btn btn-light-primary me-3 rounded-sm"
-                    {{-- data-bs-toggle="modal" data-bs-target="#kt_modal_reconcile" --}}>Add New Roles</a>
+                @if (auth()->user()->can(['create-role']))
+                    <a href="{{ route('role.add') }}" class="btn btn-light-primary me-3 rounded-sm"
+                        {{-- data-bs-toggle="modal" data-bs-target="#kt_modal_reconcile" --}}>Add New Roles</a>
+                @endif
                 <!--end::Filter-->
             </div>
             <!--end::Toolbar-->
@@ -52,4 +54,3 @@
         <!--end::Datatable-->
     </div>
 </div>
-

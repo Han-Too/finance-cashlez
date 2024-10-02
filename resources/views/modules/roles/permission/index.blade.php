@@ -28,8 +28,10 @@
 
             <!--begin::Toolbar-->
             <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
-                <a {{-- href="{{ route('permission.add') }}"  --}} class="btn btn-light-primary me-3 rounded-sm" data-bs-toggle="modal"
-                    data-bs-target="#kt_modal_addpermis">Add New Permission</a>
+                @if (auth()->user()->can(['create-permission']))
+                    <a {{-- href="{{ route('permission.add') }}"  --}} class="btn btn-light-primary me-3 rounded-sm" data-bs-toggle="modal"
+                        data-bs-target="#kt_modal_addpermis">Add New Permission</a>
+                @endif
                 <!--end::Filter-->
             </div>
             <!--end::Toolbar-->
@@ -58,4 +60,3 @@
 
 @include('modules.roles.permission.add')
 @include('modules.roles.permission.edit')
-

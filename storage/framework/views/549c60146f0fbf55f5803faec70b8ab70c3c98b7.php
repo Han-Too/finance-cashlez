@@ -48,13 +48,14 @@
 
 
 
-                <?php if(auth()->user()->hasRole('superadmin') ||
-                        auth()->user()->can(['view-user', 'create-user', 'update-user', 'delete-user'])): ?>
+                <?php if(auth()->user()->hasAnyPermission(['view-user', 'create-user', 'update-user', 'delete-user'])): ?>
                     <div class="menu-item">
                         <div class="menu-content pb-2">
                             <span class="menu-section text-muted text-uppercase fs-8 ls-1">User</span>
                         </div>
                     </div>
+                <?php endif; ?>
+                <?php if(auth()->user()->hasAnyPermission(['view-user', 'create-user', 'update-user', 'delete-user'])): ?>
                     <div class="menu-item">
                         <a class="menu-link <?php echo e(Str::startsWith(request()->path(), 'users') ? 'active' : ''); ?>"
                             href="<?php echo e(url('users')); ?>">
@@ -64,6 +65,8 @@
                             <span class="menu-title">User List</span>
                         </a>
                     </div>
+                <?php endif; ?>
+                <?php if(auth()->user()->hasAnyPermission(['activated-user'])): ?>
                     <div class="menu-item">
                         <a class="menu-link <?php echo e(Str::startsWith(request()->path(), 'aktivasi') ? 'active' : ''); ?>"
                             href="<?php echo e(url('aktivasi')); ?>">
@@ -74,7 +77,7 @@
                         </a>
                     </div>
                 <?php endif; ?>
-                <?php if(auth()->user()->can(['view-role', 'create-role', 'update-role', 'delete-role'])): ?>
+                <?php if(auth()->user()->hasAnyPermission(['view-role', 'create-role', 'update-role', 'delete-role'])): ?>
                     <div class="menu-item">
                         <div class="menu-content pb-2">
                             <span class="menu-section text-muted text-uppercase fs-8 ls-1">Role & Permission</span>
@@ -91,7 +94,7 @@
                     </div>
                 <?php endif; ?>
                 
-                <?php if(auth()->user()->can([
+                <?php if(auth()->user()->hasAnyPermission([
                             'view-channel',
                             'create-channel',
                             'update-channel',
@@ -107,7 +110,7 @@
                         </div>
                     </div>
                 <?php endif; ?>
-                <?php if(auth()->user()->can(['view-channel', 'create-channel', 'update-channel', 'delete-channel'])): ?>
+                <?php if(auth()->user()->hasAnyPermission(['view-channel', 'create-channel', 'update-channel', 'delete-channel'])): ?>
                     <div class="menu-item">
                         <a class="menu-link <?php echo e(Str::startsWith(request()->path(), 'banks') ? 'active' : ''); ?>"
                             href="<?php echo e(url('banks')); ?>">
@@ -118,7 +121,7 @@
                         </a>
                     </div>
                 <?php endif; ?>
-                <?php if(auth()->user()->can(['view-param', 'create-param', 'update-param', 'delete-param'])): ?>
+                <?php if(auth()->user()->hasAnyPermission(['view-param', 'create-param', 'update-param', 'delete-param'])): ?>
                     <div class="menu-item">
                         <a class="menu-link <?php echo e(Str::startsWith(request()->path(), 'parameters') ? 'active' : ''); ?>"
                             href="<?php echo e(url('parameters')); ?>">
@@ -129,7 +132,7 @@
                         </a>
                     </div>
                 <?php endif; ?>
-                <?php if(auth()->user()->can([
+                <?php if(auth()->user()->hasAnyPermission([
                             'view-bs',
                             'create-bs',
                             'update-bs',
@@ -141,7 +144,7 @@
                             'download-reconlist',
                             'view-disburslist',
                             'approve-disburslist',
-                            'cancel-disburslist',
+                            'hasAnyPermissioncel-disburslist',
                             'view-unmatchlist',
                             'download-unmatchlist',
                         ])): ?>
@@ -151,7 +154,7 @@
                         </div>
                     </div>
                 <?php endif; ?>
-                <?php if(auth()->user()->can(['view-bs', 'create-bs', 'update-bs', 'delete-bs'])): ?>
+                <?php if(auth()->user()->hasAnyPermission(['view-bs', 'create-bs', 'update-bs', 'delete-bs'])): ?>
                     <div class="menu-item">
                         <a class="menu-link <?php echo e(Str::startsWith(request()->path(), 'settlement') ? 'active' : ''); ?>"
                             href="<?php echo e(url('settlement')); ?>">
@@ -162,7 +165,7 @@
                         </a>
                     </div>
                 <?php endif; ?>
-                <?php if(auth()->user()->can([
+                <?php if(auth()->user()->hasAnyPermission([
                             'view-reconlist',
                             'create-reconlist',
                             'update-reconlist',
@@ -170,7 +173,7 @@
                             'download-reconlist',
                             'view-disburslist',
                             'approve-disburslist',
-                            'cancel-disburslist',
+                            'hasAnyPermissioncel-disburslist',
                             'view-unmatchlist',
                             'download-unmatchlist',
                         ])): ?>
@@ -184,7 +187,7 @@
                             <span class="menu-arrow"></span>
                         </span>
                         <div class="menu-sub menu-sub-accordion">
-                            <?php if(auth()->user()->can(['view-reconlist', 'create-reconlist', 'update-reconlist', 'delete-reconlist', 'download-reconlist'])): ?>
+                            <?php if(auth()->user()->hasAnyPermission(['view-reconlist', 'create-reconlist', 'update-reconlist', 'delete-reconlist', 'download-reconlist'])): ?>
                                 <div class="menu-item">
                                     <?php if(request()->is('reconcile-list/*')): ?>
                                         <a class="menu-link <?php echo e(request()->is('reconcile-list/*') ? 'active' : ''); ?>"
@@ -205,7 +208,7 @@
                             
                             
 
-                            <?php if(auth()->user()->can(['view-disburslist', 'approve-disburslist', 'cancel-disburslist'])): ?>
+                            <?php if(auth()->user()->hasAnyPermission(['view-disburslist', 'approve-disburslist', 'hasAnyPermissioncel-disburslist'])): ?>
                                 <div class="menu-item">
                                     <a class="menu-link <?php echo e(request()->is('reconcile/disburstment-list') ? 'active' : ''); ?>"
                                         href="<?php echo e(url('reconcile/disburstment-list')); ?>">
@@ -216,8 +219,8 @@
                                     </a>
                                 </div>
                             <?php endif; ?>
-                            <?php if(auth()->user()->can('view-unmatchlist') ||
-                                    auth()->user()->can(['view-unmatchlist', 'download-unmatchlist'])): ?>
+                            <?php if(auth()->user()->hasAnyPermission('view-unmatchlist') ||
+                                    auth()->user()->hasAnyPermission(['view-unmatchlist', 'download-unmatchlist'])): ?>
                                 <div class="menu-item">
                                     <a class="menu-link <?php echo e(request()->is('reconcile/unmatch-list') ? 'active' : ''); ?>"
                                         href="<?php echo e(url('reconcile/unmatch-list')); ?>">

@@ -61,17 +61,35 @@
 
                             @foreach ($groupedPermissions as $header => $permissions)
                                 @if ($header == 'param')
-                                    <h5 class="mb-3">Parameter</h5>
+                                    <h5 class="mb-3">
+                                        <input type="checkbox" class="form-check-input select-all" data-group="{{ $header }}">
+                                        Parameter
+                                    </h5>
                                 @elseif ($header == 'bs')
-                                    <h5 class="mb-3">Bank Settlement</h5>
+                                    <h5 class="mb-3">
+                                        <input type="checkbox" class="form-check-input select-all" data-group="{{ $header }}"> Bank
+                                        Settlement
+                                    </h5>
                                 @elseif ($header == 'reconlist')
-                                    <h5 class="mb-3">Reconcile List</h5>
+                                    <h5 class="mb-3">
+                                        <input type="checkbox" class="form-check-input select-all" data-group="{{ $header }}">
+                                        Reconcile List
+                                    </h5>
                                 @elseif ($header == 'disburslist')
-                                    <h5 class="mb-3">Disbursement List</h5>
+                                    <h5 class="mb-3">
+                                        <input type="checkbox" class="form-check-input select-all" data-group="{{ $header }}">
+                                        Disbursement List
+                                    </h5>
                                 @elseif ($header == 'unmatchlist')
-                                    <h5 class="mb-3">Unmatch List</h5>
+                                    <h5 class="mb-3">
+                                        <input type="checkbox" class="form-check-input select-all" data-group="{{ $header }}">
+                                        Unmatch List
+                                    </h5>
                                 @else
-                                    <h5 class="mb-3">{{ ucwords($header) }}</h5>
+                                    <h5 class="mb-3">
+                                        <input type="checkbox" class="form-check-input select-all" data-group="{{ $header }}">
+                                        {{ ucwords($header) }}
+                                    </h5>
                                 @endif
 
                                 <div class="row">
@@ -80,6 +98,7 @@
                                             <div class="form-check mb-5">
                                                 <input class="form-check-input" type="checkbox" name="permissions[]"
                                                     id="{{ $permis->id }}" value="{{ $permis->id }}"
+                                                    data-group="{{ $header }}"
                                                     {{ in_array($permis->id, $data->permission->pluck('id')->toArray()) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="{{ $permis->id }}">
                                                     {{ ucwords(getFirstPart($permis->name)) }}
@@ -92,6 +111,8 @@
                                 <div class="row">
                             @endif
                             @endforeach
+
+
                         </div>
                         @endforeach
 
@@ -135,17 +156,56 @@
                 // console.log(selectedPermissions); // Untuk debugging, menampilkan array yang berisi id yang dipilih
             }
 
+            document.querySelectorAll('.select-all').forEach(function(selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function() {
+                    let group = this.getAttribute('data-group');
+                    let checkboxes = document.querySelectorAll(`input.form-check-input[data-group="${group}"]`);
+                    checkboxes.forEach(function(checkbox) {
+                        checkbox.checked = selectAllCheckbox.checked;
+                    });
+                });
+            });
+
             // Mendaftarkan event listener pada semua checkbox
-            document.querySelectorAll('input[name="permissions[]"]').forEach(function(checkbox) {
-                // Ketika checkbox diubah, panggil handleCheckboxChange
-                checkbox.addEventListener('change', function() {
-                    handleCheckboxChange(this);
+            // Function to update the state of the 'select-all' checkbox based on group checkboxes
+            function updateSelectAllState(group) {
+                let groupCheckboxes = document.querySelectorAll(`input.form-check-input[data-group="${group}"]`);
+                let selectAllCheckbox = document.querySelector(`input.select-all[data-group="${group}"]`);
+
+                // Check if all checkboxes in the group are checked
+                let allChecked = Array.from(groupCheckboxes).every(function(checkbox) {
+                    return checkbox.checked;
                 });
 
-                // Jika sudah dicentang saat halaman dimuat, tambahkan id ke array
-                if (checkbox.checked) {
-                    selectedPermissions.push(checkbox.value);
-                }
+                // Update the 'select-all' checkbox state
+                selectAllCheckbox.checked = allChecked;
+            }
+
+            // Handle 'select-all' checkbox change
+            document.querySelectorAll('.select-all').forEach(function(selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function() {
+                    let group = this.getAttribute('data-group');
+                    let checkboxes = document.querySelectorAll(`input.form-check-input[data-group="${group}"]`);
+                    checkboxes.forEach(function(checkbox) {
+                        checkbox.checked = selectAllCheckbox.checked;
+                    });
+                });
+            });
+
+            // Handle individual checkbox change to update 'select-all' state
+            document.querySelectorAll('input.form-check-input').forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    let group = this.getAttribute('data-group');
+                    updateSelectAllState(group);
+                });
+            });
+
+            // On page load, check the 'select-all' state for each group
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.select-all').forEach(function(selectAllCheckbox) {
+                    let group = selectAllCheckbox.getAttribute('data-group');
+                    updateSelectAllState(group);
+                });
             });
         </script>
 

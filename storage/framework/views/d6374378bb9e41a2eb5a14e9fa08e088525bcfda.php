@@ -27,8 +27,10 @@
 
             <!--begin::Toolbar-->
             <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
-                <a href="<?php echo e(route('role.add')); ?>" class="btn btn-light-primary me-3 rounded-sm"
-                    >Add New Roles</a>
+                <?php if(auth()->user()->can(['create-role'])): ?>
+                    <a href="<?php echo e(route('role.add')); ?>" class="btn btn-light-primary me-3 rounded-sm"
+                        >Add New Roles</a>
+                <?php endif; ?>
                 <!--end::Filter-->
             </div>
             <!--end::Toolbar-->
@@ -52,5 +54,4 @@
         <!--end::Datatable-->
     </div>
 </div>
-
 <?php /**PATH C:\laragon\www\finance-server\resources\views/modules/roles/role/index.blade.php ENDPATH**/ ?>
