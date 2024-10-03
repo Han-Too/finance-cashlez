@@ -89,9 +89,9 @@
                         <select name="statusrecon" data-placeholder="Select a Status"
                             class="w-250px form-select form-select-solid fw-bolder rounded-sm" id="channelId">
                             <option value="">Select a Status</option>
-                                <option value="check">Send to Checker</option>
-                                <option value="approve">Approved</option>
-                                <option value="pending">Reject / Pending</option>
+                            <option value="check">Send to Checker</option>
+                            <option value="approve">Approved</option>
+                            <option value="pending">Reject / Pending</option>
                         </select>
                     </div>
 
@@ -108,15 +108,17 @@
                     Table
                 </button>
                 
-                
+
                 <?php if($reportapprov != 0 || $checkcount > 0): ?>
                     
                     
                 <?php endif; ?>
-                <?php if($checkcount < 0 || $reportcount != 0 || $approved < 0 ): ?>
-                    <button id="approveAll" class="btn btn-sm btn-info w-100 me-3 rounded-sm">
-                        Send to Checker
-                    </button>
+                <?php if(auth()->user()->hasAnyPermission(['checker-reconlist'])): ?>
+                    <?php if($checkcount < 0 || $reportcount != 0 || $approved < 0): ?>
+                        <button id="approveAll" class="btn btn-sm btn-info w-100 me-3 rounded-sm">
+                            Send to Checker
+                        </button>
+                    <?php endif; ?>
                 <?php endif; ?>
 
                 <!--end::Filter-->

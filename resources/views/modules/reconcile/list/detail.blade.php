@@ -31,6 +31,41 @@
 @endphp
 
 <x-app-layout>
+    <?php
+    $can = auth()
+        ->user()
+        ->hasAnyPermission(['view-reconlist', 'create-reconlist', 'update-reconlist', 'delete-reconlist', 'download-reconlist', 'checker-reconlist', 'auto-reconlist', 'manual-reconlist']);
+    $canview = auth()
+        ->user()
+        ->hasAnyPermission(['view-reconlist']);
+    $cancreate = auth()
+        ->user()
+        ->hasAnyPermission(['create-reconlist']);
+    $candelete = auth()
+        ->user()
+        ->hasAnyPermission(['delete-reconlist']);
+    $candownload = auth()
+        ->user()
+        ->hasAnyPermission(['download-reconlist']);
+    $cancheck = auth()
+        ->user()
+        ->hasAnyPermission(['checker-reconlist']);
+    $canauto = auth()
+        ->user()
+        ->hasAnyPermission(['auto-reconlist']);
+    $canmanual = auth()
+        ->user()
+        ->hasAnyPermission(['manual-reconlist']);
+    
+    echo "<script>var authUserCan = '$can';</script>";
+    echo "<script>var authUserCanView = '$canview';</script>";
+    echo "<script>var authUserCanCreate = '$cancreate';</script>";
+    echo "<script>var authUserCanCheck = '$cancheck';</script>";
+    echo "<script>var authUserCanDownload = '$candownload';</script>";
+    echo "<script>var authUserCanDelete = '$candelete';</script>";
+    echo "<script>var authUserCanAuto = '$canauto';</script>";
+    echo "<script>var authUserCanManual = '$canmanual';</script>";
+    ?>
     @csrf
     <div id="kt_content_container" class="container-xxl">
         <nav>
@@ -41,35 +76,40 @@
                         System
                     </div>
                 </button>
-                <button class="col nav-link py-3" id="nav-unmatch-tab" data-bs-toggle="tab" data-bs-target="#nav-unmatch"
-                    type="button" role="tab" aria-controls="nav-unmatch" aria-selected="true">
-                    <div class="fw-bold fs-6 text-active-primary">
-                        Manual
-                    </div>
-                </button>
-                {{-- @if ($draft == 0) --}}
-                    <button class="col nav-link py-3" id="nav-report-tab" data-bs-toggle="tab" data-bs-target="#nav-report"
-                        type="button" role="tab" aria-controls="nav-report" aria-selected="true">
+                @if (auth()->user()->hasAnyPermission(['manual-reconlist']))
+                    <button class="col nav-link py-3" id="nav-unmatch-tab" data-bs-toggle="tab"
+                        data-bs-target="#nav-unmatch" type="button" role="tab" aria-controls="nav-unmatch"
+                        aria-selected="true">
                         <div class="fw-bold fs-6 text-active-primary">
-                            Result
+                            Manual
                         </div>
                     </button>
+                @endif
+                {{-- @if ($draft == 0) --}}
+                <button class="col nav-link py-3" id="nav-report-tab" data-bs-toggle="tab" data-bs-target="#nav-report"
+                    type="button" role="tab" aria-controls="nav-report" aria-selected="true">
+                    <div class="fw-bold fs-6 text-active-primary">
+                        Result
+                    </div>
+                </button>
                 {{-- @endif --}}
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
-            
+
             @include('modules.reconcile.list.tabs.tabdetail')
-            @include('modules.reconcile.list.tabs.tabunmatch')
             
+            @if (auth()->user()->hasAnyPermission(['manual-reconlist']))
+                @include('modules.reconcile.list.tabs.tabunmatch')
+            @endif
             {{-- @if ($draft == 0) --}}
-                @include('modules.reconcile.list.tabs.tabreport')
+            @include('modules.reconcile.list.tabs.tabreport')
             {{-- @endif --}}
         </div>
     </div>
 
     @include('modules.reconcile.detail-modal')
-    
+
     @include('/modules/reconcile/mrc-modal')
     @include('/modules/reconcile/download-modal')
 

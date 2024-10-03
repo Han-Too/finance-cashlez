@@ -52,10 +52,12 @@
                     </h1>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        @if ($syaratauto != 0 && $countapprov != 0)
-                            <button class="btn btn-success rounded-sm" id="autoButton">
-                                Auto
-                            </button>
+                        @if (auth()->user()->hasAnyPermission(['auto-reconlist']))
+                            @if ($syaratauto != 0 && $countapprov != 0)
+                                <button class="btn btn-success rounded-sm" id="autoButton">
+                                    Auto
+                                </button>
+                            @endif
                         @endif
                         <button class="btn btn-primary rounded-sm" id="bulkUnmatch" style="display: none">
                             Bulk Unmatch

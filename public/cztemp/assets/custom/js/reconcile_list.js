@@ -115,11 +115,12 @@ var KTDatatablesServerSide = (function () {
           render: function (data, type, row) {
             var startDateParts = to_date(data).split("-");
             var formattedStartDate =
-              startDateParts[2] + "/" +
+              startDateParts[2] +
+              "/" +
               startDateParts[1].padStart(2, "0") +
               "/" +
               startDateParts[0].padStart(2, "0");
-            
+
             return ` 
                         <div class="text-bold fs-7">${formattedStartDate}</div>
                         `;
@@ -191,12 +192,16 @@ var KTDatatablesServerSide = (function () {
           className: "text-center",
           width: "200px",
           render: function (data, type, row) {
-            if (row.status == "approved") {
+            if (authUserCanView == false && authUserCanDelete == false) {
+              return "";
+            } else if (row.status == "approved" && authUserCanView) {
               return `
                             <a href="${baseUrl}/reconcile-list/detail/${data}" class="btn btn-light-primary btn-sm" >
                                     View Detail
                             </a>
                             `;
+            } else if (row.status == "approved" && authUserCanView == false) {
+              return ``;
             } else {
               return `
                             <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-flip="top-end">
@@ -213,19 +218,29 @@ var KTDatatablesServerSide = (function () {
                                 <!--begin::Menu-->
                                 <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4" data-kt-menu="true">
                                     <!--begin::Menu item-->
+                                    ${
+                                      authUserCanView
+                                        ? `
                                     <div class="menu-item px-3">
                                         <a href="${baseUrl}/reconcile-list/detail/${data}" class="menu-link px-3" data-kt-docs-table-filter="edit_row">
                                             View Details
                                         </a>
-                                    </div>
+                                    </div>`
+                                        : ""
+                                    }
                                     <!--end::Menu item-->
     
                                     <!--begin::Menu item-->
+                                    ${
+                                      authUserCanDelete
+                                        ? `
                                     <div class="menu-item px-3">
                                         <a href="javascript:void()" onclick="deleteRow('${data}')" class="menu-link px-3" data-kt-docs-table-filter="delete_row">
                                             Delete
                                         </a>
-                                    </div>
+                                    </div>`
+                                        : ""
+                                    }
                                     <!--end::Menu item-->
                                 </div>
                                 <!--end::Menu-->

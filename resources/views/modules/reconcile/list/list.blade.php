@@ -16,6 +16,33 @@
 
 @endphp
 <x-app-layout>
+    <?php
+    $can = auth()
+        ->user()
+        ->hasAnyPermission(['view-reconlist', 'create-reconlist', 'update-reconlist', 'delete-reconlist', 'download-reconlist', 'checker-reconlist']);
+    $canview = auth()
+        ->user()
+        ->hasAnyPermission(['view-reconlist']);
+    $cancreate = auth()
+        ->user()
+        ->hasAnyPermission(['create-reconlist']);
+    $candelete = auth()
+        ->user()
+        ->hasAnyPermission(['delete-reconlist']);
+    $candownload = auth()
+        ->user()
+        ->hasAnyPermission(['download-reconlist']);
+    $cancheck = auth()
+        ->user()
+        ->hasAnyPermission(['checker-reconlist']);
+    
+    echo "<script>var authUserCan = '$can';</script>";
+    echo "<script>var authUserCanView = '$canview';</script>";
+    echo "<script>var authUserCanCreate = '$cancreate';</script>";
+    echo "<script>var authUserCanCheck = '$cancheck';</script>";
+    echo "<script>var authUserCanDownload = '$candownload';</script>";
+    echo "<script>var authUserCanDelete = '$candelete';</script>";
+    ?>
     <div class="container">
         <div class="card card-flush px-10 py-6 rounded-sm">
             <!--begin::Wrapper-->
@@ -45,11 +72,13 @@
                 <!--end::Search-->
 
                 <!--begin::Toolbar-->
-                    <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
+                <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
+                    @if (auth()->user()->hasAnyPermission(['create-reconlist']))
                         <a href="#" class="btn btn-light-primary me-3 rounded-sm" data-bs-toggle="modal"
                             data-bs-target="#kt_modal_reconcile">Add New Record</a>
-                        <!--end::Filter-->
-                    </div>
+                    @endif
+                    <!--end::Filter-->
+                </div>
                 <!--end::Toolbar-->
 
             </div>

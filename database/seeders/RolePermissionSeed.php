@@ -61,6 +61,9 @@ class RolePermissionSeed extends Seeder
             $permission_update_reconlist = Permission::create(["name" => 'update-reconlist']);
             $permission_delete_reconlist = Permission::create(["name" => 'delete-reconlist']);
             $permission_download_reconlist = Permission::create(["name" => 'download-reconlist']);
+            $permission_download_reconlist = Permission::create(["name" => 'checker-reconlist']);
+            $permission_download_reconlist = Permission::create(["name" => 'auto-reconlist']);
+            $permission_download_reconlist = Permission::create(["name" => 'manual-reconlist']);
             $permission_view_disburslist = Permission::create(["name" => 'view-disburslist']);
             $permission_view_disburslist = Permission::create(["name" => 'download-disburslist']);
             $permission_approve_disburslist = Permission::create(["name" => 'approve-disburslist']);
@@ -99,6 +102,9 @@ class RolePermissionSeed extends Seeder
                 'update-reconlist',
                 'delete-reconlist',
                 'download-reconlist',
+                'checker-reconlist',
+                'auto-reconlist',
+                'manual-reconlist',
                 'view-disburslist',
                 'download-disburslist',
                 'approve-disburslist',
@@ -137,6 +143,9 @@ class RolePermissionSeed extends Seeder
                 'update-reconlist',
                 'delete-reconlist',
                 'download-reconlist',
+                'checker-reconlist',
+                'auto-reconlist',
+                'manual-reconlist',
                 'view-disburslist',
                 'download-disburslist',
                 'approve-disburslist',
@@ -175,6 +184,9 @@ class RolePermissionSeed extends Seeder
                 'update-reconlist',
                 'delete-reconlist',
                 'download-reconlist',
+                'checker-reconlist',
+                'auto-reconlist',
+                'manual-reconlist',
                 'download-disburslist',
                 'view-disburslist',
                 'approve-disburslist',
@@ -213,6 +225,9 @@ class RolePermissionSeed extends Seeder
                 'update-reconlist',
                 'delete-reconlist',
                 'download-reconlist',
+                'checker-reconlist',
+                'auto-reconlist',
+                'manual-reconlist',
                 'download-disburslist',
                 'view-disburslist',
                 'approve-disburslist',

@@ -39,6 +39,41 @@
 <?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
+    <?php
+    $can = auth()
+        ->user()
+        ->hasAnyPermission(['view-reconlist', 'create-reconlist', 'update-reconlist', 'delete-reconlist', 'download-reconlist', 'checker-reconlist', 'auto-reconlist', 'manual-reconlist']);
+    $canview = auth()
+        ->user()
+        ->hasAnyPermission(['view-reconlist']);
+    $cancreate = auth()
+        ->user()
+        ->hasAnyPermission(['create-reconlist']);
+    $candelete = auth()
+        ->user()
+        ->hasAnyPermission(['delete-reconlist']);
+    $candownload = auth()
+        ->user()
+        ->hasAnyPermission(['download-reconlist']);
+    $cancheck = auth()
+        ->user()
+        ->hasAnyPermission(['checker-reconlist']);
+    $canauto = auth()
+        ->user()
+        ->hasAnyPermission(['auto-reconlist']);
+    $canmanual = auth()
+        ->user()
+        ->hasAnyPermission(['manual-reconlist']);
+    
+    echo "<script>var authUserCan = '$can';</script>";
+    echo "<script>var authUserCanView = '$canview';</script>";
+    echo "<script>var authUserCanCreate = '$cancreate';</script>";
+    echo "<script>var authUserCanCheck = '$cancheck';</script>";
+    echo "<script>var authUserCanDownload = '$candownload';</script>";
+    echo "<script>var authUserCanDelete = '$candelete';</script>";
+    echo "<script>var authUserCanAuto = '$canauto';</script>";
+    echo "<script>var authUserCanManual = '$canmanual';</script>";
+    ?>
     <?php echo csrf_field(); ?>
     <div id="kt_content_container" class="container-xxl">
         <nav>
@@ -49,35 +84,40 @@
                         System
                     </div>
                 </button>
-                <button class="col nav-link py-3" id="nav-unmatch-tab" data-bs-toggle="tab" data-bs-target="#nav-unmatch"
-                    type="button" role="tab" aria-controls="nav-unmatch" aria-selected="true">
-                    <div class="fw-bold fs-6 text-active-primary">
-                        Manual
-                    </div>
-                </button>
-                
-                    <button class="col nav-link py-3" id="nav-report-tab" data-bs-toggle="tab" data-bs-target="#nav-report"
-                        type="button" role="tab" aria-controls="nav-report" aria-selected="true">
+                <?php if(auth()->user()->hasAnyPermission(['manual-reconlist'])): ?>
+                    <button class="col nav-link py-3" id="nav-unmatch-tab" data-bs-toggle="tab"
+                        data-bs-target="#nav-unmatch" type="button" role="tab" aria-controls="nav-unmatch"
+                        aria-selected="true">
                         <div class="fw-bold fs-6 text-active-primary">
-                            Result
+                            Manual
                         </div>
                     </button>
+                <?php endif; ?>
+                
+                <button class="col nav-link py-3" id="nav-report-tab" data-bs-toggle="tab" data-bs-target="#nav-report"
+                    type="button" role="tab" aria-controls="nav-report" aria-selected="true">
+                    <div class="fw-bold fs-6 text-active-primary">
+                        Result
+                    </div>
+                </button>
                 
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
-            
+
             <?php echo $__env->make('modules.reconcile.list.tabs.tabdetail', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-            <?php echo $__env->make('modules.reconcile.list.tabs.tabunmatch', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
             
+            <?php if(auth()->user()->hasAnyPermission(['manual-reconlist'])): ?>
+                <?php echo $__env->make('modules.reconcile.list.tabs.tabunmatch', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+            <?php endif; ?>
             
-                <?php echo $__env->make('modules.reconcile.list.tabs.tabreport', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+            <?php echo $__env->make('modules.reconcile.list.tabs.tabreport', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
             
         </div>
     </div>
 
     <?php echo $__env->make('modules.reconcile.detail-modal', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-    
+
     <?php echo $__env->make('/modules/reconcile/mrc-modal', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
     <?php echo $__env->make('/modules/reconcile/download-modal', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 

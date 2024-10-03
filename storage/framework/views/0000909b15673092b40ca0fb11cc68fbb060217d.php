@@ -50,10 +50,12 @@
                     </h1>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <?php if($syaratauto != 0 && $countapprov != 0): ?>
-                            <button class="btn btn-success rounded-sm" id="autoButton">
-                                Auto
-                            </button>
+                        <?php if(auth()->user()->hasAnyPermission(['auto-reconlist'])): ?>
+                            <?php if($syaratauto != 0 && $countapprov != 0): ?>
+                                <button class="btn btn-success rounded-sm" id="autoButton">
+                                    Auto
+                                </button>
+                            <?php endif; ?>
                         <?php endif; ?>
                         <button class="btn btn-primary rounded-sm" id="bulkUnmatch" style="display: none">
                             Bulk Unmatch
