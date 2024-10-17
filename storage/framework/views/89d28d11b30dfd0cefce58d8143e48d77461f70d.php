@@ -1,6 +1,3 @@
-<?php
-    $priv = App\Helpers\Utils::getPrivilege('reconcile');
-?>
 
 <?php if (isset($component)) { $__componentOriginal8e2ce59650f81721f93fef32250174d77c3531da = $component; } ?>
 <?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>

@@ -38,7 +38,7 @@ return new class extends Migration
             $table->string('bank_transfer');
             $table->string('created_by');
             $table->string('modified_by');
-            $table->timestamp('settlement_date');
+            $table->dateTime('settlement_date');
             $table->string('status');
             $table->string('status_reconcile',150)->nullable();
             $table->string('status_parnert',150)->nullable();

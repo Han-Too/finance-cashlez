@@ -126,7 +126,7 @@
                                 class="w-250px form-select form-select-solid fw-bolder rounded-sm" id="channelId">
                                 <option value="">Select a Channel...</option>
                                 @foreach ($banks as $item)
-                                    <option value="{{ $item->channel }}">{{ $item->channel }}</option>
+                                    <option value="{{ $item->bank_id }}">{{ $item->channel }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -167,6 +167,7 @@
                         <th>MID / MRC</th>
                         {{-- <th>Bank Code</th> --}}
                         <th>Settlement Date</th>
+                        <th>Reconcile Date</th>
                         <th>Bank Code</th>
                         <th>Merchant Name</th>
                         <th>Account Number</th>

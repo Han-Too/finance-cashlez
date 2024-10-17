@@ -277,7 +277,7 @@ var KTDatatablesServerSideBO = (function () {
           className: "text-end",
           width: "200px",
           render: function (data, type, row) {
-            return to_rupiah(parseInt(data));
+            return formatRupiah(data);
           },
         },
       ],
@@ -395,7 +395,7 @@ $("#unrefreshButton").on("click", function () {
   $('input[type="checkbox"]').prop("checked", false);
   totalBankPayment = 0;
   totalBankSettlement = 0;
-  data=[];
+  data = [];
 });
 
 $("#singleReconcile").on("submit", function (event) {
@@ -459,10 +459,9 @@ $("#singleReconcile").on("submit", function (event) {
 // var totalBankPayment = 0;
 
 function updateCombinedTotal() {
-
-  if(data.length == 0) {
+  if (data.length == 0) {
     totalBankSettlement = 0;
-    totalBankPayment = 0;    
+    totalBankPayment = 0;
   }
   var combinedTotal = totalBankSettlement + totalBankPayment;
   var combinedTotalElement = document.getElementById("combined_total");
@@ -609,7 +608,6 @@ function checkBank(id, settlementDate, mid, bankSettlement) {
     updateCombinedTotal();
   }
 }
-
 
 function checkBo(id, settlementDate, bankType, mid, bankPayment) {
   var checkbox = document.getElementById(`checkbox_bo_${id}`);
@@ -793,9 +791,9 @@ function renderTable() {
           </div>
           </li>
           `
-          // <div class="col">
-          // <button class="btn btn-sm btn-danger" onclick="removeAmount('${name}', ${amount}, 'uang')">x</button>
-          // </div>
+              // <div class="col">
+              // <button class="btn btn-sm btn-danger" onclick="removeAmount('${name}', ${amount}, 'uang')">x</button>
+              // </div>
             )
             .join("")}</ul>`;
     row.appendChild(uangCell);
@@ -826,9 +824,9 @@ function renderTable() {
           </div>
           </li>
           `
-          // <div class="col">
-          // <button class="btn btn-sm btn-danger" onclick="removeAmount('${name}', ${amount}, 'tabungan')">x</button>
-          // </div>
+        // <div class="col">
+        // <button class="btn btn-sm btn-danger" onclick="removeAmount('${name}', ${amount}, 'tabungan')">x</button>
+        // </div>
       )
       .join("")}</ul>`;
     row.appendChild(tabunganCell);
@@ -909,7 +907,6 @@ function deleteItem(name) {
   updateCheckboxState(name, null, null, false);
   renderTable();
 }
-
 
 // Menampilkan daftar uang yang bisa ditambahkan
 function renderMoneyOptions() {
@@ -1017,10 +1014,9 @@ function updateCheckboxState(name, amount, type, checked) {
 //   });
 // }
 
-
 // function deleteItem3(name) {
 //   console.log(`Deleting items for: ${name}`);
-  
+
 //   data = data.filter((d) => d.mid !== name);
 
 //   console.log(`Unchecking checkboxes for: ${name}`);
@@ -1062,7 +1058,6 @@ function updateCheckboxState(name, amount, type, checked) {
 //   updateCheckboxState(name, amount, type, false);
 //   renderTable();
 // }
-
 
 // function checkBank3(id, settlementDate, mid, bankSettlement) {
 //   var checkbox = document.getElementById(`checkbox_bank_${id}`);
@@ -1712,7 +1707,6 @@ function updateCheckboxState(name, amount, type, checked) {
 //     );
 //   }
 // }
-
 
 // function updateCombinedTotal2() {
 //   var combinedTotal = totalBankSettlement + totalBankPayment;

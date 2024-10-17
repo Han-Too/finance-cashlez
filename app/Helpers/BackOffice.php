@@ -20,7 +20,7 @@ class BackOffice
         $now->subDay();
         $yesterdatDate = $now->format('Y-m-d');
 
-        // $url = 'https://api.cashlez.com/helper-service/finance-settlement-reconcile-by-date?settlement-date=2024-08-15';
+        // $url = 'https://api.cashlez.com/helper-service/finance-settlement-reconcile-by-date?settlement-date=2024-09-29';
         $url = 'https://api.cashlez.com/helper-service/finance-settlement-reconcile-by-date?settlement-date=' . $yesterdatDate;
         $client = new Client([
             'verify' => false,

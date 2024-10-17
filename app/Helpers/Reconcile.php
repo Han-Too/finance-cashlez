@@ -118,6 +118,20 @@ class Reconcile
                 if ($bsDataCollection->isNotEmpty()) {
                     // Total amount_credit
                     $bankSettlement = $bsDataCollection->sum('amount_credit');
+                    $dates = explode(",", $bsDataCollection->pluck('transfer_date'));
+
+                    if (count($dates) > 1) {
+                        // Ambil elemen terakhir menggunakan end()
+                        $bsDate = end($dates);
+                    } else {
+                        // Jika hanya satu elemen, ambil elemen pertama
+                        $bsDate = $dates[0];
+                    }
+
+                    $bsDate = str_replace(['[',']','"'],'',$bsDate);
+
+                    // Log::info($bsDate);
+
 
                     // Mengambil semua id dari data dan menggabungkannya dengan pemisah //
                     $stateId = $bsDataCollection->pluck('id')->implode(' // ');
@@ -126,7 +140,9 @@ class Reconcile
                     $token_applicant = $bsDataCollection->first()->header->token_applicant;
                 } else {
                     // Jika tidak ada data
+                    // Log::info("Tidak ada data");
                     $bankSettlement = 0;
+                    $bsDate = $value->settlement_date;
                     $stateId = null;
                     $token_applicant = null;
                     $proccesor = "5"; // Pastikan variabel ini sesuai dengan kebutuhan
@@ -227,7 +243,8 @@ class Reconcile
                         'status_reconcile' => 'draft',
                         'status_manual' => false,
                         'reconcile_date' => Carbon::now(),
-                        'settlement_date' => $value->settlement_date,
+                        'settlement_date' => $bsDate,
+                        // 'settlement_date' => $value->settlement_date,
                         'statement_id' => $stateId,
                         'bo_id' => $drabo->id,
                         'bank_id' => $value->bank_id,

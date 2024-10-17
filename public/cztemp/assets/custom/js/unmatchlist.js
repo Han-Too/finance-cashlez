@@ -1,5 +1,5 @@
 "use strict";
-$("#kt_daterangepicker_1").daterangepicker();
+$("#kt_daterangepicker_99").daterangepicker();
 
 var token = $('meta[name="csrf-token"]').attr("content");
 
@@ -132,6 +132,15 @@ var KTDatatablesServerSideRes = (function () {
           targets: 2,
           orderable: true,
           className: "text-center",
+          width: "150px",
+          render: function (data, type, row) {
+            return to_date_time(row.created_at);
+          },
+        },
+        {
+          targets: 3,
+          orderable: true,
+          className: "text-center",
           width: "30px",
           render: function (data, type, row) {
             if (row.bank_account) {
@@ -142,7 +151,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 3,
+          targets: 4,
           orderable: true,
           className: "text-center",
           width: "30px",
@@ -155,7 +164,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 4,
+          targets: 5,
           orderable: true,
           className: "text-center",
           width: "30px",
@@ -168,7 +177,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 5,
+          targets: 6,
           orderable: true,
           className: "text-center",
           width: "30px",
@@ -181,7 +190,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 6,
+          targets: 7,
           orderable: true,
           className: "text-center",
           width: "30px",
@@ -196,7 +205,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 7,
+          targets: 8,
           orderable: true,
           className: "text-center",
           width: "30px",
@@ -209,7 +218,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 8,
+          targets: 9,
           orderable: true,
           searchable: false,
           className: "text-start",
@@ -219,7 +228,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 9,
+          targets: 10,
           orderable: true,
           className: "text-start",
           width: "150px",
@@ -228,7 +237,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 10,
+          targets: 11,
           orderable: true,
           className: "text-start",
           width: "150px",
@@ -237,7 +246,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 11,
+          targets: 12,
           orderable: true,
           className: "text-start",
           width: "150px",
@@ -246,7 +255,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 12,
+          targets: 13,
           orderable: true,
           className: "text-start",
           width: "150px",
@@ -255,7 +264,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 13,
+          targets: 14,
           orderable: true,
           className: "text-center",
           width: "50px",

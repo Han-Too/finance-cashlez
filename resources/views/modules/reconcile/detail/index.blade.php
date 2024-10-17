@@ -1,6 +1,3 @@
-@php
-    $priv = App\Helpers\Utils::getPrivilege('reconcile');
-@endphp
 
 <x-app-layout>
     <div id="kt_content_container" class="container-xxl">

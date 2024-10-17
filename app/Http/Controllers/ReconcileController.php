@@ -51,10 +51,23 @@ class ReconcileController extends Controller
         $file = UploadBank::where('is_reconcile', '0')->get();
         return view('modules.reconcile.list.list', compact('list', 'file', 'channels'));
     }
+    public function oldreconcilelistdata(Request $request)
+    {
+        $query = ReconcileList::get();
+
+
+        return DataTables::of($query)->addIndexColumn()->make(true);
+    }
+
     public function reconcilelistdata(Request $request)
     {
         $query = ReconcileList::get();
 
+        // Mengambil data berdasarkan settlement_file dari UploadBank
+        $query->transform(function ($item) {
+            $item->UB = UploadBank::where('url', $item->settlement_file)->first();
+            return $item;
+        });
 
         return DataTables::of($query)->addIndexColumn()->make(true);
     }
@@ -129,34 +142,34 @@ class ReconcileController extends Controller
 
                 if ($statementId == NULL) {
 
-                    ReconcileUnmatch::create([
-                        'draft_id' => $val->id,
-                        'statement_id' => "-",
-                        'name' => $val->name,
-                        'merchant_name' => $val->merchant_name,
-                        'token_applicant' => $val->token_applicant,
-                        'status' => $val->status,
-                        'mid' => $val->mid,
-                        'trx_counts' => $val->trx_counts,
-                        'bank_transfer' => $val->bank_transfer,
-                        'tax_payment' => $val->tax_payment,
-                        "fee_mdr_merchant" => $val->fee_mdr_merchant,
-                        "fee_bank_merchant" => $val->fee_bank_merchant,
-                        'total_sales' => $val->total_sales,
-                        'processor_payment' => $val->processor_payment,
-                        'internal_payment' => "0",
-                        'merchant_payment' => $val->merchant_payment,
-                        'merchant_id' => $val->merchant_id,
-                        'transfer_amount' => $val->transfer_amount,
-                        'bank_settlement_amount' => "0",
-                        // 'dispute_amount' => $val->dispute_amount,
-                        'created_by' => $val->created_by,
-                        'variance' => $val->variance,
-                        'modified_by' => $val->modified_by,
-                        'status_parnert' => $val->status_parnert,
-                        'status_reconcile' => false,
-                        'settlement_date' => $val->settlement_date,
-                    ]);
+                    // ReconcileUnmatch::create([
+                    //     'draft_id' => $val->id,
+                    //     'statement_id' => "-",
+                    //     'name' => $val->name,
+                    //     'merchant_name' => $val->merchant_name,
+                    //     'token_applicant' => $val->token_applicant,
+                    //     'status' => $val->status,
+                    //     'mid' => $val->mid,
+                    //     'trx_counts' => $val->trx_counts,
+                    //     'bank_transfer' => $val->bank_transfer,
+                    //     'tax_payment' => $val->tax_payment,
+                    //     "fee_mdr_merchant" => $val->fee_mdr_merchant,
+                    //     "fee_bank_merchant" => $val->fee_bank_merchant,
+                    //     'total_sales' => $val->total_sales,
+                    //     'processor_payment' => $val->processor_payment,
+                    //     'internal_payment' => "0",
+                    //     'merchant_payment' => $val->merchant_payment,
+                    //     'merchant_id' => $val->merchant_id,
+                    //     'transfer_amount' => $val->transfer_amount,
+                    //     'bank_settlement_amount' => "0",
+                    //     // 'dispute_amount' => $val->dispute_amount,
+                    //     'created_by' => $val->created_by,
+                    //     'variance' => $val->variance,
+                    //     'modified_by' => $val->modified_by,
+                    //     'status_parnert' => $val->status_parnert,
+                    //     'status_reconcile' => false,
+                    //     'settlement_date' => $val->settlement_date,
+                    // ]);
 
                     $val->status_manual = true;
                     $val->status_reconcile = "manual";
@@ -407,6 +420,37 @@ class ReconcileController extends Controller
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
     }
+    public function reporttodraft($id)
+    {
+        $data = ReconcileReport::where('id', $id)->first();
+        $list = ReconcileList::where('token_applicant', $data->token_applicant)->first();
+        try {
+            if ($data) {
+                $manual = ReconcileDraft::where('id', $data->draft_id)->first();
+                if ($manual) {
+                    $manual->status = $data->status;
+                    $manual->status_reconcile = "report";
+                    $manual->save();
+
+                    $data->status_reconcile = "report";
+                    $data->save();
+
+                    $list->status = "draft";
+                    $list->save();
+
+                    // ReconcileReport::where('id', $id)->delete();
+                    return response()->json(['message' => ['Success Draft Data!'], 'status' => true], 200);
+                } else {
+                    return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
+                }
+            }
+            return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
+        } catch (\Throwable $th) {
+            Log::info($th);
+            dd($th);
+            return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
+        }
+    }
     public function draftReport($id)
     {
         $data = ReconcileReport::where('id', $id)->first();
@@ -479,8 +523,9 @@ class ReconcileController extends Controller
     }
     public function checkerAll($token)
     {
-        $data = ReconcileReport::where('token_applicant', $token)->get();
         try {
+            $data = ReconcileReport::where('token_applicant', $token)->get();
+
             if ($data) {
                 // foreach ($data as $val) {
                 //     $id = explode("//",$val->draft_id);
@@ -505,6 +550,9 @@ class ReconcileController extends Controller
 
 
                 foreach ($data as $val) {
+                    if ($val->status_reconcile === "pending") {
+                        continue;
+                    }
                     // Pisahkan draft_id berdasarkan delimiter '//'
                     $draftIds = explode("//", $val->draft_id);
 
@@ -548,6 +596,7 @@ class ReconcileController extends Controller
                     $val->save();
                 }
                 return response()->json(['message' => ['Success Approve Data!'], 'status' => true], 200);
+
             }
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         } catch (\Throwable $th) {
@@ -2567,8 +2616,8 @@ class ReconcileController extends Controller
             ->where('status_reconcile', '!=', 'deleted')
             ->where('status_reconcile', '!=', 'report')
             ->where('status_reconcile', '!=', 'draft')
-            ->whereDate('created_at', '>=', $startDate)
-            ->whereDate('created_at', '<=', $endDate);
+            ->whereDate('reconcile_date', '>=', $startDate)
+            ->whereDate('reconcile_date', '<=', $endDate);
 
         // Filter berdasarkan status
         if ($status) {
@@ -2871,6 +2920,8 @@ class ReconcileController extends Controller
         $startDate = request()->query('startDate');
         $endDate = request()->query('endDate');
 
+
+
         // if (!$status) {
         //     $text = 'all';
         // } else {
@@ -2893,8 +2944,8 @@ class ReconcileController extends Controller
 
         $startDate = request()->query('startDate');
         $endDate = request()->query('endDate');
-        Log::info($startDate);
-        Log::info($endDate);
+        // Log::info($startDate);
+        // Log::info($endDate);
 
         $data = ReconcileReport::with('merchant', 'bank_account')
             ->where(DB::raw('DATE(created_at)'), '>=', $startDate)
@@ -3292,8 +3343,8 @@ class ReconcileController extends Controller
 
             // $query->where('settlement_date', '>=', $startDate);
             // $query->where('settlement_date', '<=', $endDate);
-            $query->where(DB::raw('DATE(created_at)'), '>=', $startDate);
-            $query->where(DB::raw('DATE(created_at)'), '<=', $endDate);
+            $query->where(DB::raw('DATE(settlement_date)'), '>=', $startDate);
+            $query->where(DB::raw('DATE(settlement_date)'), '<=', $endDate);
         }
         $query->orderByDesc('id');
         return DataTables::of($query)->addIndexColumn()->make(true);
@@ -3320,107 +3371,133 @@ SET b.settlement_date = t.settlement_date;`);
             $mid = $request->query('mid');
             $merchantbs = $request->query('merchantbs');
 
-            $data = ReconcileUnmatch::where('id', $id)->first();
+            $data = ReconcileUnmatch::where('id', $id)->orderBy('id', 'ASC')->first();
             $list = ReconcileList::where('token_applicant', $data->token_applicant)->first();
             $draft = ReconcileDraft::where('id', $data->draft_id)->first();
+            $settleDate = ReconcileUnmatch::where('id', $id)->pluck('settlement_date')->first();
+            $tfDate = UploadBankDetail::where('id', $data->statement_id)->pluck('transfer_date')->first();
+            // Log::info($tfDate);
+
             if ($data) {
                 $uf = UploadBankDetail::where('id', $data->statement_id)->first();
-                if ($uf) {
+                // if ($uf) {
 
-                    $newUB = UploadBankDetail::create([
-                        'token_applicant' => $uf->token_applicant,
-                        'account_no' => $uf->account_no,
-                        'transfer_date' => $uf->transfer_date,
-                        'description2' => $uf->description2,
-                        'description1' => $uf->description1,
-                        'type_code' => $uf->type_code,
-                        'amount_debit' => $uf->amount_debit,
-                        'amount_credit' => $updatebs,
-                        'mid' => $uf->mid,
-                        'created_by' => $uf->created_by,
-                        'modified_by' => $uf->modified_by,
-                        'bank_id' => $uf->bank_id
-                    ]);
+                $newUB = UploadBankDetail::create([
+                    'token_applicant' => $uf->token_applicant,
+                    'account_no' => $uf->account_no,
+                    'transfer_date' => $uf->transfer_date,
+                    'description2' => $uf->description2,
+                    'description1' => $uf->description1,
+                    'type_code' => $uf->type_code,
+                    'amount_debit' => $uf->amount_debit,
+                    'amount_credit' => $updatebs,
+                    'mid' => $uf->mid,
+                    'created_by' => $uf->created_by,
+                    'modified_by' => $uf->modified_by,
+                    'bank_id' => $uf->bank_id
+                ]);
 
-                    $uf->amount_credit = $newbs;
-                    $uf->save();
+                // $newRU = ReconcileUnmatch::create([
+
+                DB::table('reconcile_unmatches')->insert([
+                    // 'settlement_date' => $newUB->transfer_date,
+                    'settlement_date' => $tfDate,
+                    'draft_id' => $data->draft_id,
+                    'statement_id' => $newUB->id,
+                    'name' => $data->name,
+                    'merchant_name' => $data->merchant_name,
+                    'token_applicant' => $data->token_applicant,
+                    'status' => $data->status,
+                    'mid' => $data->mid,
+                    'trx_counts' => $data->trx_counts,
+                    'bank_transfer' => $data->bank_transfer,
+                    'tax_payment' => $data->tax_payment,
+                    "fee_mdr_merchant" => $data->fee_mdr_merchant,
+                    "fee_bank_merchant" => $data->fee_bank_merchant,
+                    'total_sales' => $data->total_sales,
+                    'processor_payment' => $data->processor_payment,
+                    'internal_payment' => $updatebs,
+                    'merchant_payment' => $data->merchant_payment,
+                    'merchant_id' => $data->merchant_id,
+                    'transfer_amount' => $data->transfer_amount,
+                    'bank_settlement_amount' => $updatebs,
+                    // 'dispute_amount' => $data->dispute_amount,
+                    'created_by' => $data->created_by,
+                    'variance' => $data->variance,
+                    'modified_by' => $data->modified_by,
+                    'status_parnert' => $data->status_parnert,
+                    'status_reconcile' => $data->status_reconcile,
+                    'created_at' => $data->created_at,
+                    'updated_at' => $data->updated_at,
+                ]);
+
+                // $newdraft = ReconcileDraft::create([
+                DB::table('reconcile_drafts')->insert([
+                    'name' => $draft->name,
+                    'merchant_name' => $draft->merchant_name,
+                    'token_applicant' => $draft->token_applicant,
+                    'status' => $draft->status,
+                    'mid' => $draft->mid,
+                    'trx_counts' => $draft->trx_counts,
+                    'bank_transfer' => $draft->bank_transfer,
+                    'tax_payment' => $draft->tax_payment,
+                    "fee_mdr_merchant" => $draft->fee_mdr_merchant,
+                    "fee_bank_merchant" => $draft->fee_bank_merchant,
+                    'total_sales' => $draft->total_sales,
+                    'processor_payment' => $draft->processor_payment,
+                    'internal_payment' => $updatebs,
+                    'merchant_payment' => $draft->merchant_payment,
+                    'merchant_id' => $draft->merchant_id,
+                    'transfer_amount' => $draft->transfer_amount,
+                    'bank_settlement_amount' => $updatebs,
+                    'created_by' => $draft->created_by,
+                    'variance' => $draft->variance,
+                    'modified_by' => $draft->modified_by,
+                    'status_parnert' => $draft->status_parnert,
+                    'status_reconcile' => $draft->status_reconcile,
+                    'status_manual' => $draft->status_manual,
+                    'reconcile_date' => $draft->reconcile_date,
+                    'settlement_date' => $tfDate,
+                    'statement_id' => $newUB->id,
+                    'bo_id' => $draft->bo_id,
+                    'bank_id' => $draft->bank_id,
+                    'bo_date' => $draft->bo_date,
+                ]);
+
+                UploadBankDetail::where('id', $data->statement_id)->update([
+                    'amount_credit' => $newbs
+                ]);
+
+                ReconcileUnmatch::where('id', $id)->update([
+                    "modified_by" => Auth::user()->name,
+                    "internal_payment" => $newbs,
+                    "bank_settlement_amount" => $newbs,
+                ]);
+
+                ReconcileDraft::where('id', $data->draft_id)->update([
+                    "internal_payment" => $newbs,
+                ]);
+
+                // $uf->amount_credit = $newbs;
+                // $uf->save();
+
+                // $draft->internal_payment = $newbs;
+                // $draft->save();
+
+                // $data->internal_payment = $newbs;
+                // $data->bank_settlement_amount = $newbs;
+                // $data->save();
 
 
-                    $newRU = ReconcileUnmatch::create([
-                        'draft_id' => $data->id,
-                        'statement_id' => $id,
-                        'name' => $data->name,
-                        'merchant_name' => $data->merchant_name,
-                        'token_applicant' => $data->token_applicant,
-                        'status' => $data->status,
-                        'mid' => $data->mid,
-                        'trx_counts' => $data->trx_counts,
-                        'bank_transfer' => $data->bank_transfer,
-                        'tax_payment' => $data->tax_payment,
-                        "fee_mdr_merchant" => $data->fee_mdr_merchant,
-                        "fee_bank_merchant" => $data->fee_bank_merchant,
-                        'total_sales' => $data->total_sales,
-                        'processor_payment' => $data->processor_payment,
-                        'internal_payment' => $updatebs,
-                        'merchant_payment' => $data->merchant_payment,
-                        'merchant_id' => $data->merchant_id,
-                        'transfer_amount' => $data->transfer_amount,
-                        'bank_settlement_amount' => $updatebs,
-                        // 'dispute_amount' => $data->dispute_amount,
-                        'created_by' => $data->created_by,
-                        'variance' => $data->variance,
-                        'modified_by' => $data->modified_by,
-                        'status_parnert' => $data->status_parnert,
-                        'status_reconcile' => $data->status_reconcile,
-                        'settlement_date' => $data->settlement_date,
-                    ]);
 
-                    $data->internal_payment = $newbs;
-                    $data->bank_settlement_amount = $newbs;
-                    $data->save();
-
-                    $newdraft = ReconcileDraft::create([
-                        'name' => $draft->name,
-                        'merchant_name' => $draft->merchant_name,
-                        'token_applicant' => $draft->token_applicant,
-                        'status' => $draft->status,
-                        'mid' => $draft->mid,
-                        'trx_counts' => $draft->trx_counts,
-                        'bank_transfer' => $draft->bank_transfer,
-                        'tax_payment' => $draft->tax_payment,
-                        "fee_mdr_merchant" => $draft->fee_mdr_merchant,
-                        "fee_bank_merchant" => $draft->fee_bank_merchant,
-                        'total_sales' => $draft->total_sales,
-                        'processor_payment' => $draft->processor_payment,
-                        'internal_payment' => $updatebs,
-                        'merchant_payment' => $draft->merchant_payment,
-                        'merchant_id' => $draft->merchant_id,
-                        'transfer_amount' => $draft->transfer_amount,
-                        'bank_settlement_amount' => $updatebs,
-                        'created_by' => $draft->created_by,
-                        'variance' => $draft->variance,
-                        'modified_by' => $draft->modified_by,
-                        'status_parnert' => $draft->status_parnert,
-                        'status_reconcile' => $draft->status_reconcile,
-                        'status_manual' => $draft->status_manual,
-                        'reconcile_date' => $draft->reconcile_date,
-                        'settlement_date' => $draft->settlement_date,
-                        'statement_id' => $newUB->id,
-                        'bo_id' => $draft->bo_id,
-                        'bank_id' => $draft->bank_id,
-                        'bo_date' => $draft->bo_date,
-                    ]);
-
-                    $draft->internal_payment = $newbs;
-                    $draft->save();
-
-                    // ReconcileReport::where('id', $id)->delete();
-                    return response()->json(['message' => ['Success Add Data!'], 'status' => true], 200);
-                } else {
-                    return response()->json(['message' => ['Error while Add Data, try again'], 'status' => false], 200);
-                }
+                // ReconcileReport::where('id', $id)->delete();
+                return response()->json(['message' => ['Success Add Data!'], 'status' => true], 200);
+                // } else {
+                //     return response()->json(['message' => ['Error while Add Data, try again'], 'status' => false], 200);
+                // }
+            } else {
+                return response()->json(['message' => ['Error while Add Data, try again'], 'status' => false], 200);
             }
-            return response()->json(['message' => ['Error while Add Data, try again'], 'status' => false], 200);
         } catch (\Throwable $th) {
             Log::info($th);
             dd($th);

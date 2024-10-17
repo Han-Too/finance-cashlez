@@ -163,6 +163,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/reconcile-list/detail/{token}', [ReconcileController::class, 'reconcilelistdetail'])->name('reconcile.listdetail')
         ->middleware(['permission:view-reconlist']);
     Route::get('/reconcile-list/detaildata/{token}', [ReconcileController::class, 'datareconcilelistdetail'])->name('reconcile.datalistdetail');
+
     Route::get('/reconcileresult/data', [ReconcileController::class, 'resultdata'])->name('reconcile.resultdata');
 
     Route::get('/reconcile/headerapproveddata', [ReconcileController::class, 'headerapproveddata'])->name('reconcile.headerapproveddata');
@@ -176,6 +177,7 @@ Route::middleware('auth')->group(function () {
     // Route::get('/reconcilereport/data', [ReconcileController::class, 'reportdata'])->name('reconcile.reportdata');
     Route::get('/reconcilereport/data/{token}', [ReconcileController::class, 'reportdata'])->name('reconcile.reportdata');
     Route::post('/reconcilereport/approve/{id}', [ReconcileController::class, 'approveReport'])->name('reconcile.approvereport');
+    Route::post('/reconcilereport/reporttodraft/{id}', [ReconcileController::class, 'reporttodraft'])->name('reconcile.reporttodraft');
     Route::post('/reconcilereport/draft/{id}', [ReconcileController::class, 'draftReport'])->name('reconcile.approvereport');
     Route::post('/reconcilereport/store/{id}', [ReconcileController::class, 'storeReport'])->name('reconcile.goreport');
     Route::post('/reconcilereport/manual/{id}', [ReconcileController::class, 'manualReport'])->name('reconcile.gomanual');

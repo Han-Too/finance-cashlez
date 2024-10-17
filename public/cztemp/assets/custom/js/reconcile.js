@@ -3,6 +3,17 @@ $("#kt_daterangepicker_1").daterangepicker();
 $("#kt_daterangepicker_99").daterangepicker();
 
 var token = $('meta[name="csrf-token"]').attr("content");
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  },
+});
 
 var KTDatatablesServerSideRes = (function () {
   var dt;
@@ -186,10 +197,26 @@ var KTDatatablesServerSideRes = (function () {
         },
         {
           targets: 0,
-          orderable: true,
+          orderable: false,
+          className: "text-start w-10px dt-body-center",
+          width: "10px",
+          render: function (data, type, row, meta) {
+            if (row.status_reconcile == "approved") {
+              return `<div></div>`;
+            } else if (row.status_reconcile == "pending") {
+              return '<input type="checkbox" class="dt-checkboxes form-check-input">';
+            } else {
+              return `<div></div>`;
+            }
+          },
+        },
+        {
+          targets: 1,
+          orderable: false,
           className: "text-center",
           width: "50px",
           render: function (data, type, row) {
+            // console.log(row);
             return row.mid
               ? `
                       <div class="d-flex justify-content-center mb-1">
@@ -211,7 +238,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 1,
+          targets: 2,
           orderable: true,
           className: "text-center",
           render: function (data, type, row) {
@@ -219,7 +246,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 2,
+          targets: 3,
           orderable: true,
           className: "text-center",
           render: function (data, type, row) {
@@ -227,7 +254,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 3,
+          targets: 4,
           orderable: true,
           className: "text-center",
           render: function (data, type, row) {
@@ -237,7 +264,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 4,
+          targets: 5,
           orderable: true,
           className: "text-center",
           render: function (data, type, row) {
@@ -247,7 +274,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 5,
+          targets: 6,
           orderable: true,
           className: "text-center",
           render: function (data, type, row) {
@@ -258,7 +285,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 6,
+          targets: 7,
           orderable: true,
           className: "text-center",
           render: function (data, type, row) {
@@ -268,7 +295,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 7,
+          targets: 8,
           orderable: true,
           searchable: false,
           className: "text-start",
@@ -277,7 +304,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 8,
+          targets: 9,
           orderable: true,
           className: "text-start",
           render: function (data, type, row) {
@@ -285,7 +312,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 9,
+          targets: 10,
           orderable: true,
           className: "text-start",
           render: function (data, type, row) {
@@ -293,7 +320,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 10,
+          targets: 11,
           orderable: true,
           className: "text-start",
           render: function (data, type, row) {
@@ -301,7 +328,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 11,
+          targets: 12,
           orderable: true,
           className: "text-start",
           render: function (data, type, row) {
@@ -309,7 +336,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 12,
+          targets: 13,
           orderable: true,
           className: "text-center",
           render: function (data, type, row) {
@@ -323,7 +350,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 13,
+          targets: 14,
           orderable: true,
           className: "text-center",
           render: function (data, type, row) {
@@ -335,7 +362,7 @@ var KTDatatablesServerSideRes = (function () {
           },
         },
         {
-          targets: 14,
+          targets: 15,
           orderable: true,
           className: "text-center",
           render: function (data, type, row) {
@@ -409,6 +436,146 @@ var KTDatatablesServerSideRes = (function () {
       reloadDatatable();
     });
   };
+
+  var element = document.getElementById("bulking");
+  var element2 = document.getElementById("canceling");
+  $(document).ready(function () {
+    var dt = $("#kt_datatable_example_99").DataTable();
+
+    $("#kt_datatable_example_99 tbody").on(
+      "change",
+      "input.dt-checkboxes",
+      function () {
+        logSelectedIds();
+      }
+    );
+
+    $("#checkAll").on("change", function () {
+      var rows = dt.rows({ search: "applied" }).nodes();
+      $("input.dt-checkboxes", rows).prop("checked", this.checked);
+      logSelectedIds();
+    });
+
+    function logSelectedIds() {
+      var selectedMIDs = [];
+      dt.$("input.dt-checkboxes:checked").each(function () {
+        var data = dt.row($(this).closest("tr")).data();
+        // console.log(selectedMIDs); // Debug log to check data
+        if (data) {
+          selectedMIDs.push(data.id); // Mengakses kolom MID
+        }
+      });
+
+      if (selectedMIDs.length != 0) {
+        element.style.display = "block";
+        element2.style.display = "block";
+      } else {
+        element.style.display = "none";
+        element2.style.display = "none";
+      }
+
+      // Unbind previous click handler to avoid multiple bindings
+      $("#bulking").off("click");
+
+      $("#bulking").on("click", function () {
+        if (selectedMIDs.length === 0) {
+          window.location.reload();
+          return;
+        }
+
+        let promises = selectedMIDs.map(function (id) {
+          return new Promise(function (resolve, reject) {
+            var token = $('meta[name="csrf-token"]').attr("content");
+            $.ajax({
+              url: baseUrl + "/reconcilereport/approve/" + id,
+              headers: {
+                "X-CSRF-TOKEN": token, // Menyertakan token CSRF di header permintaan
+              },
+              type: "POST",
+              success: function (response) {
+                Toast.fire({
+                  icon: "success",
+                  title: "Data Have Been Remove",
+                });
+                resolve(response);
+              },
+              error: function (xhr, status, error) {
+                Swal.fire({
+                  text: "error",
+                  icon: "error",
+                  buttonsStyling: false,
+                  confirmButtonText: "Ok, got it!",
+                  customClass: {
+                    confirmButton: "btn fw-bold btn-primary",
+                  },
+                });
+                reject(error);
+              },
+            });
+          });
+        });
+
+        Promise.all(promises)
+          .then(function () {
+            window.location.reload();
+          })
+          .catch(function (error) {
+            console.error("Error:", error);
+          });
+      });
+
+      $("#canceling").off("click");
+      $("#canceling").on("click", function () {
+        if (selectedMIDs.length === 0) {
+          window.location.reload();
+          return;
+        }
+
+        let promises = selectedMIDs.map(function (id) {
+          return new Promise(function (resolve, reject) {
+            var token = $('meta[name="csrf-token"]').attr("content");
+            $.ajax({
+              url: baseUrl + "/reconcilereport/reporttodraft/" + id,
+              headers: {
+                "X-CSRF-TOKEN": token, // Menyertakan token CSRF di header permintaan
+              },
+              type: "POST",
+              success: function (response) {
+                Toast.fire({
+                  icon: "success",
+                  title: "Data Have Been Remove",
+                });
+                resolve(response);
+              },
+              error: function (xhr, status, error) {
+                Swal.fire({
+                  text: "error",
+                  icon: "error",
+                  buttonsStyling: false,
+                  confirmButtonText: "Ok, got it!",
+                  customClass: {
+                    confirmButton: "btn fw-bold btn-primary",
+                  },
+                });
+                reject(error);
+              },
+            });
+          });
+        });
+
+        Promise.all(promises)
+          .then(function () {
+            window.location.reload();
+          })
+          .catch(function (error) {
+            console.error("Error:", error);
+          });
+      });
+    }
+
+    // Initialize logSelectedIds on page load
+    logSelectedIds();
+  });
 
   return {
     init: function () {

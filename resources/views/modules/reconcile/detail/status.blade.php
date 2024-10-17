@@ -1,6 +1,3 @@
-@php
-    $priv = App\Helpers\Utils::getPrivilege('reconcile');
-@endphp
 
 <x-app-layout>
     <input type="hidden" name="status" id="status" value="{{ $status }}">
@@ -70,7 +67,7 @@
                                 </span>
                             </div>
                             <div class=" w-50 py-1 px-2 mb-3">
-                                <a href="/settlement/detail/{{ $token }}"
+                                <a href="{{ url('/settlement/detail/'.$token) }}"
                                     class="btn btn-light-danger me-2 rounded-sm w-100">Back</a>
                             </div>
                         @else
@@ -90,7 +87,7 @@
                                 </span>
                             </div>
                             <div class="  w-50 py-1 px-2 mb-3">
-                                <a href="/settlement/detail/{{ $token }}"
+                                <a href="{{ url('/settlement/detail/'.$token) }}"
                                     class="btn btn-light-danger me-2 rounded-sm w-100">Back</a>
                             </div>
                         @endif

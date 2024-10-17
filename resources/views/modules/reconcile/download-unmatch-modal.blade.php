@@ -54,7 +54,7 @@
                     <div class="d-flex flex-column mb-8 fv-row">
                         <!--begin::Label-->
                         <label class="d-flex align-items-center fs-6 fw-bold mb-2">
-                            <span class="required">Created Date</span>
+                            <span class="required">Reconcile Date</span>
                             <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip"
                                 title="Range of Settlement Date"></i>
                         </label>

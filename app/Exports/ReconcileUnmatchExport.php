@@ -6,6 +6,7 @@ use App\Models\ReconcileDraft;
 use App\Models\ReconcileReport;
 use App\Models\ReconcileResult;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -19,7 +20,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class ReconcileUnmatchExport implements FromCollection, WithMapping, WithHeadings, WithColumnFormatting, WithEvents
 {
     // protected $token_applicant, $status, $startDate, $endDate, $channel;
-    protected 
+    protected
     // $token_applicant, $status, 
     $startDate, $endDate
     // , $channel
@@ -45,11 +46,13 @@ class ReconcileUnmatchExport implements FromCollection, WithMapping, WithHeading
      */
     public function collection()
     {
-        $query = ReconcileReport::with('merchant', 'bank_account');
+        $query = ReconcileDraft::with('merchant', 'bank_account')
+            ->where('status', '!=', 'MATCH')
+            ->whereNotIn('status_reconcile', ['reconciled', 'checker'])
+            ->whereBetween(DB::raw('DATE(reconcile_date)'), [$this->startDate, $this->endDate]);
 
-
-        $query->where(DB::raw('DATE(created_at)'), '>=', $this->startDate);
-        $query->where(DB::raw('DATE(created_at)'), '<=', $this->endDate);
+        // Log::info($this->startDate);
+        // Log::info($this->endDate);
         // $query->where('processor_payment', $this->channel);
         // $query->where('status', '!=', 'deleted');
 

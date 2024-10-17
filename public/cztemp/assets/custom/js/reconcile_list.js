@@ -37,7 +37,6 @@ var KTDatatablesServerSide = (function () {
           className: "text-start",
           width: "50px",
           render: function (data, type, row, meta) {
-            // console.log(row);
             return meta.row + 1;
           },
         },
@@ -71,7 +70,8 @@ var KTDatatablesServerSide = (function () {
           className: "text-center",
           width: "100px",
           render: function (data, type, row) {
-            return `<a href='${data}' class=" text-center fs-7"><i class="fa-solid fa-download fa-xl text-primary"></i></a>`;
+            // console.log(row);
+            return `<a href='${data}' class=" text-center fs-7"><div class="text-primary">${row.UB.name}</div></a>`;
           },
         },
         {

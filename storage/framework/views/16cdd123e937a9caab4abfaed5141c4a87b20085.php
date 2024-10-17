@@ -141,7 +141,7 @@
                                 class="w-250px form-select form-select-solid fw-bolder rounded-sm" id="channelId">
                                 <option value="">Select a Channel...</option>
                                 <?php $__currentLoopData = $banks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($item->channel); ?>"><?php echo e($item->channel); ?></option>
+                                    <option value="<?php echo e($item->bank_id); ?>"><?php echo e($item->channel); ?></option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
@@ -165,9 +165,15 @@
                         $checkapprove > 0 &&
                             auth()->user()->hasAnyPermission(['approve-disburslist'])): ?>
                         <button id="approveAll" class="btn btn-sm btn-success me-3 rounded-sm">
-                            Approve
+                            Approve All
                         </button>
                     <?php endif; ?>
+                    <button class="btn btn-primary rounded-sm me-3" id="bulking" style="display: none">
+                        Bulk Approve
+                    </button>
+                    <button class="btn btn-danger rounded-sm" id="canceling" style="display: none">
+                        Bulk Cancel
+                    </button>
 
                     <!--end::Filter-->
                 </div>
@@ -184,6 +190,7 @@
                         
                         
                         
+                        <th><input type="checkbox" class="form-check-input" id="checkAll"></th>
                         <th>MID / MRC</th>
                         <th>Bank Code</th>
                         <th>Merchant Name</th>

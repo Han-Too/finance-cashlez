@@ -133,7 +133,7 @@
                                 class="w-250px form-select form-select-solid fw-bolder rounded-sm" id="channelId">
                                 <option value="">Select a Channel...</option>
                                 @foreach ($banks as $item)
-                                    <option value="{{ $item->channel }}">{{ $item->channel }}</option>
+                                    <option value="{{ $item->bank_id }}">{{ $item->channel }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -157,9 +157,15 @@
                         $checkapprove > 0 &&
                             auth()->user()->hasAnyPermission(['approve-disburslist']))
                         <button id="approveAll" class="btn btn-sm btn-success me-3 rounded-sm">
-                            Approve
+                            Approve All
                         </button>
                     @endif
+                    <button class="btn btn-primary rounded-sm me-3" id="bulking" style="display: none">
+                        Bulk Approve
+                    </button>
+                    <button class="btn btn-danger rounded-sm" id="canceling" style="display: none">
+                        Bulk Cancel
+                    </button>
 
                     <!--end::Filter-->
                 </div>
@@ -176,6 +182,7 @@
                         {{-- <th>Settlement Date</th> --}}
                         {{-- <th>Batch</th> --}}
                         {{-- <th>No</th> --}}
+                        <th><input type="checkbox" class="form-check-input" id="checkAll"></th>
                         <th>MID / MRC</th>
                         <th>Bank Code</th>
                         <th>Merchant Name</th>

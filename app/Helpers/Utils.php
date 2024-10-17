@@ -49,7 +49,7 @@ class Utils
             //END PRODUCTION
 
 
-            $image->move('public/images', $imageName);
+            $image->move('images', $imageName);
             $path = url('images/' . $imageName);
             Log::info($path);
             return $path;

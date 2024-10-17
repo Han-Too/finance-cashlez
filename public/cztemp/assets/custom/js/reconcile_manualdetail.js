@@ -65,17 +65,17 @@ var KTDatatablesServerSide = (function () {
         // 19 agus
         {
           targets: -1,
-          orderable: true,
+          orderable: false,
           className: "text-end",
           width: "150px",
           render: function (data, type, row, meta) {
             let isChecked = selectedBanks.includes(row.id) ? "checked" : "";
-            return `<div class="form-check form-check-sm form-check-custom form-check-solid text-end" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">
+            return `<div class="dt-checkboxes form-check form-check-sm form-check-custom form-check-solid text-end" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">
                           <input onclick="checkBank(${row.id}, '${to_date(
               row.settlement_date
             )}', '${row.mid}', '${row.internal_payment}','${row.total_sales}')"
                               id="checkbox_bank_${row.id}"
-                              class="form-check-input boCheckbox"
+                              class="form-check-input boCheckbox dt-checkboxes"
                               name="bo_check[]"
                               type="checkbox"
                               value="1"
@@ -114,11 +114,11 @@ var KTDatatablesServerSide = (function () {
           className: "text-end",
           width: "250px",
           render: function (data, type, row) {
-            // Ubah format data menjadi rupiah dan tambahkan onclick untuk memanggil modal
-            return `<a href="javascript:void(0)" onclick="showMerchantModal('${
-              row.merchant_name
-            }', '${row.internal_payment}', '${row.mid}','${row.id}')">
-            ${parseInt(data)}</a>`;
+            return `<a href="javascript:void(0)" 
+            onclick="showMerchantModal('${row.merchant_name}', '${
+              row.internal_payment
+            }', '${row.mid}','${row.id}')">
+            ${to_rupiah(data)}</a>`;
           },
         },
       ],
@@ -206,6 +206,111 @@ var KTDatatablesServerSide = (function () {
     });
   };
 
+  $(document).ready(function () {
+    var element = document.getElementById("bulkUnmatch");
+    var dt = $("#bank_settlement_table").DataTable();
+
+    $("#bank_settlement_table tbody").on(
+      "change",
+      "input.dt-checkboxes",
+      function () {
+        logSelectedIds();
+      }
+    );
+
+    // $("#checkAllBS").on("change", function () {
+    //   // console.log("Check All");
+    //   var rows = dt.rows({ search: "applied" }).nodes();
+    //   $("input.dt-checkboxes", rows).prop("checked", this.checked);
+    //   logSelectedIds();
+    // });
+
+    // $("#checkAllBS").on("change", function () {
+    //   var rows = dt.rows({ search: "applied" }).nodes();
+    //   var isChecked = this.checked; // Mendapatkan status checkbox "Check All"
+
+    //   // Set semua checkbox di dalam baris ke status yang sama
+    //   $("input.dt-checkboxes", rows).prop("checked", isChecked);
+
+    //   // Panggil fungsi checkBank untuk setiap checkbox di dalam tabel
+    //   $("input.dt-checkboxes", rows).each(function () {
+    //     var checkbox = $(this);
+    //     var row = dt.row(checkbox.closest("tr")).data();
+
+    //     if (isChecked) {
+    //       // Jika "Check All" aktif, maka cek checkbox per row
+    //       checkBank(
+    //         row.id,
+    //         to_date(row.settlement_date),
+    //         row.mid,
+    //         row.internal_payment,
+    //         row.total_sales
+    //       );
+    //     } else {
+    //       // Jika "Check All" tidak aktif, uncheck checkbox per row
+    //       uncheckBank(row.id); // Memanggil function untuk handle uncheck
+    //     }
+    //   });
+
+    //   logSelectedIds(); // Melakukan logging terhadap checkbox yang terpilih
+    // });
+
+    $("#checkAllBS").on("change", function () {
+      var rows = dt.rows({ search: "applied" }).nodes(); // Mendapatkan semua row yang ditampilkan saat ini
+      var isChecked = this.checked; // Mendapatkan status checkbox "Check All" (dicentang atau tidak)
+
+      // Set semua checkbox di dalam baris ke status yang sama dengan "Check All"
+      $("input.dt-checkboxes", rows).prop("checked", isChecked);
+
+      // Loop melalui setiap checkbox dan panggil checkBank sesuai status
+      $("input.dt-checkboxes", rows).each(function () {
+        var checkbox = $(this);
+        var row = dt.row(checkbox.closest("tr")).data(); // Ambil data dari row yang terkait dengan checkbox ini
+
+        // Panggil fungsi checkBank dengan kondisi checkbox
+        checkBank(
+          row.id,
+          to_date(row.settlement_date),
+          row.mid,
+          row.internal_payment,
+          row.total_sales
+        );
+      });
+    });
+
+    function uncheckBank(id) {
+      // Logika ketika checkbox di-uncheck
+      // Misalnya: hapus data dari array selectedBanks
+      var index = selectedBanks.indexOf(id);
+      if (index > -1) {
+        selectedBanks.splice(index, 1);
+      }
+
+      // Lakukan tindakan lain yang diperlukan saat uncheck
+      console.log("Checkbox bank " + id + " di-uncheck");
+    }
+
+    function logSelectedIds() {
+      var selectedIDs = [];
+      dt.$("input.dt-checkboxes:checked").each(function () {
+        var data = dt.row($(this).closest("tr")).data();
+        // console.log(selectedIDs); // Debug log to check data
+        if (data) {
+          selectedBanks.push(data.id);
+        }
+      });
+
+      if (selectedBanks.length != 0) {
+        element.style.display = "block";
+      } else {
+        element.style.display = "none";
+      }
+    }
+
+    // Initialize logSelectedIds on page load
+    logSelectedIds();
+  });
+
   return {
     init: function () {
       initDatatable();
@@ -286,10 +391,11 @@ var KTDatatablesServerSideBO = (function () {
         // 19 AGUS
         {
           targets: -1,
-          orderable: true,
+          orderable: false,
           className: "text-start",
           width: "150px",
           render: function (data, type, row, meta) {
+            // console.log(row);
             // Check if the current row's ID is in selectedBo and set the checkbox as checked
             let isChecked = selectedBo.includes(row.id) ? "checked" : "";
 
@@ -342,12 +448,12 @@ var KTDatatablesServerSideBO = (function () {
         //     },
         // },
         {
-          targets: 4,
+          targets: 3,
           orderable: true,
           className: "text-end",
           width: "200px",
           render: function (data, type, row) {
-            return to_rupiah(parseInt(data));
+            return `${to_rupiah(row.bank_transfer)}`;
           },
         },
       ],
@@ -425,6 +531,29 @@ var KTDatatablesServerSideBO = (function () {
       reloadDatatable();
     });
   };
+
+  $("#checkAllBO").on("change", function () {
+    var rows = dt.rows({ search: "applied" }).nodes(); // Ambil semua row yang terlihat saat ini
+    var isChecked = this.checked; // Status check atau uncheck dari checkbox "Check All"
+
+    // Set semua checkbox sesuai dengan status checkbox "Check All"
+    $("input.form-check-input", rows).prop("checked", isChecked);
+
+    // Loop setiap checkbox dan panggil checkBo untuk mengubah data
+    $("input.form-check-input", rows).each(function () {
+      var checkbox = $(this);
+      var row = dt.row(checkbox.closest("tr")).data(); // Dapatkan data dari row terkait
+
+      // Panggil checkBo sesuai status checkbox
+      checkBo(
+        row.id,
+        row.created_at,
+        row.processor,
+        row.mid,
+        row.bank_transfer
+      );
+    });
+  });
 
   return {
     init: function () {
@@ -660,8 +789,10 @@ $("#updatebs").on("submit", function (event) {
   event.preventDefault(); // Mencegah submit default
 
   const bs = parseFloat(document.getElementById("internalPayment").value) || 0;
-  const updatebs = parseFloat(document.getElementById("updatedinternalPayment").value) || 0;
-  const newbs = parseFloat(document.getElementById("newinternalPayment").value) || 0;
+  const updatebs =
+    parseFloat(document.getElementById("updatedinternalPayment").value) || 0;
+  const newbs =
+    parseFloat(document.getElementById("newinternalPayment").value) || 0;
   const idbs = document.getElementById("id").value;
   const midbs = document.getElementById("MiD").value;
   const merchantbs = document.getElementById("merchantName").value;
@@ -675,66 +806,96 @@ $("#updatebs").on("submit", function (event) {
   formData.append("midbs", midbs);
   formData.append("merchantbs", merchantbs);
 
-  var url = baseUrl + "/updatebs?id=" + idbs 
-  + "&mid=" + midbs 
-  + "&updatebs=" + updatebs 
-  + "&newbs=" + newbs 
-  + "&merchantbs=" + merchantbs 
-  + "&idbs=" + idbs;
+  var url =
+    baseUrl +
+    "/updatebs?id=" +
+    idbs +
+    "&mid=" +
+    midbs +
+    "&updatebs=" +
+    updatebs +
+    "&newbs=" +
+    newbs +
+    "&merchantbs=" +
+    merchantbs +
+    "&idbs=" +
+    idbs;
 
-  $.ajax({
-    headers: { "X-CSRF-TOKEN": token },
-    type: "POST",
-    url: url, // Sesuaikan dengan URL yang sesuai
-    data: formData,
-    dataType: "JSON",
-    cache: false,
-    contentType: false,
-    processData: false,
-    beforeSend: function () {
-      swal.showLoading();
-    },
-    success: function (data) {
-      swal.hideLoading();
-      if (data.status === true) {
-        swal.fire({
-          text: data.message,
-          icon: "success",
-          buttonsStyling: false,
-          confirmButtonText: "Ok, got it!",
-          customClass: {
-            confirmButton: "btn font-weight-bold btn-light-primary",
-          },
-        }).then(function () {
-          window.location.reload(); // Opsional, reload halaman setelah sukses
-        });
-      } else {
-        swal.fire({
-          text: data.message,
-          icon: "error",
-          buttonsStyling: false,
-          confirmButtonText: "Ok, got it!",
-          customClass: {
-            confirmButton: "btn font-weight-bold btn-light-primary",
-          },
-        });
-      }
-    },
-    error: function (xhr, status, error) {
-      console.log(error);
+  Swal.fire({
+    title: "Do you want to save the changes?",
+    icon: "question",
+    showDenyButton: true,
+    confirmButtonText: "Process",
+    denyButtonText: `Cancel`,
+  }).then((result) => {
+    /* Read more about isConfirmed, isDenied below */
+    if (result.isConfirmed) {
+      $.ajax({
+        headers: { "X-CSRF-TOKEN": token },
+        type: "POST",
+        url: url, // Sesuaikan dengan URL yang sesuai
+        data: formData,
+        dataType: "JSON",
+        cache: false,
+        contentType: false,
+        processData: false,
+        beforeSend: function () {
+          swal.showLoading();
+        },
+        success: function (data) {
+          swal.hideLoading();
+          if (data.status === true) {
+            swal
+              .fire({
+                text: data.message,
+                icon: "success",
+                buttonsStyling: false,
+                confirmButtonText: "Ok, got it!",
+                customClass: {
+                  confirmButton: "btn font-weight-bold btn-light-primary",
+                },
+              })
+              .then(function () {
+                window.location.reload(); // Opsional, reload halaman setelah sukses
+              });
+          } else {
+            swal.fire({
+              text: data.message,
+              icon: "error",
+              buttonsStyling: false,
+              confirmButtonText: "Ok, got it!",
+              customClass: {
+                confirmButton: "btn font-weight-bold btn-light-primary",
+              },
+            });
+          }
+        },
+        error: function (xhr, status, error) {
+          console.log(error);
+          Swal.fire({
+            text: error,
+            icon: "error",
+            buttonsStyling: false,
+            confirmButtonText: "Ok, got it!",
+            customClass: {
+              confirmButton: "btn fw-bold btn-primary",
+            },
+          });
+        },
+      });
+    } else {
       Swal.fire({
-        text: error,
-        icon: "error",
+        text: "Process is Stopped",
+        icon: "info",
         buttonsStyling: false,
         confirmButtonText: "Ok, got it!",
         customClass: {
           confirmButton: "btn fw-bold btn-primary",
         },
       });
-    },
+    }
   });
 });
-
 
 $("#kt_daterangepicker_1").daterangepicker();
 $("#kt_daterangepicker_2").daterangepicker();
@@ -783,6 +944,121 @@ function updateCombinedTotal() {
 
 // Variabel global untuk menyimpan total sales
 let totalSales = 0;
+
+function oldcheckBank(id, settlementDate, mid, bankSettlement, total_sales) {
+  var checkbox = document.getElementById(`checkbox_bank_${id}`);
+  var tbody = document.querySelector("#bank_selected_items tbody");
+  var tfoot = document.querySelector("#bank_selected_items tfoot");
+
+  if (checkbox.checked) {
+    if (!selectedBanks.includes(id)) {
+      selectedBanks.push(id);
+    }
+
+    // Tambahkan nilai total_sales ke totalSales
+    totalSales += parseInt(total_sales);
+
+    var row = document.getElementById(`row_${mid}`);
+    if (!row) {
+      row = document.createElement("tr");
+      row.setAttribute("id", `row_${mid}`);
+      row.innerHTML = `
+                <td>${mid}</td>
+                <td><ul id="dates_${mid}"></ul></td>
+                <td class="text-end"><ul id="amounts_${mid}"></ul></td>
+                <td class="text-end total" id="total_${mid}">${to_rupiah(
+        bankSettlement
+      )}</td>
+                <td><button id="remove_${mid}" class="btn btn-danger">x</button></td>
+            `;
+      tbody.appendChild(row);
+    } else {
+      document.querySelector(`#total_${mid}`).innerText = to_rupiah(
+        parseInt(
+          document.querySelector(`#total_${mid}`).innerText.replace(/\D/g, "")
+        ) + parseInt(bankSettlement)
+      );
+    }
+
+    document.querySelector(
+      `#dates_${mid}`
+    ).innerHTML += `<li>${settlementDate}</li>`;
+    document.querySelector(`#amounts_${mid}`).innerHTML += `<li>${to_rupiah(
+      bankSettlement
+    )}</li>`;
+
+    totalBankSettlement += parseInt(bankSettlement);
+    tfoot.innerHTML = `
+            <td colspan="2" class="text-start">Total</td>
+            <td colspan="2" class="text-end">${to_rupiah(
+              totalBankSettlement
+            )}</td>
+        `;
+
+    document
+      .getElementById(`remove_${mid}`)
+      .addEventListener("click", function () {
+        var rowToRemove = document.getElementById(`row_${mid}`);
+        if (rowToRemove) {
+          rowToRemove.remove();
+          selectedBanks = selectedBanks.filter((bankId) => bankId !== id);
+          totalBankSettlement -= parseInt(bankSettlement);
+          totalSales -= parseInt(total_sales); // Kurangi totalSales jika dihapus
+          tfoot.innerHTML = `
+                    <td colspan="2" class="text-start">Total</td>
+                    <td colspan="2" class="text-end">${to_rupiah(
+                      totalBankSettlement
+                    )}</td>
+                `;
+
+          checkbox.checked = false;
+
+          handleCheckboxChange(
+            mid,
+            parseInt(bankSettlement),
+            false,
+            settlementDate,
+            "uang"
+          );
+          updateCombinedTotal();
+        }
+      });
+
+    handleCheckboxChange(
+      mid,
+      parseInt(bankSettlement),
+      true,
+      settlementDate,
+      "uang"
+    );
+    updateCombinedTotal();
+  } else {
+    selectedBanks = selectedBanks.filter((bankId) => bankId !== id);
+
+    totalBankSettlement -= parseInt(bankSettlement);
+    totalSales -= parseInt(total_sales); // Kurangi totalSales jika checkbox tidak dipilih
+    tfoot.innerHTML = `
+            <td colspan="2" class="text-start">Total</td>
+            <td colspan="2" class="text-end">${to_rupiah(
+              totalBankSettlement
+            )}</td>
+        `;
+
+    var row = document.getElementById(`row_${mid}`);
+    if (row) {
+      row.remove();
+    }
+
+    handleCheckboxChange(
+      mid,
+      parseInt(bankSettlement),
+      false,
+      settlementDate,
+      "uang"
+    );
+    updateCombinedTotal();
+  }
+}
 
 function checkBank(id, settlementDate, mid, bankSettlement, total_sales) {
   var checkbox = document.getElementById(`checkbox_bank_${id}`);
@@ -899,8 +1175,7 @@ function checkBank(id, settlementDate, mid, bankSettlement, total_sales) {
   }
 }
 
-
-function checkBo(id, settlementDate, bankType, mid, bankPayment) {
+function oldcheckBo(id, settlementDate, bankType, mid, bankPayment) {
   var checkbox = document.getElementById(`checkbox_bo_${id}`);
   var tbody = document.querySelector("#bo_selected_items tbody");
   var tfoot = document.querySelector("#bo_selected_items tfoot");
@@ -1000,6 +1275,117 @@ function checkBo(id, settlementDate, bankType, mid, bankPayment) {
       parseInt(bankPayment),
       false,
       settlementDate,
+      "tabungan"
+    );
+    updateCombinedTotal();
+  }
+}
+
+function checkBo(id, createdAt, processor, mid, bankTransfer) {
+  var checkbox = document.getElementById(`checkbox_bo_${id}`);
+  var tbody = document.querySelector("#bo_selected_items tbody");
+  var tfoot = document.querySelector("#bo_selected_items tfoot");
+
+  if (checkbox.checked) {
+    if (!selectedBo.includes(id)) {
+      selectedBo.push(id); // Tambahkan ID ke selectedBo jika belum ada
+    }
+
+    // Buat baris baru jika belum ada untuk MID ini
+    var row = document.getElementById(`row_${mid}`);
+    if (!row) {
+      row = document.createElement("tr");
+      row.setAttribute("id", `row_${mid}`);
+      row.innerHTML = `
+                <td>${mid}</td>
+                <td><ul id="dates_${mid}"></ul></td>
+                <td class="text-end"><ul id="amounts_${mid}"></ul></td>
+                <td class="text-end total" id="total_${mid}">${to_rupiah(
+        bankTransfer
+      )}</td>
+                <td><button id="remove_${mid}" class="btn btn-danger">x</button></td>
+            `;
+      tbody.appendChild(row);
+    } else {
+      // Update total jika baris sudah ada
+      document.querySelector(`#total_${mid}`).innerText = to_rupiah(
+        parseInt(
+          document.querySelector(`#total_${mid}`).innerText.replace(/\D/g, "")
+        ) + parseInt(bankTransfer)
+      );
+    }
+
+    // Tambahkan tanggal dan jumlah ke list
+    document.querySelector(`#dates_${mid}`).innerHTML += `<li>${to_date(
+      createdAt
+    )}</li>`;
+    document.querySelector(`#amounts_${mid}`).innerHTML += `<li>${to_rupiah(
+      bankTransfer
+    )}</li>`;
+
+    // Tambahkan ke totalBankPayment
+    totalBankPayment += parseInt(bankTransfer);
+    tfoot.innerHTML = `
+            <td colspan="3" class="text-start">Total</td>
+            <td colspan="2" class="text-end">${to_rupiah(totalBankPayment)}</td>
+        `;
+
+    // Event listener untuk tombol remove
+    document
+      .getElementById(`remove_${mid}`)
+      .addEventListener("click", function () {
+        var rowToRemove = document.getElementById(`row_${mid}`);
+        if (rowToRemove) {
+          rowToRemove.remove();
+          selectedBo = selectedBo.filter((boId) => boId !== id);
+          totalBankPayment -= parseInt(bankTransfer);
+          tfoot.innerHTML = `
+                    <td colspan="3" class="text-start">Total</td>
+                    <td colspan="2" class="text-end">${to_rupiah(
+                      totalBankPayment
+                    )}</td>
+                `;
+
+          checkbox.checked = false;
+
+          handleCheckboxChange(
+            mid,
+            parseInt(bankTransfer),
+            false,
+            createdAt,
+            "tabungan"
+          );
+          updateCombinedTotal();
+        }
+      });
+
+    handleCheckboxChange(
+      mid,
+      parseInt(bankTransfer),
+      true,
+      createdAt,
+      "tabungan"
+    );
+    updateCombinedTotal();
+  } else {
+    // Hapus data dari selectedBo dan update total jika checkbox di-uncheck
+    selectedBo = selectedBo.filter((boId) => boId !== id);
+    totalBankPayment -= parseInt(bankTransfer);
+    tfoot.innerHTML = `
+            <td colspan="3" class="text-start">Total</td>
+            <td colspan="2" class="text-end">${to_rupiah(totalBankPayment)}</td>
+        `;
+
+    var row = document.getElementById(`row_${mid}`);
+    if (row) {
+      row.remove();
+    }
+
+    handleCheckboxChange(
+      mid,
+      parseInt(bankTransfer),
+      false,
+      createdAt,
       "tabungan"
     );
     updateCombinedTotal();
