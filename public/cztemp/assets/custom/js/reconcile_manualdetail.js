@@ -71,7 +71,8 @@ var KTDatatablesServerSide = (function () {
           render: function (data, type, row, meta) {
             let isChecked = selectedBanks.includes(row.id) ? "checked" : "";
             return `<div class="dt-checkboxes form-check form-check-sm form-check-custom form-check-solid text-end" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">
-                          <input onclick="checkBank(${row.id}, '${to_date(
+                          <input 
+                          onclick="checkBank(${row.id}, '${to_date(
               row.settlement_date
             )}', '${row.mid}', '${row.internal_payment}','${row.total_sales}')"
                               id="checkbox_bank_${row.id}"

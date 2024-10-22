@@ -123,9 +123,9 @@ var KTDatatablesServerSideRes = (function () {
                               ? `
                           <div class="menu-item px-3">
       <a href="javascript:void()" 
-      onclick="goManual('${row.id}')"
+      onclick="goDraft('${row.id}')"
       class="menu-link px-3">
-          Manual
+          Cancel
       </a>
                           </div>`
                               : ""
@@ -650,7 +650,7 @@ function getHead() {
 
 function goDraft(id) {
   $.ajax({
-    url: baseUrl + "/reconcilereport/draft/" + id,
+    url: baseUrl + "/reconcilereport/reporttodraft/" + id,
     headers: {
       "X-CSRF-TOKEN": token, // Menyertakan token CSRF di header permintaan
     },
@@ -690,6 +690,7 @@ function goDraft(id) {
     window.location.reload();
   });
 }
+
 function goReport(id) {
   $.ajax({
     url: baseUrl + "/reconcilereport/report/" + id,
@@ -779,7 +780,7 @@ function approveReport(id) {
 
 function goManual(id) {
   $.ajax({
-    url: baseUrl + "/reconcilereport/manual/" + id,
+    url: baseUrl + "/reconcilereport/reporttodraft/" + id,
     headers: {
       "X-CSRF-TOKEN": token, // Menyertakan token CSRF di header permintaan
     },
@@ -818,6 +819,7 @@ function goManual(id) {
     // reloadDatatable();
     window.location.reload();
   });
+
 }
 
 function mrcDetail(tokenApplicant, id) {

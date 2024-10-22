@@ -76,26 +76,34 @@ class ReconcileUnmatchExport implements FromCollection, WithMapping, WithHeading
         $mrc = $data->merchant ? $data->merchant->reference_code : "-";
         $achold = $data->bank_account ? $data->bank_account->account_holder : "-";
         $bn = $data->channel ? $data->channel->channel : "-";
-        // $mername = $data->merchant_name == "-" ? $data->merchant_name : "-";
+        $mername = $data->merchant ? $data->merchant->company_name : "MERCHANT NOT FOUND";
 
         $banktype = !$data->bank_account ? "VLOOKUP" :
             (substr($data->bank_account->account_number, 0, 5) == "88939" ? "VIRTUAL ACCOUNT" : "REGULER");
 
+        if (substr($data->bank_settlement_amount - $data->bank_transfer, 0, 1) == "-") {
+            $var = $data->bank_settlement_amount - $data->bank_transfer;
+        } else {
+            $var = $data->bank_settlement_amount - $data->bank_transfer;
+        }
 
 
         return [
             strval($mrc),
             strval($data->mid),
             strval($data->settlement_date),
-            strval($data->merchant_name),
+            strval($mername),
             strval($banktype),
             strval($data->total_sales),
             strval($data->bank_transfer),
             strval($data->bank_settlement_amount),
-            strval($data->variance),
+            strval($var),
+            // strval($data->variance),
             strval($data->transfer_amount),
-            strval($data->tax_payment),
-            strval($data->transfer_amount - $data->tax_payment),
+            // strval($data->tax_payment),
+            strval(""),
+            // strval($data->transfer_amount - $data->tax_payment),
+            strval(""),
             strval($data->fee_mdr_merchant),
             strval($data->fee_bank_merchant),
             strval(""),

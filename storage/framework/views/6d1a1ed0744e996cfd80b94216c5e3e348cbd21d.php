@@ -42,7 +42,7 @@
                         <label class="d-flex align-items-center fs-6 fw-bold mb-2">
                             <span class="required">Reconcile Date</span>
                             <i class="fas fa-exclamation-circle ms-2 fs-7" data-bs-toggle="tooltip"
-                                title="Range of Settlement Date"></i>
+                                title="Range of Reconcile Date"></i>
                         </label>
                         <!--end::Label-->
                         <div class="mb-0 w-100 me-1">
