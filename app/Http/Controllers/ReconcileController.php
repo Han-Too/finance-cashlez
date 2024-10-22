@@ -124,7 +124,7 @@ class ReconcileController extends Controller
             }
 
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
@@ -137,7 +137,7 @@ class ReconcileController extends Controller
 
             foreach ($data as $val) {
 
-                // Log::info($val->statement_id);
+                // //Log::info($val->statement_id);
                 $statementId = $val->statement_id;
 
                 if ($statementId == NULL) {
@@ -279,7 +279,7 @@ class ReconcileController extends Controller
             }
             return response()->json(['message' => ['Successfully moving data!'], 'status' => true], 200);
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
@@ -291,9 +291,10 @@ class ReconcileController extends Controller
             if ($data) {
                 // $idbo = explode("//", $data->bo_id);
                 // $idbank = explode("//", $data->draft_id);
-
+                
                 $idbo = $data->bo_id;
                 $idbank = $data->draft_id;
+                $idmanual = $data->manual_id;
 
                 // Cek apakah $idbo mengandung '//'
                 if (strpos($idbo, '//') !== false) {
@@ -311,6 +312,14 @@ class ReconcileController extends Controller
                 } else {
                     // Jika tidak, jadikan array berisi nilai asli
                     $idbank = [$idbank];
+                }
+
+                if (strpos($idmanual, '//') !== false) {
+                    // Jika mengandung '//', lakukan explode
+                    $idmanual = explode('//', $idmanual);
+                } else {
+                    // Jika tidak, jadikan array berisi nilai asli
+                    $idmanual = [$idmanual];
                 }
 
                 // Sekarang $idbo dan $idbank sudah diproses dengan explode jika ada '//'
@@ -338,6 +347,8 @@ class ReconcileController extends Controller
                                 'status_reconcile' => "manual",
                             ]);
 
+                }
+                foreach ($idmanual as $val) {
                     ReconcileUnmatch::
                         // where('token_applicant', $data->token_applicant)
                         // ->
@@ -365,7 +376,7 @@ class ReconcileController extends Controller
             }
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
@@ -415,7 +426,7 @@ class ReconcileController extends Controller
             }
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
@@ -425,30 +436,39 @@ class ReconcileController extends Controller
         try {
             $data = ReconcileReport::where('id', $id)->first();
             $list = ReconcileList::where('token_applicant', $data->token_applicant)->first();
-            Log::info($data);
+            // //Log::info($data->draft_id);
+            // //Log::info(explode('//',$data->draft_id));
+            // die();
             if ($data) {
-                $draft = ReconcileDraft::where('id', $data->draft_id)->first();
-                Log::info($draft);
-                if ($draft) {
-                    $draft->status = $data->status;
-                    $draft->status_reconcile = "report";
-                    $draft->save();
+                $draftid = explode('//', $data->draft_id);
+                $draftid = array_unique($draftid);
+                // $manualid = explode('//', $data->manual_id);
+                // //Log::info($draftid);
+                // die();
+                foreach ($draftid as $draft_id) {
+                    $draft = ReconcileDraft::where('id', $draft_id)->first();
+                    // //Log::info($draft);
+                    if ($draft) {
+                        $draft->status = $data->status;
+                        $draft->status_reconcile = "report";
+                        $draft->save();
 
-                    $data->status_reconcile = "report";
-                    $data->save();
+                        $data->status_reconcile = "report";
+                        $data->save();
 
-                    $list->status = "draft";
-                    $list->save();
+                        $list->status = "draft";
+                        $list->save();
 
-                    // ReconcileReport::where('id', $id)->delete();
-                    return response()->json(['message' => ['Success Draft Data!'], 'status' => true], 200);
-                } else {
-                    return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
+                        // ReconcileReport::where('id', $id)->delete();
+                        return response()->json(['message' => ['Success Draft Data!'], 'status' => true], 200);
+                    } else {
+                        return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
+                    }
                 }
             }
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
@@ -476,7 +496,7 @@ class ReconcileController extends Controller
             }
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
@@ -518,7 +538,7 @@ class ReconcileController extends Controller
             }
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
@@ -602,7 +622,7 @@ class ReconcileController extends Controller
             }
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
@@ -664,7 +684,7 @@ class ReconcileController extends Controller
             }
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
@@ -676,7 +696,7 @@ class ReconcileController extends Controller
             ->where('draft_id', $data->id)->first();
         try {
             $statementId = $data->statement_id;
-            // Log::info($statementId);
+            // //Log::info($statementId);
 
             if (is_null($statementId)) {
                 return response()->json(['message' => ['Statement ID is Null!'], 'status' => false], 200);
@@ -733,7 +753,7 @@ class ReconcileController extends Controller
             }
 
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
@@ -746,7 +766,7 @@ class ReconcileController extends Controller
 
             if ($data) {
                 $statementId = $data->statement_id;
-                // Log::info($statementId);
+                // //Log::info($statementId);
 
                 if (is_null($statementId)) {
                     return response()->json(['message' => ['Statement ID is Null!'], 'status' => false], 200);
@@ -754,7 +774,7 @@ class ReconcileController extends Controller
 
                 // Explode jika ada '//', jika tidak tetap gunakan array dengan satu elemen
                 $settlementID = strpos($statementId, '//') !== false ? explode('//', $statementId) : [$statementId];
-                // Log::info($settlementID);
+                // //Log::info($settlementID);
                 // die();
 
                 // Array untuk menyimpan data yang akan dimasukkan ke ReconcileUnmatch
@@ -829,7 +849,7 @@ class ReconcileController extends Controller
 
 
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
@@ -848,7 +868,7 @@ class ReconcileController extends Controller
         }
         $fileset = $request->filesettle;
         $channel = $request->channel;
-        // Log::info($channel);
+        // //Log::info($channel);
         // $bank = Channel::where('channel', $channel)->first();
         $name = $request->name;
         $filehead = UploadBank::where('url', $fileset)->first();
@@ -901,7 +921,7 @@ class ReconcileController extends Controller
                 ->get();
 
             if ($boData->isEmpty()) {
-                Log::info('Data BO EMPTY = ' . $boData->isEmpty());
+                //Log::info('Data BO EMPTY = ' . $boData->isEmpty());
                 // ReconcileList::where('token_applicant', $list->token_applicant)->delete();
                 return response()->json(
                     [
@@ -954,7 +974,7 @@ class ReconcileController extends Controller
                 }
             }
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
@@ -1038,7 +1058,7 @@ class ReconcileController extends Controller
 
         } catch (\Throwable $th) {
             // Mencatat kesalahan jika terjadi kesalahan
-            Log::info($th);
+            //Log::info($th);
 
             // Mengembalikan respons kesalahan
             return response()->json(['message' => 'Error while deleting data', 'status' => false], 200);
@@ -1082,7 +1102,7 @@ class ReconcileController extends Controller
             }
             return response()->json(['message' => ['Successfully reconcile data!'], 'status' => true], 200);
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
@@ -1287,7 +1307,7 @@ class ReconcileController extends Controller
     }
     public function datareconcilelistdetail($token, Request $request)
     {
-        // Log::info('Custom filter:'.$request->status);
+        // //Log::info('Custom filter:'.$request->status);
         $token_applicant = request()->query('token');
         $status = request()->query('status');
 
@@ -1803,13 +1823,13 @@ class ReconcileController extends Controller
         $selectedBos = array_values($selectedBos);
         $selectedBanks = array_values($selectedBanks);
 
-        // Log::info($selectedBos);
-        // Log::info("==========================");
-        // Log::info($selectedBanks);
+        // //Log::info($selectedBos);
+        // //Log::info("==========================");
+        // //Log::info($selectedBanks);
 
         // Jika ingin melihat hasil setelah elemen yang sama dihapus
-        // Log::info($selectedBo);
-        // Log::info($selectedBank);
+        // //Log::info($selectedBo);
+        // //Log::info($selectedBank);
 
         // Initialize variables
         $boData = [];
@@ -1855,7 +1875,7 @@ class ReconcileController extends Controller
 
         foreach ($selectedBanks as $bankValue) {
             $bank = ReconcileUnmatch::where('id', $bankValue)->first();
-            // Log::info($bank);
+            // //Log::info($bank);
             // $draftid = $bank->draft_id;
             $batchMid = $bank->mid;
 
@@ -1878,6 +1898,7 @@ class ReconcileController extends Controller
             // Collect data
             $bankData[$batchMid]['bankSettlement'] += $bank->internal_payment;
             $bankData[$batchMid]['sales'] += $bank->total_sales;
+            $bankData[$batchMid]['draftIds'][] = $bank->draft_id;
             $bankData[$batchMid]['bankIds'][] = $bankValue;
             $bankData[$batchMid]['StatementIds'][] = $bank->statement_id;
         }
@@ -1895,13 +1916,13 @@ class ReconcileController extends Controller
                 // $status = Utils::getStatusReconcile($bo['boSettlement'], $bankData[$mid]['bankSettlement'], $bankData[$mid]['sales']);
                 $status = Utils::getNewStatusReconcile2($diff, $bankData[$mid]['sales']);
 
-                // Log::info($bankData[$mid]);
+                // //Log::info($bankData[$mid]);
                 // die();
 
                 if ($status == "NOT_MATCH") {
-                    // Log::info($batchMid);
-                    // Log::info($bankData[$batchMid]['bankSettlement']);
-                    // Log::info($bo['boSettlement']);
+                    // //Log::info($batchMid);
+                    // //Log::info($bankData[$batchMid]['bankSettlement']);
+                    // //Log::info($bo['boSettlement']);
                     $messages[] = [
                         "<b style='color:#D8000C'>Data Not Match</b> <br> MID: " . $mid . "<br>" .
                         "Variance: Rp. " . $diff . "<br>" .
@@ -1918,7 +1939,7 @@ class ReconcileController extends Controller
                 } else if ($status == "MATCH") {
 
                     $messages[] = [
-                        "<b style='color:#4F8A10'>Data Match</b>".
+                        "<b style='color:#4F8A10'>Data Match</b>" .
                         "<br> MID: " . $mid . "<br>"
                         // . "Variance: Rp. " . $diff . "<br>" .
                         // "Percentage: " . number_format(abs($diff / $bank->total_sales) * 100, 2) . " % <br>"
@@ -1928,8 +1949,8 @@ class ReconcileController extends Controller
                     //     ->whereDate('settlement_date', Carbon::parse($bank->settlement_date))
                     //     ->first();
 
-                    // // Log::info($oldRec);
-                    // // Log::info($bankData[$mid]);
+                    // // //Log::info($oldRec);
+                    // // //Log::info($bankData[$mid]);
                     // // die();
                     // if ($oldRec) {
 
@@ -2023,7 +2044,7 @@ class ReconcileController extends Controller
                     //         'status_reconcile' => true,
                     //         'reconcile_date' => Carbon::now(),
                     //     ]);
-                    //     // Log::info("Value : " . $val);
+                    //     // //Log::info("Value : " . $val);
                     // };
 
                     // return response()->json(['message' => 'Successfully Reconcile data!', 'status' => true], 200);
@@ -2153,6 +2174,7 @@ class ReconcileController extends Controller
             // Collect data
             $bankData[$batchMid]['bankSettlement'] += $bank->internal_payment;
             $bankData[$batchMid]['sales'] += $bank->total_sales;
+            $bankData[$batchMid]['draftIds'][] = $bank->draft_id;
             $bankData[$batchMid]['bankIds'][] = $bankValue;
             $bankData[$batchMid]['StatementIds'][] = $bank->statement_id;
         }
@@ -2178,7 +2200,7 @@ class ReconcileController extends Controller
 
                 if ($oldRec) {
                     // Siapkan nilai yang sering digunakan
-                    $bankIds = implode('//', $bankData[$mid]['bankIds']);
+                    $bankIds = implode('//', $bankData[$mid]['draftIds']);
                     $boIds = implode('//', $bo['boIds']);
 
                     // Update existing record dengan penggabungan dan penambahan nilai
@@ -2202,7 +2224,8 @@ class ReconcileController extends Controller
                 } else {
                     // Create new record
                     ReconcileReport::create([
-                        'draft_id' => implode('//', $bankData[$mid]['bankIds']),
+                        'manual_id' => implode('//', $bankData[$mid]['bankIds']),
+                        'draft_id' => implode('//', $bankData[$mid]['draftIds']),
                         'bo_id' => implode('//', $bo['boIds']),
                         'token_applicant' => $token,
                         'statement_id' => implode('//', $bankData[$mid]['StatementIds']),
@@ -2252,7 +2275,7 @@ class ReconcileController extends Controller
                         'status_reconcile' => true,
                         'reconcile_date' => Carbon::now(),
                     ]);
-                    // Log::info("Value : " . $val);
+                    // //Log::info("Value : " . $val);
                 }
                 ;
 
@@ -2510,10 +2533,10 @@ class ReconcileController extends Controller
         $resdispute = $data->where('variance', '!=', '0')->count();
         $ressumDispute = $data->where('variance', '!=', '0')->sum('variance');
 
-        // Log::info($ressumMatch);
-        // Log::info($resmatch);
-        // Log::info($resdispute);
-        // Log::info($ressumDispute);
+        // //Log::info($ressumMatch);
+        // //Log::info($resmatch);
+        // //Log::info($resdispute);
+        // //Log::info($ressumDispute);
 
         // return DataTables::of($query)->addIndexColumn()->make(true);
 
@@ -2710,7 +2733,7 @@ class ReconcileController extends Controller
         // Eksekusi query dan dapatkan datanya
         $data = $query->get();
 
-        // Log::info($query->first());
+        // //Log::info($query->first());
 
         // Misal kita ingin mendapatkan jumlah data yang match sebagai variabel tambahan
         $ressumMatch = $data->where('status', 'MATCH')->sum('total_sales');
@@ -2802,7 +2825,7 @@ class ReconcileController extends Controller
         // Eksekusi query dan dapatkan datanya
         $data = $query->get();
 
-        // Log::info($query->first());
+        // //Log::info($query->first());
 
         // Misal kita ingin mendapatkan jumlah data yang match sebagai variabel tambahan
         $ressumMatch = $data->where('status', 'MATCH')->sum('total_sales');
@@ -2988,7 +3011,7 @@ class ReconcileController extends Controller
     }
     public function downloaddisburst(Request $request)
     {
-        // Log::info($date);
+        // //Log::info($date);
         $token_applicant = request()->query('token');
         // $status = request()->query('status');
         // $channel = request()->query('bank');
@@ -2996,8 +3019,8 @@ class ReconcileController extends Controller
 
         $startDate = request()->query('startDate');
         $endDate = request()->query('endDate');
-        // Log::info($startDate);
-        // Log::info($endDate);
+        // //Log::info($startDate);
+        // //Log::info($endDate);
 
         $data = ReconcileReport::with('merchant', 'bank_account')
             ->where(DB::raw('DATE(created_at)'), '>=', $startDate)
@@ -3356,7 +3379,7 @@ class ReconcileController extends Controller
             DB::commit();
             return response()->json(['message' => 'Successfully reconcile data!', 'status' => true], 200);
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             DB::rollBack();
             return response()->json(['message' => 'Error while reconcile, try again', 'status' => false], 200);
         }
@@ -3428,7 +3451,7 @@ SET b.settlement_date = t.settlement_date;`);
             $draft = ReconcileDraft::where('id', $data->draft_id)->first();
             $settleDate = ReconcileUnmatch::where('id', $id)->pluck('settlement_date')->first();
             $tfDate = UploadBankDetail::where('id', $data->statement_id)->pluck('transfer_date')->first();
-            // Log::info($tfDate);
+            // //Log::info($tfDate);
 
             if ($data) {
                 $uf = UploadBankDetail::where('id', $data->statement_id)->first();
@@ -3551,7 +3574,7 @@ SET b.settlement_date = t.settlement_date;`);
                 return response()->json(['message' => ['Error while Add Data, try again'], 'status' => false], 200);
             }
         } catch (\Throwable $th) {
-            Log::info($th);
+            //Log::info($th);
             dd($th);
             return response()->json(['message' => ['Error while reconcile, try again'], 'status' => false], 200);
         }
