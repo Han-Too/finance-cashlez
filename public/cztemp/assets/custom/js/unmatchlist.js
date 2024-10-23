@@ -125,6 +125,7 @@ var KTDatatablesServerSideRes = (function () {
           className: "text-center",
           width: "150px",
           render: function (data, type, row) {
+            // console.log(row);
             return to_date_time(row.settlement_date);
           },
         },

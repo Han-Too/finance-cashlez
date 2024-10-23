@@ -39,7 +39,7 @@
 <?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
-    <?php 
+    <?php
     $can = auth()
         ->user()
         ->hasAnyPermission(['view-unmatchlist', 'download-unmatchlist']);
@@ -49,10 +49,10 @@
     $candownload = auth()
         ->user()
         ->hasAnyPermission(['download-unmatchlist']);
-
-        echo "<script>var authUserCan = '$can';</script>";
-        echo "<script>var authUserCanDelete = '$canview';</script>";
-        echo "<script>var authUserCanDownload = '$candownload';</script>";
+    
+    echo "<script>var authUserCan = '$can';</script>";
+    echo "<script>var authUserCanDelete = '$canview';</script>";
+    echo "<script>var authUserCanDownload = '$candownload';</script>";
     ?>
     <div class="container">
         <div class="card card-flush px-10 py-6 rounded-sm">
@@ -105,38 +105,44 @@
                     <?php endif; ?>
 
                     <!--begin::Search-->
-                    <div class="d-flex">
-                        <div class="d-flex align-items-center position-relative my-1 rounded-sm">
-                            <div class="mb-0 w-250px me-2">
+                    <div class="d-flex flex-wrap">
+                        <div class="d-flex flex-column align-items-start position-relative my-1 mx-2 rounded-sm">
+                            <label for="kt_daterangepicker_1" class="fs-6 fw-bold mb-2">
+                                Reconcile Date
+
+                            </label>
+                            <div class="mb-0 w-250px">
                                 <input class="form-control form-control-solid rounded-sm" placeholder="Pick date rage"
                                     id="kt_daterangepicker_1" name="bo_date" />
                             </div>
                         </div>
-                        <div class="d-flex align-items-center position-relative my-1">
+                        <div class="d-flex flex-column align-items-start position-relative my-1 mx-2 rounded-sm">
                             <!--begin::Svg Icon | path: icons/duotune/general/gen021.svg-->
-                            <span class="svg-icon svg-icon-1 position-absolute ms-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none">
-                                    <rect opacity="0.5" x="17.0365" y="15.1223" width="8.15546" height="2"
-                                        rx="1" transform="rotate(45 17.0365 15.1223)" fill="black" />
-                                    <path
-                                        d="M11 19C6.55556 19 3 15.4444 3 11C3 6.55556 6.55556 3 11 3C15.4444 3 19 6.55556 19 11C19 15.4444 15.4444 19 11 19ZM11 5C7.53333 5 5 7.53333 5 11C5 14.4667 7.53333 17 11 17C14.4667 17 17 14.4667 17 11C17 7.53333 14.4667 5 11 5Z"
-                                        fill="black" />
-                                </svg>
-                            </span>
+                            
                             <!--end::Svg Icon-->
-                            <input type="text" data-kt-docs-table-filter="search" id="searchTable"
-                                class="form-control form-control-solid w-250px ps-14 rounded-sm ms-2"
-                                placeholder="Search Merchant" />
+                            <label for="searchTable" class="fs-6 fw-bold mb-2">
+                                Search Data
+                            </label>
+                            <div class="mb-0 w-250px">
+                                <input type="text" data-kt-docs-table-filter="search" id="searchTable"
+                                    class="form-control form-control-solid w-250px ps-14 rounded-sm "
+                                    placeholder="Search Merchant" />
+                            </div>
                         </div>
-                        <div class="d-flex align-items-center position-relative my-1 mx-4">
-                            <select name="channel" data-placeholder="Select a Channel..."
-                                class="w-250px form-select form-select-solid fw-bolder rounded-sm" id="channelId">
-                                <option value="">Select a Channel...</option>
-                                <?php $__currentLoopData = $banks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($item->bank_id); ?>"><?php echo e($item->channel); ?></option>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            </select>
+                        <div class="d-flex flex-column align-items-start position-relative my-1 mx-2 rounded-sm">
+                            <label for="channelId" class="fs-6 fw-bold mb-2">
+                                Filter Channel
+
+                            </label>
+                            <div class="mb-0 w-250px">
+                                <select name="channel" data-placeholder="Select a Channel..."
+                                    class="w-250px form-select form-select-solid fw-bolder rounded-sm" id="channelId">
+                                    <option value="">Select a Channel...</option>
+                                    <?php $__currentLoopData = $banks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($item->bank_id); ?>"><?php echo e($item->channel); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </select>
+                            </div>
                         </div>
 
                     </div>

@@ -33,7 +33,7 @@
     <?php
     $can = auth()
         ->user()
-        ->hasAnyPermission(['view-disburslist', 'approve-disburslist', 'cancel-disburslist','download-disburslist']);
+        ->hasAnyPermission(['view-disburslist', 'approve-disburslist', 'cancel-disburslist', 'download-disburslist']);
     $canview = auth()
         ->user()
         ->hasAnyPermission(['view-disburslist']);
@@ -96,7 +96,7 @@
             </div>
 
             <!--begin::Wrapper-->
-            <div class="d-flex flex-stack mb-5">
+            <div class="d-flex flex-wrap mb-5 justify-content-between">
                 <!--begin::Search-->
                 <div class="card-title">
                     @if (request()->query('status') !== null)
@@ -104,39 +104,59 @@
                     @endif
 
                     <!--begin::Search-->
-                    <div class="d-flex">
-                        <div class="d-flex align-items-center position-relative my-1 rounded-sm">
-                            <div class="mb-0 w-250px me-2">
-                                <input class="form-control form-control-solid rounded-sm" placeholder="Pick date rage"
+                    <div class="d-flex flex-wrap">
+                        <div class="d-flex flex-column align-items-start position-relative my-1 mx-2 rounded-sm">
+                            <label for="kt_daterangepicker_1" class="fs-6 fw-bold mb-2">
+                                Reconcile Date
+                                
+                            </label>
+                            <div class="mb-0 w-250px">
+                                <input class="form-control form-control-solid rounded-sm" placeholder="Pick date range"
                                     id="kt_daterangepicker_1" name="bo_date" />
                             </div>
                         </div>
-                        <div class="d-flex align-items-center position-relative my-1">
-                            <!--begin::Svg Icon | path: icons/duotune/general/gen021.svg-->
-                            <span class="svg-icon svg-icon-1 position-absolute ms-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none">
-                                    <rect opacity="0.5" x="17.0365" y="15.1223" width="8.15546" height="2"
-                                        rx="1" transform="rotate(45 17.0365 15.1223)" fill="black" />
-                                    <path
-                                        d="M11 19C6.55556 19 3 15.4444 3 11C3 6.55556 6.55556 3 11 3C15.4444 3 19 6.55556 19 11C19 15.4444 15.4444 19 11 19ZM11 5C7.53333 5 5 7.53333 5 11C5 14.4667 7.53333 17 11 17C14.4667 17 17 14.4667 17 11C17 7.53333 14.4667 5 11 5Z"
-                                        fill="black" />
-                                </svg>
-                            </span>
-                            <!--end::Svg Icon-->
-                            <input type="text" data-kt-docs-table-filter="search" id="searchTable"
-                                class="form-control form-control-solid w-250px ps-14 rounded-sm ms-2"
-                                placeholder="Search Merchant" />
+
+
+                        <div class="d-flex flex-column align-items-start position-relative my-1 mx-2 rounded-sm">
+                            <label for="searchTable" class="fs-6 fw-bold mb-2">
+                                Search Data
+                                
+                            </label>
+                            <div class="mb-0 w-250px">
+                                {{-- <span class="svg-icon svg-icon-1 position-absolute ms-4 d-flex align-items-center"
+                                    style="height: 100%;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                        viewBox="0 0 24 24" fill="none">
+                                        <rect opacity="0.5" x="17.0365" y="15.1223" width="8.15546" height="2"
+                                            rx="1" transform="rotate(45 17.0365 15.1223)" fill="black" />
+                                        <path
+                                            d="M11 19C6.55556 19 3 15.4444 3 11C3 6.55556 6.55556 3 11 3C15.4444 3 19 6.55556 19 11C19 15.4444 15.4444 19 11 19ZM11 5C7.53333 5 5 7.53333 5 11C5 14.4667 7.53333 17 11 17C14.4667 17 17 14.4667 17 11C17 7.53333 14.4667 5 11 5Z"
+                                            fill="black" />
+                                    </svg>
+                                </span> --}}
+                                <!--begin::Svg Icon | path: icons/duotune/general/gen021.svg-->
+                                <!--end::Svg Icon-->
+                                <input type="text" data-kt-docs-table-filter="search" id="searchTable"
+                                    class="form-control form-control-solid w-250px ps-14 rounded-sm"
+                                    placeholder="Search Merchant" />
+                            </div>
                         </div>
-                        <div class="d-flex align-items-center position-relative my-1 mx-4">
-                            <select name="channel" data-placeholder="Select a Channel..."
-                                class="w-250px form-select form-select-solid fw-bolder rounded-sm" id="channelId">
-                                <option value="">Select a Channel...</option>
-                                @foreach ($banks as $item)
-                                    <option value="{{ $item->bank_id }}">{{ $item->channel }}</option>
-                                @endforeach
-                            </select>
+                        <div class="d-flex flex-column align-items-start position-relative my-1 mx-2 rounded-sm">
+                            <label for="channelId" class="fs-6 fw-bold mb-2">
+                                Filter Channel
+                                
+                            </label>
+                            <div class="mb-0 w-250px">
+                                <select name="channel" data-placeholder="Select a Channel..."
+                                    class="w-250px form-select form-select-solid fw-bolder rounded-sm" id="channelId">
+                                    <option value="">Select a Channel...</option>
+                                    @foreach ($banks as $item)
+                                        <option value="{{ $item->bank_id }}">{{ $item->channel }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
+
 
                     </div>
                     <!--end::Search-->
@@ -144,33 +164,34 @@
                 <!--end::Search-->
 
                 <!--begin::Toolbar-->
-                <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
-                    <!--begin::Filter-->
-                    <button id="resrefreshButton" class="btn btn-sm btn-light-primary w-100 me-3 rounded-sm">Refresh
-                        Table</button>
-                    @if (auth()->user()->hasAnyPermission(['download-disburslist']))
-                        {{-- <a href="{{ url($downloadUrl) }} " class="btn btn-light-warning me-3 rounded-sm">Download</a> --}}
-                        <a href="#" class="btn btn-sm btn-light-warning me-3 rounded-sm" data-bs-toggle="modal"
-                            data-bs-target="#kt_modal_download">Download</a>
-                    @endif
-                    @if (
-                        $checkapprove > 0 &&
-                            auth()->user()->hasAnyPermission(['approve-disburslist']))
-                        <button id="approveAll" class="btn btn-sm btn-success me-3 rounded-sm">
-                            Approve All
-                        </button>
-                    @endif
-                    <button class="btn btn-primary rounded-sm me-3" id="bulking" style="display: none">
-                        Bulk Approve
-                    </button>
-                    <button class="btn btn-danger rounded-sm" id="canceling" style="display: none">
-                        Bulk Cancel
-                    </button>
 
-                    <!--end::Filter-->
-                </div>
                 <!--end::Toolbar-->
 
+            </div>
+            <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
+                <!--begin::Filter-->
+                <button id="resrefreshButton" class="btn btn-sm btn-light-primary me-3 rounded-sm">Refresh
+                    Table</button>
+                @if (auth()->user()->hasAnyPermission(['download-disburslist']))
+                    {{-- <a href="{{ url($downloadUrl) }} " class="btn btn-light-warning me-3 rounded-sm">Download</a> --}}
+                    <a href="#" class="btn btn-sm btn-light-warning me-3 rounded-sm" data-bs-toggle="modal"
+                        data-bs-target="#kt_modal_download">Download</a>
+                @endif
+                @if (
+                    $checkapprove > 0 &&
+                        auth()->user()->hasAnyPermission(['approve-disburslist']))
+                    <button id="approveAll" class="btn btn-sm btn-success me-3 rounded-sm">
+                        Approve All
+                    </button>
+                @endif
+                <button class="btn btn-primary rounded-sm me-3" id="bulking" style="display: none">
+                    Bulk Approve
+                </button>
+                <button class="btn btn-danger rounded-sm" id="canceling" style="display: none">
+                    Bulk Cancel
+                </button>
+
+                <!--end::Filter-->
             </div>
             <!--end::Wrapper-->
 
